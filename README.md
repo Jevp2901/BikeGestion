@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" href="style.css">
-    <title>Crear nuevo usuario</title>
+    <title>Registrar nuevo usuario</title>
     
 </head>
 <body>
