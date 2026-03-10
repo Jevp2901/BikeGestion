@@ -1,4 +1,4 @@
-/*Colores del del fondo o body*/
+/*Colores del fondo o body*/
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: aliceblue;
@@ -119,6 +119,7 @@ input::placeholder {
     margin-top: 1.5rem;
     font-size: 0.8rem;
 }
+
 
 
 
