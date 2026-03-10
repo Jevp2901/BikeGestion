@@ -1,0 +1,126 @@
+/*Colores del del fondo o body*/
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: aliceblue;
+    margin: 0;
+    height: 100vh;
+    /* Degradado lineal de negro a gris oscuro*/
+    background: linear-gradient(to right, rgb(0, 0, 0), #252525);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Colores de la pagina
+    amarillo: (242, 236, 0)
+    blanco: (255, 255, 255)
+    negro: (0, 0, 0)
+*/
+/*Formulario de registro*/
+.Registro_usuario {
+    background: #3f3f3f;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(255, 238, 0, 0.5);
+    width: 450px;
+}
+
+/*Estilos del los titulos del formulario*/
+.crear_usuario{
+    margin: 1.5rem;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.crear_usuario span{ /* Estilo para el h1 GESTION */
+    color:rgb(242, 326, 0);
+
+}
+/*Estilos de los campos del formulario*/
+.Registro_usuario input {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: rgb(242, 326, 0);
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+}
+
+/* Estilos de labels*/
+.Registro_usuario label {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: rgb(242, 326, 0);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+ 
+}
+/* Estilos de los input */
+input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    background-color: #2a2a2a;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: var(--blanco);
+    font-size: 1rem;
+    transition: all 0.3s ease;        
+}
+/* Estilos para los placeholder de los input*/
+::placeholder { /* Textos que estan dentro de los input*/
+    color: #979797; 
+    opacity: 5; 
+}
+input:focus {
+    outline: none;
+    border-color: var(--amarillo-bike);
+    background-color: #333;
+    box-shadow: 0 0 10px rgb(242, 326, 0);
+}
+
+input::placeholder {
+    outline: none;
+    border-color: var(--amarillo-bike);
+    background-color: #333;
+    box-shadow: 0 0 10px rgba(238, 242, 0, 0.2);
+}
+    
+/* Estilos del buton*/
+.guardar {
+    width: 100%;
+    padding: 15px;
+    background-color: rgb(242, 326, 0);
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+.guardar:hover {
+    background-color: aliceblue;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(238, 242, 0, 0.3);
+}
+.guardar:active {
+    transform: translateY(0);
+}
+/* Estilos para el texto debajo del boton*/
+.info {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+}
+
+
+
+
+
