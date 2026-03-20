@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BikeGestion | Domina cada Kilómetro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "tertiary-dim": "#504f4f",
+                "inverse-primary": "#fde01a",
+                "secondary": "#5c5b5b",
+                "on-primary-fixed-variant": "#675a00",
+                "secondary-container": "#e5e2e1",
+                "error-dim": "#b92902",
+                "primary-container": "#fde01a",
+                "error-container": "#f95630",
+                "outline-variant": "#afacac",
+                "tertiary-fixed": "#ffffff",
+                "surface-variant": "#dfdcdc",
+                "surface-tint": "#695c00",
+                "on-primary": "#fff3c0",
+                "on-secondary-container": "#525151",
+                "on-primary-fixed": "#473e00",
+                "tertiary-container": "#ffffff",
+                "on-tertiary-fixed-variant": "#6e6d6d",
+                "secondary-dim": "#504f4f",
+                "primary-dim": "#5b5000",
+                "on-surface": "#2f2e2e",
+                "surface-bright": "#f9f6f5",
+                "tertiary-fixed-dim": "#f3f0f0",
+                "secondary-fixed": "#e5e2e1",
+                "on-tertiary": "#f5f2f1",
+                "inverse-on-surface": "#9e9c9c",
+                "on-primary-container": "#5c5000",
+                "secondary-fixed-dim": "#d7d4d3",
+                "outline": "#787676",
+                "on-secondary-fixed-variant": "#5c5b5b",
+                "surface-dim": "#d6d4d3",
+                "on-surface-variant": "#5c5b5b",
+                "on-error-container": "#520c00",
+                "on-error": "#ffefec",
+                "on-secondary": "#f5f2f1",
+                "on-background": "#2f2e2e",
+                "inverse-surface": "#0e0e0e",
+                "background": "#f9f6f5",
+                "surface": "#f9f6f5",
+                "on-secondary-fixed": "#403f3f",
+                "surface-container-high": "#e5e2e1",
+                "surface-container": "#eae7e7",
+                "on-tertiary-fixed": "#505050",
+                "primary-fixed-dim": "#eed200",
+                "primary": "#695c00",
+                "tertiary": "#5c5b5b",
+                "error": "#b02500",
+                "surface-container-highest": "#dfdcdc",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed": "#fde01a",
+                "surface-container-low": "#f3f0ef",
+                "on-tertiary-container": "#636262"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .text-shadow-kinetic {
+            text-shadow: 0 0 30px rgba(253, 224, 26, 0.2);
+        }
+        .glass-panel {
+            background: rgba(14, 14, 14, 0.8);
+            backdrop-filter: blur(12px);
+        }
+      </style>
+</head>
+<body class="bg-inverse-surface font-body text-surface-bright selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 no-border bg-neutral-900/50 backdrop-blur-xl shadow-2xl shadow-yellow-400/5">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black italic text-yellow-400 tracking-tighter font-headline">
+                BikeGestion
+            </div>
+<div class="hidden md:flex items-center gap-10 font-headline font-bold uppercase tracking-tight">
+<a class="text-yellow-400 border-b-2 border-yellow-400 pb-1" href="#">Home</a>
+<a class="text-neutral-400 hover:text-white transition-colors" href="#">Register</a>
+<a class="text-neutral-400 hover:text-white transition-colors" href="#">Contact</a>
+</div>
+<button class="bg-primary-container text-on-primary-fixed font-headline font-bold uppercase tracking-tight px-6 py-2 rounded transition-all duration-300 hover:bg-yellow-300 active:scale-95">
+                Get Started
+            </button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+<div class="absolute inset-0 z-0 opacity-40">
+<div class="absolute inset-0 bg-gradient-to-r from-inverse-surface via-transparent to-transparent z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Professional bicycle workshop with high-end tools and bikes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlaaALo64h3yOCTW8eQUsCuKw1shkmxdh_bxZrXcHtZ9OTJwjmwyIpO-pxpkI3R-mWSltyg-cR4Pl-QOx_b6R1Cqz6DKtlwWLlVSZfRPNS7xCc2f5Tobcy4VpZ7lirt_nMFQa9WbZVqNjPUr1PgUTI0oPEvE38eaCLWZDKABH5PU5yf1W_TohSKGOt8gT01B1BeUp8HI7Z3VdklFwcarnp_IiDPJ9t--DGA77K2lA3PBHKdV6f71ubQS5zxzjltcMqqR5FfhfGVZQ"/>
+</div>
+<div class="relative z-10 max-w-screen-2xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 bg-primary-container/10 border border-primary-container/20 px-4 py-1 rounded-full">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="text-primary-container font-headline font-bold text-xs uppercase tracking-widest">NUEVA VERSIÓN 4.0</span>
+</div>
+<h1 class="text-6xl md:text-8xl font-headline font-black text-white leading-[0.9] tracking-tighter uppercase italic">
+                    Domina cada <span class="text-primary-container text-shadow-kinetic italic">Kilómetro</span> de tu Negocio
+                </h1>
+<p class="text-xl text-outline-variant max-w-lg font-light leading-relaxed">
+                    La gestión integral que impulsa tu pasión. Optimiza inventarios, mecaniza el taller y acelera tus ventas con el software líder para ciclistas.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-primary-container text-on-primary-fixed px-10 py-5 rounded font-headline font-black text-lg uppercase tracking-wider hover:bg-yellow-300 transition-all transform hover:-translate-y-1">
+                        Comenzar Gratis
+                    </button>
+<button class="border-2 border-outline/30 text-white px-10 py-5 rounded font-headline font-bold text-lg uppercase tracking-wider hover:bg-white/5 transition-all">
+                        Ver Demo
+                    </button>
+</div>
+</div>
+<!-- Bento Preview Visual -->
+<div class="hidden lg:grid grid-cols-6 grid-rows-6 gap-4 h-[600px]">
+<div class="col-span-4 row-span-4 bg-surface-container-lowest/5 backdrop-blur-md rounded-xl border border-white/10 p-6 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary-container text-4xl" data-weight="fill">analytics</span>
+<div class="text-right">
+<div class="text-xs text-outline-variant font-bold uppercase">Revenue Mensual</div>
+<div class="text-3xl font-headline font-black text-white">€42,850</div>
+</div>
+</div>
+<div class="h-24 w-full flex items-end gap-1">
+<div class="bg-primary-container/20 w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-primary-container/20 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-primary-container/20 w-full h-[45%] rounded-t-sm"></div>
+<div class="bg-primary-container/20 w-full h-[80%] rounded-t-sm"></div>
+<div class="bg-primary-container w-full h-[100%] rounded-t-sm"></div>
+</div>
+</div>
+<div class="col-span-2 row-span-3 bg-primary-container rounded-xl p-6 flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-on-primary-fixed text-4xl mb-2" data-weight="fill">speed</span>
+<div class="text-on-primary-fixed font-headline font-black text-4xl">+40%</div>
+<div class="text-on-primary-fixed/80 text-[10px] font-bold uppercase leading-tight">Efficiency Boost</div>
+</div>
+<div class="col-span-2 row-span-3 bg-neutral-800/50 rounded-xl p-4 flex flex-col justify-end">
+<div class="text-primary-container font-headline font-black text-2xl">24/7</div>
+<div class="text-white/60 text-[10px] font-bold uppercase">Soporte Local</div>
+</div>
+<div class="col-span-4 row-span-2 bg-neutral-900 border border-white/5 rounded-xl p-6 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">pedal_bike</span>
+</div>
+<div>
+<div class="text-white font-bold text-sm uppercase">Stock de Cuadros Carbono</div>
+<div class="text-outline-variant text-xs">Actualizado hace 2 min</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Stats Section -->
+<section class="bg-neutral-950 py-20 border-y border-white/5">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+<div class="space-y-2">
+<div class="text-5xl md:text-6xl font-headline font-black text-primary-container tracking-tighter">+500</div>
+<div class="text-outline-variant font-headline font-bold uppercase tracking-widest text-sm italic">Tiendas Activas</div>
+</div>
+<div class="space-y-2">
+<div class="text-5xl md:text-6xl font-headline font-black text-primary-container tracking-tighter">10k</div>
+<div class="text-outline-variant font-headline font-bold uppercase tracking-widest text-sm italic">Reparaciones Gestionadas</div>
+</div>
+<div class="space-y-2">
+<div class="text-5xl md:text-6xl font-headline font-black text-primary-container tracking-tighter">24/7</div>
+<div class="text-outline-variant font-headline font-bold uppercase tracking-widest text-sm italic">Soporte Técnico</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="py-32 px-8 max-w-screen-2xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+<div class="max-w-2xl">
+<span class="text-primary-container font-headline font-bold tracking-widest uppercase text-xs">Funcionalidades</span>
+<h2 class="text-5xl md:text-7xl font-headline font-black text-white uppercase italic leading-tight mt-4">
+                    Diseñado para la <span class="text-primary-container">Velocidad</span>
+</h2>
+</div>
+<p class="text-outline-variant max-w-sm pb-2">
+                Herramientas técnicas construidas con precisión para satisfacer las demandas de los talleres mecánicos más exigentes del mundo.
+            </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="group bg-neutral-900 p-10 rounded-xl hover:bg-neutral-800 transition-all duration-500 flex flex-col h-full border border-white/5">
+<div class="mb-10 w-16 h-16 rounded-lg bg-primary-container/10 flex items-center justify-center group-hover:bg-primary-container transition-colors duration-500">
+<span class="material-symbols-outlined text-primary-container group-hover:text-on-primary-fixed text-4xl" data-weight="fill">inventory_2</span>
+</div>
+<h3 class="text-2xl font-headline font-black text-white uppercase italic mb-4">Control de Inventario</h3>
+<p class="text-outline-variant flex-grow leading-relaxed">
+                    Sincronización total de stock entre tienda física y online. Alertas inteligentes de reposición basadas en demanda histórica.
+                </p>
+<a class="mt-8 inline-flex items-center gap-2 text-primary-container font-headline font-bold uppercase tracking-widest text-xs group-hover:translate-x-2 transition-transform" href="#">
+                    Saber Más <span class="material-symbols-outlined">trending_flat</span>
+</a>
+</div>
+<!-- Feature 2 -->
+<div class="group bg-neutral-900 p-10 rounded-xl hover:bg-neutral-800 transition-all duration-500 flex flex-col h-full border border-white/5">
+<div class="mb-10 w-16 h-16 rounded-lg bg-primary-container/10 flex items-center justify-center group-hover:bg-primary-container transition-colors duration-500">
+<span class="material-symbols-outlined text-primary-container group-hover:text-on-primary-fixed text-4xl" data-weight="fill">build</span>
+</div>
+<h3 class="text-2xl font-headline font-black text-white uppercase italic mb-4">Gestión de Taller</h3>
+<p class="text-outline-variant flex-grow leading-relaxed">
+                    Planificación visual de reparaciones, asignación de mecánicos y comunicación automatizada con el cliente vía WhatsApp.
+                </p>
+<a class="mt-8 inline-flex items-center gap-2 text-primary-container font-headline font-bold uppercase tracking-widest text-xs group-hover:translate-x-2 transition-transform" href="#">
+                    Saber Más <span class="material-symbols-outlined">trending_flat</span>
+</a>
+</div>
+<!-- Feature 3 -->
+<div class="group bg-neutral-900 p-10 rounded-xl hover:bg-neutral-800 transition-all duration-500 flex flex-col h-full border border-white/5">
+<div class="mb-10 w-16 h-16 rounded-lg bg-primary-container/10 flex items-center justify-center group-hover:bg-primary-container transition-colors duration-500">
+<span class="material-symbols-outlined text-primary-container group-hover:text-on-primary-fixed text-4xl" data-weight="fill">point_of_sale</span>
+</div>
+<h3 class="text-2xl font-headline font-black text-white uppercase italic mb-4">Punto de Venta (POS)</h3>
+<p class="text-outline-variant flex-grow leading-relaxed">
+                    Ventas ágiles, programas de fidelización integrados y facturación electrónica instantánea adaptada a normativas locales.
+                </p>
+<a class="mt-8 inline-flex items-center gap-2 text-primary-container font-headline font-bold uppercase tracking-widest text-xs group-hover:translate-x-2 transition-transform" href="#">
+                    Saber Más <span class="material-symbols-outlined">trending_flat</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Testimonial Section -->
+<section class="relative py-32 overflow-hidden">
+<div class="absolute inset-0 bg-neutral-950 opacity-50"></div>
+<div class="max-w-screen-xl mx-auto px-8 relative z-10">
+<div class="bg-neutral-900 rounded-3xl overflow-hidden border border-white/5 grid grid-cols-1 lg:grid-cols-2">
+<div class="relative h-[400px] lg:h-auto">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" data-alt="Happy bicycle shop owner in his workshop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJMkmgI2PECMbAj6fyWulSJdCuREhbfcYnFM1iV5tBplyia9OsptWAGUXKk1ZBOQ8xR_HccAhsr0u2Ow_m8YT1YEr6PjAteh0GiR3vmjDWezu9_k_EpZ1Nokn7Dyt5XXrmuZUyvUbgwO4OPDMt0Tg8tHgDBikmpXrKvhQ1Li61mvX_bjq_n7oYEeDMP5glomQrPnbl-qUuV1Rm1jKi0b1QgkyjEAri3WHtvaaF11s_XCnEqKmpMsk9OZeHELjbr_FH_rIaVwEjkKE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-neutral-900 to-transparent"></div>
+</div>
+<div class="p-12 md:p-20 flex flex-col justify-center">
+<span class="material-symbols-outlined text-primary-container text-6xl mb-8" data-weight="fill">format_quote</span>
+<blockquote class="text-2xl md:text-3xl font-headline font-medium text-white italic leading-relaxed mb-8">
+                        "Desde que implementamos <span class="text-primary-container">BikeGestion</span>, hemos reducido el tiempo administrativo del taller en un <span class="bg-primary-container text-on-primary-fixed px-2 not-italic font-black">40%</span>. Ahora mi equipo puede enfocarse en lo que mejor sabe hacer: reparar bicicletas."
+                    </blockquote>
+<div class="flex items-center gap-4">
+<div class="w-12 h-[2px] bg-primary-container"></div>
+<div>
+<div class="text-white font-headline font-black uppercase text-lg">Carlos Méndez</div>
+<div class="text-outline-variant text-sm font-bold uppercase tracking-widest">Fundador, The Peloton Studio</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-neutral-950 w-full border-t border-neutral-800/50">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-12 gap-8 max-w-screen-2xl mx-auto">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="text-lg font-bold text-neutral-100 font-headline uppercase italic tracking-tighter">
+                    BikeGestion
+                </div>
+<div class="text-neutral-500 font-body text-sm font-medium">
+                    © 2024 BikeGestion. Engineered for Velocity.
+                </div>
+</div>
+<div class="flex flex-wrap justify-center gap-8 font-body text-sm font-medium">
+<a class="text-neutral-500 hover:text-yellow-400 transition-colors" href="#">Privacy Policy</a>
+<a class="text-neutral-500 hover:text-yellow-400 transition-colors" href="#">Terms of Service</a>
+<a class="text-neutral-500 hover:text-yellow-400 transition-colors" href="#">Support</a>
+<a class="text-neutral-500 hover:text-yellow-400 transition-colors" href="#">Documentation</a>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center text-neutral-500 hover:text-primary-container hover:bg-neutral-800 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center text-neutral-500 hover:text-primary-container hover:bg-neutral-800 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">mail</span>
+</a>
+</div>
+</div>
+</footer>
+</body></html>
