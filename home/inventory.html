@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inventory &amp; Articles</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#e5e2e1",
+              "on-error-container": "#ffdad6",
+              "error": "#ffb4ab",
+              "on-tertiary-fixed": "#002021",
+              "surface-bright": "#3a3939",
+              "primary-fixed": "#ffe32f",
+              "primary-fixed-dim": "#e1c700",
+              "on-primary": "#383000",
+              "on-primary-fixed": "#211c00",
+              "on-secondary-fixed-variant": "#474746",
+              "on-background": "#e5e2e1",
+              "inverse-primary": "#6c5e00",
+              "tertiary-container": "#31f7ff",
+              "on-tertiary": "#003739",
+              "on-surface-variant": "#cec6ab",
+              "surface-container-lowest": "#0e0e0e",
+              "surface-variant": "#353534",
+              "secondary-fixed-dim": "#c8c6c5",
+              "error-container": "#93000a",
+              "on-secondary-container": "#b6b5b4",
+              "surface-container-highest": "#353534",
+              "surface-container": "#201f1f",
+              "tertiary-fixed-dim": "#00dce3",
+              "secondary-container": "#474746",
+              "on-surface": "#e5e2e1",
+              "surface-container-high": "#2a2a2a",
+              "surface-tint": "#e1c700",
+              "outline-variant": "#4b4732",
+              "surface-container-low": "#1c1b1b",
+              "on-primary-fixed-variant": "#514700",
+              "primary-container": "#fde01a",
+              "surface": "#131313",
+              "secondary": "#c8c6c5",
+              "outline": "#979178",
+              "tertiary": "#f3ffff",
+              "on-tertiary-container": "#006e72",
+              "on-secondary-fixed": "#1b1c1c",
+              "on-tertiary-fixed-variant": "#004f52",
+              "surface-dim": "#131313",
+              "on-primary-container": "#716300",
+              "primary": "#fffbff",
+              "tertiary-fixed": "#58f8ff",
+              "on-error": "#690005",
+              "background": "#131313",
+              "inverse-on-surface": "#313030",
+              "secondary-fixed": "#e4e2e1",
+              "on-secondary": "#303030"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .headline-kinetic {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+        .ghost-border {
+            outline: 1px solid rgba(151, 145, 120, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Shell -->
+<aside class="flex flex-col h-full py-6 fixed left-0 top-0 bottom-0 w-64 border-r border-[#353534]/15 bg-[#131313] z-50">
+<div class="px-6 mb-10">
+<h1 class="italic font-bold text-[#fde01a] tracking-tighter text-2xl">Velocity &amp; Precision</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-extrabold mt-1">Management Pro</p>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center px-3 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center px-3 py-3 text-[#fde01a] border-r-2 border-[#fde01a] bg-gradient-to-r from-[#fde01a]/10 to-transparent transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">inventory_2</span>
+<span class="text-sm font-bold">Inventory</span>
+</a>
+<a class="flex items-center px-3 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">receipt_long</span>
+<span class="text-sm font-medium">Sales/Quotes</span>
+</a>
+<a class="flex items-center px-3 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">shopping_cart</span>
+<span class="text-sm font-medium">Purchases</span>
+</a>
+<a class="flex items-center px-3 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">group</span>
+<span class="text-sm font-medium">Customers/Users</span>
+</a>
+<a class="flex items-center px-3 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">badge</span>
+<span class="text-sm font-medium">Employees</span>
+</a>
+<a class="flex items-center px-3 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group rounded-sm" href="#">
+<span class="material-symbols-outlined mr-3">assessment</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-primary-container text-on-primary font-extrabold py-3 rounded-md flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-[0px_8px_32px_rgba(253,224,26,0.1)]">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span class="text-xs uppercase tracking-tight">New Sale</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 left-64 z-40 flex justify-between items-center px-8 h-16 bg-[#131313]/80 backdrop-blur-xl border-b border-[#353534]/15">
+<div class="flex items-center gap-6">
+<div class="text-xl italic font-black text-[#fde01a]">BikeGestion</div>
+<div class="h-4 w-[1px] bg-outline-variant/30"></div>
+<div class="text-sm font-bold text-[#fde01a]">Cali Main Shop</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#e5e2e1] hover:text-[#fde01a] transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-[#e5e2e1] hover:text-[#fde01a] transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary-container/20">
+<img class="w-full h-full object-cover" data-alt="Store Manager Profile Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUr4cLBiDFrTpl3K-K7ZG0LjwHrr3Z1QEmZr9wsyA8ae1KAHNSAd95xarN9yBaT_EWs-jJtebviDE8-cHndG75Q78s3zmZ2T4nUbnileu-AbHrssS0OOzs7AVmLhSHaBganBBp5-f3Sb7brk59hrQQA01AkR97CDY-QDTP_3YG4cRnbnFSIWCPlFEjvRqsu4InxrBSmp1lZt0YoZRlHzwBZLFNbrNWXZe_F1evE4pHS7sB-NuY3JMIOyyfGZyfbqw-Qhv3J8bpL0Q"/>
+</div>
+</div>
+</header>
+<div class="pt-24 px-8 pb-12 grid grid-cols-12 gap-8">
+<!-- Inventory Header & Table Section -->
+<div class="col-span-12 lg:col-span-9 space-y-8">
+<!-- Action Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+<div>
+<h2 class="headline-kinetic text-4xl text-on-background uppercase">Inventory &amp; Stock Management</h2>
+<p class="text-on-surface-variant font-medium mt-1">Live telemetry for your parts and bicycles ecosystem.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-highest/40 backdrop-blur-sm border border-outline-variant/15 text-on-surface font-bold text-xs uppercase tracking-wider rounded-sm hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined text-sm">publish</span>
+                            Import CSV
+                        </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-highest/40 backdrop-blur-sm border border-outline-variant/15 text-on-surface font-bold text-xs uppercase tracking-wider rounded-sm hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined text-sm">print</span>
+                            Print Labels
+                        </button>
+<button class="flex items-center gap-2 px-5 py-2 bg-primary-container text-on-primary font-black text-xs uppercase tracking-widest rounded-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary-container/5">
+<span class="material-symbols-outlined text-sm">add</span>
+                            New Article
+                        </button>
+</div>
+</div>
+<!-- Filters & Search -->
+<div class="flex flex-col md:flex-row gap-4 bg-surface-container-low p-4 rounded-xl ghost-border">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary-container text-sm py-2.5 pl-10 rounded-lg text-on-surface placeholder:text-on-surface-variant/50 transition-all" placeholder="Search articles by name, code or category..." type="text"/>
+</div>
+<div class="flex gap-2 overflow-x-auto pb-1 md:pb-0">
+<button class="px-4 py-2 bg-primary-container/10 border border-primary-container text-primary-container text-xs font-bold rounded-lg whitespace-nowrap">All Items</button>
+<button class="px-4 py-2 bg-surface-container-highest/50 border border-outline-variant/15 text-on-surface-variant text-xs font-bold rounded-lg hover:border-primary-container/40 transition-all whitespace-nowrap">Repuestos</button>
+<button class="px-4 py-2 bg-surface-container-highest/50 border border-outline-variant/15 text-on-surface-variant text-xs font-bold rounded-lg hover:border-primary-container/40 transition-all whitespace-nowrap">Accesorios</button>
+<button class="px-4 py-2 bg-surface-container-highest/50 border border-outline-variant/15 text-on-surface-variant text-xs font-bold rounded-lg hover:border-primary-container/40 transition-all whitespace-nowrap">Bicicletas</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container rounded-lg overflow-hidden ghost-border">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high">
+<th class="headline-kinetic p-4 text-xs uppercase tracking-widest text-on-surface-variant">Code</th>
+<th class="headline-kinetic p-4 text-xs uppercase tracking-widest text-on-surface-variant">Name</th>
+<th class="headline-kinetic p-4 text-xs uppercase tracking-widest text-on-surface-variant">Category</th>
+<th class="headline-kinetic p-4 text-xs uppercase tracking-widest text-on-surface-variant text-right">Stock</th>
+<th class="headline-kinetic p-4 text-xs uppercase tracking-widest text-on-surface-variant text-right">Unit Price</th>
+<th class="headline-kinetic p-4 text-xs uppercase tracking-widest text-on-surface-variant">Status</th>
+<th class="p-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="bg-surface-container-low hover:bg-surface-container-highest/30 transition-colors">
+<td class="p-4 text-xs font-mono text-on-surface-variant">BK-90210</td>
+<td class="p-4">
+<div class="font-bold text-on-surface">Specialized Turbo Vado 4.0</div>
+<div class="text-[10px] text-on-surface-variant/60 uppercase font-black">Frame: Aluminum • Size: L</div>
+</td>
+<td class="p-4"><span class="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-extrabold uppercase text-on-surface-variant">Bicicletas</span></td>
+<td class="p-4 text-right font-bold text-on-surface">12</td>
+<td class="p-4 text-right font-bold text-on-surface">$3,450.00</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed shadow-[0_0_8px_rgba(88,248,255,0.4)]"></span>
+<span class="text-[10px] font-black uppercase text-tertiary-fixed">In Stock</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-lowest hover:bg-surface-container-highest/30 transition-colors">
+<td class="p-4 text-xs font-mono text-on-surface-variant">RP-44521</td>
+<td class="p-4">
+<div class="font-bold text-on-surface">Shimano Ultegra Chain</div>
+<div class="text-[10px] text-on-surface-variant/60 uppercase font-black">11-Speed • HG701</div>
+</td>
+<td class="p-4"><span class="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-extrabold uppercase text-on-surface-variant">Repuestos</span></td>
+<td class="p-4 text-right font-bold text-error">4</td>
+<td class="p-4 text-right font-bold text-on-surface">$45.00</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="text-[10px] font-black uppercase text-error">Low Stock</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-surface-container-low hover:bg-surface-container-highest/30 transition-colors">
+<td class="p-4 text-xs font-mono text-on-surface-variant">AC-11204</td>
+<td class="p-4">
+<div class="font-bold text-on-surface">Giro Aether MIPS Helmet</div>
+<div class="text-[10px] text-on-surface-variant/60 uppercase font-black">Matte Black • Large</div>
+</td>
+<td class="p-4"><span class="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-extrabold uppercase text-on-surface-variant">Accesorios</span></td>
+<td class="p-4 text-right font-bold text-on-surface">48</td>
+<td class="p-4 text-right font-bold text-on-surface">$280.00</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed"></span>
+<span class="text-[10px] font-black uppercase text-tertiary-fixed">In Stock</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-lowest hover:bg-surface-container-highest/30 transition-colors">
+<td class="p-4 text-xs font-mono text-on-surface-variant">RP-99812</td>
+<td class="p-4">
+<div class="font-bold text-on-surface">Continental GP5000 S TR</div>
+<div class="text-[10px] text-on-surface-variant/60 uppercase font-black">700x28c • Black</div>
+</td>
+<td class="p-4"><span class="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-extrabold uppercase text-on-surface-variant">Repuestos</span></td>
+<td class="p-4 text-right font-bold text-on-surface-variant/40">0</td>
+<td class="p-4 text-right font-bold text-on-surface">$95.00</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+<span class="text-[10px] font-black uppercase text-on-surface-variant/60">Out of Stock</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="bg-surface-container-low hover:bg-surface-container-highest/30 transition-colors">
+<td class="p-4 text-xs font-mono text-on-surface-variant">BK-77212</td>
+<td class="p-4">
+<div class="font-bold text-on-surface">Trek Emonda SL 6</div>
+<div class="text-[10px] text-on-surface-variant/60 uppercase font-black">Crimson • 56cm</div>
+</td>
+<td class="p-4"><span class="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-extrabold uppercase text-on-surface-variant">Bicicletas</span></td>
+<td class="p-4 text-right font-bold text-on-surface">3</td>
+<td class="p-4 text-right font-bold text-on-surface">$4,200.00</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed"></span>
+<span class="text-[10px] font-black uppercase text-tertiary-fixed">In Stock</span>
+</div>
+</td>
+<td class="p-4 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-all">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-4 flex justify-between items-center bg-surface-container-high/50 border-t border-outline-variant/10">
+<span class="text-xs text-on-surface-variant">Showing 1 to 5 of 124 articles</span>
+<div class="flex gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/10 hover:bg-primary-container/10 text-on-surface transition-all">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary-container text-on-primary font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/10 hover:bg-primary-container/10 text-on-surface transition-all text-xs">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/10 hover:bg-primary-container/10 text-on-surface transition-all">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Panel: Stock Alerts -->
+<div class="col-span-12 lg:col-span-3 space-y-6">
+<div class="bg-surface-container-high p-6 rounded-xl ghost-border relative overflow-hidden">
+<!-- High Performance Decor -->
+<div class="absolute -top-4 -right-4 w-24 h-24 bg-primary-container/5 rounded-full blur-3xl"></div>
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">warning</span>
+<h3 class="headline-kinetic text-xl uppercase text-on-surface">Stock Alerts</h3>
+</div>
+<div class="space-y-4">
+<!-- Alert Item -->
+<div class="p-4 bg-surface-container-lowest rounded-lg border-l-2 border-error">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] uppercase font-black text-on-surface-variant">Critical Level</span>
+<span class="text-[10px] font-mono text-error">Only 2 left</span>
+</div>
+<h4 class="text-sm font-bold text-on-surface">SRAM AXS Battery</h4>
+<p class="text-[11px] text-on-surface-variant mt-1">Reorder required to fulfill pending workshop orders.</p>
+<button class="mt-4 w-full py-2 bg-error/10 hover:bg-error/20 text-error text-[10px] font-black uppercase tracking-widest rounded transition-all">Restock Now</button>
+</div>
+<!-- Alert Item -->
+<div class="p-4 bg-surface-container-lowest rounded-lg border-l-2 border-primary-container">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] uppercase font-black text-on-surface-variant">Trend Warning</span>
+<span class="text-[10px] font-mono text-primary-container">4 units</span>
+</div>
+<h4 class="text-sm font-bold text-on-surface">Shimano Ultegra Chain</h4>
+<p class="text-[11px] text-on-surface-variant mt-1">Sales velocity increased by 40% this week.</p>
+<button class="mt-4 w-full py-2 bg-primary-container/10 hover:bg-primary-container/20 text-primary-container text-[10px] font-black uppercase tracking-widest rounded transition-all">Add to Cart</button>
+</div>
+<!-- Alert Item -->
+<div class="p-4 bg-surface-container-lowest rounded-lg border-l-2 border-error">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] uppercase font-black text-on-surface-variant">Out of Stock</span>
+<span class="text-[10px] font-mono text-error">0 units</span>
+</div>
+<h4 class="text-sm font-bold text-on-surface">Continental GP5000</h4>
+<p class="text-[11px] text-on-surface-variant mt-1">3 backorders awaiting this item.</p>
+<button class="mt-4 w-full py-2 bg-error/10 hover:bg-error/20 text-error text-[10px] font-black uppercase tracking-widest rounded transition-all">Emergency Purchase</button>
+</div>
+</div>
+<!-- Telemetry Stats -->
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<h5 class="text-[10px] uppercase font-black tracking-widest text-on-surface-variant/50 mb-4">Inventory Telemetry</h5>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-surface-container rounded-lg">
+<div class="text-[10px] font-bold text-on-surface-variant uppercase">Turnover</div>
+<div class="text-xl headline-kinetic text-[#fde01a]">14.2%</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg">
+<div class="text-[10px] font-bold text-on-surface-variant uppercase">Value</div>
+<div class="text-xl headline-kinetic text-[#fde01a]">$142k</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Insight Card -->
+<div class="bg-gradient-to-br from-primary-container to-[#e1c700] p-6 rounded-xl shadow-lg shadow-primary-container/10">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-on-primary rounded-lg">
+<span class="material-symbols-outlined text-primary-container">bolt</span>
+</div>
+<span class="text-xs font-black uppercase tracking-tighter text-on-primary">Inventory Efficiency</span>
+</div>
+<p class="text-on-primary font-bold text-sm leading-tight">Your stock turnover is 12% faster than last month. Good job on the spare parts management.</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

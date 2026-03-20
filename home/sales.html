@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sales &amp; Quotes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#e5e2e1",
+              "on-error-container": "#ffdad6",
+              "error": "#ffb4ab",
+              "on-tertiary-fixed": "#002021",
+              "surface-bright": "#3a3939",
+              "primary-fixed": "#ffe32f",
+              "primary-fixed-dim": "#e1c700",
+              "on-primary": "#383000",
+              "on-primary-fixed": "#211c00",
+              "on-secondary-fixed-variant": "#474746",
+              "on-background": "#e5e2e1",
+              "inverse-primary": "#6c5e00",
+              "tertiary-container": "#31f7ff",
+              "on-tertiary": "#003739",
+              "on-surface-variant": "#cec6ab",
+              "surface-container-lowest": "#0e0e0e",
+              "surface-variant": "#353534",
+              "secondary-fixed-dim": "#c8c6c5",
+              "error-container": "#93000a",
+              "on-secondary-container": "#b6b5b4",
+              "surface-container-highest": "#353534",
+              "surface-container": "#201f1f",
+              "tertiary-fixed-dim": "#00dce3",
+              "secondary-container": "#474746",
+              "on-surface": "#e5e2e1",
+              "surface-container-high": "#2a2a2a",
+              "surface-tint": "#e1c700",
+              "outline-variant": "#4b4732",
+              "surface-container-low": "#1c1b1b",
+              "on-primary-fixed-variant": "#514700",
+              "primary-container": "#fde01a",
+              "surface": "#131313",
+              "secondary": "#c8c6c5",
+              "outline": "#979178",
+              "tertiary": "#f3ffff",
+              "on-tertiary-container": "#006e72",
+              "on-secondary-fixed": "#1b1c1c",
+              "on-tertiary-fixed-variant": "#004f52",
+              "surface-dim": "#131313",
+              "on-primary-container": "#716300",
+              "primary": "#fffbff",
+              "tertiary-fixed": "#58f8ff",
+              "on-error": "#690005",
+              "background": "#131313",
+              "inverse-on-surface": "#313030",
+              "secondary-fixed": "#e4e2e1",
+              "on-secondary": "#303030"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .headline-kinetic {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #131313;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar -->
+<aside class="fixed inset-y-0 left-0 z-50 w-64 bg-[#131313] border-r border-[#353534]/15 flex flex-col py-6 shadow-[0px_8px_32_px_rgba(0,0,0,0.4)]">
+<div class="px-6 mb-10">
+<h1 class="italic font-bold text-[#fde01a] tracking-tighter text-2xl">Velocity &amp; Precision</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">Management Pro</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-[#cec6ab] hover:bg-[#353534]/40 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#cec6ab] hover:bg-[#353534]/40 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-medium">Inventory</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#fde01a] border-r-2 border-[#fde01a] bg-gradient-to-r from-[#fde01a]/10 to-transparent rounded-l-lg" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-medium">Sales/Quotes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#cec6ab] hover:bg-[#353534]/40 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-medium">Purchases</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#cec6ab] hover:bg-[#353534]/40 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-medium">Customers/Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#cec6ab] hover:bg-[#353534]/40 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-medium">Employees</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#cec6ab] hover:bg-[#353534]/40 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-medium">Reports</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-primary-container text-on-primary py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+                New Sale
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 z-40 h-16 bg-[#131313]/80 backdrop-blur-xl flex justify-between items-center px-8 border-b border-[#353534]/15">
+<div class="flex items-center gap-4">
+<span class="text-xl italic font-black text-[#fde01a]">BikeGestion</span>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<span class="text-sm font-bold text-[#fde01a]">Cali Main Shop</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-[#fde01a] transition-all">notifications</span>
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-[#fde01a] rounded-full"></div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-[#fde01a] transition-all">settings</span>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface leading-none">Store Manager</p>
+<p class="text-[10px] text-on-surface-variant leading-none mt-1">Status: Online</p>
+</div>
+<img class="w-8 h-8 rounded-full border border-[#fde01a]/20" data-alt="Store Manager Profile Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpEOjg55jrUQs-QoOnl4tBry0szLS3pCxB5DcYFkC2_U1W_lQVwTyhao5Q3Q2JskqRDOrwV8Qgunu24EKUwqijNnc7BKP0oKzMlNbL6t4Wrt7cT2qHSXz2Rz8YFX6aXmqSJ7XMFD6E42AHJhnoq3S0LJDccK3eoG6moZBWN8LsQuloCOIZvhxXgjSSmgx6oQO6hHCN9z6SjwLZcp3ttRyDlLRD1bu160ggLQs38VDE4C8hKgBXmUamfB6o2gJtjrY7bk1GcrCaBxQ"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-[calc(100vh-64px)] bg-surface text-on-surface">
+<header class="mb-8">
+<h2 class="headline-kinetic text-4xl text-on-surface uppercase tracking-tighter">Point of Sale &amp; Electronic Quotes</h2>
+<p class="text-on-surface-variant mt-1 font-medium italic opacity-70">High-performance transaction terminal</p>
+</header>
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- Left Side: Product Discovery -->
+<section class="col-span-7 space-y-6">
+<!-- Search & Barcode -->
+<div class="bg-surface-container-low p-4 rounded-xl flex gap-4 items-center">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary-container pl-12 pr-4 py-3 rounded-lg text-sm placeholder:text-on-surface-variant/50" placeholder="Search by name, category or model..." type="text"/>
+</div>
+<button class="bg-surface-container-highest px-4 py-3 rounded-lg flex items-center gap-2 text-sm font-bold border border-outline-variant/15 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined">barcode_scanner</span>
+                        Scan
+                    </button>
+</div>
+<!-- Category Filters (Horizontal Scroll) -->
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+<button class="whitespace-nowrap px-6 py-2 bg-primary-container text-on-primary rounded-full text-xs font-black uppercase italic">All Gear</button>
+<button class="whitespace-nowrap px-6 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase hover:text-[#fde01a] transition-all">Road Bikes</button>
+<button class="whitespace-nowrap px-6 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase hover:text-[#fde01a] transition-all">Mountain</button>
+<button class="whitespace-nowrap px-6 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase hover:text-[#fde01a] transition-all">Components</button>
+<button class="whitespace-nowrap px-6 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase hover:text-[#fde01a] transition-all">Apparel</button>
+<button class="whitespace-nowrap px-6 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase hover:text-[#fde01a] transition-all">Nutrition</button>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-3 gap-4">
+<!-- Product Card -->
+<div class="group bg-surface-container-lowest border border-outline-variant/5 hover:border-primary-container/30 transition-all rounded-xl overflow-hidden cursor-pointer">
+<div class="relative h-40 bg-surface-container">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Aero Carbon Road Bike Frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh7BDx9wd0OKKUGIUKIptIMujvg0SNn3fXlx8fjAtNLNHAAyCl85QrcNOBKN1cPkN0DZdsnYIqMTMWQju2Ebja3gRbIdIUVjwMWWQY9ZSQwF8ELPUwJDG-vWda8seLPRtXv7Oev0xrVZlXkEjpzGqoiewtj6vyPUFyVgWBTD2Y6lnpYkogU8NtPIr5wjkE4vbdhf3YM_oadMsxAqwDgMt3R4_xOzLnKUZo7CBxX8mwMkId8sN3FUhxOJt0gHFE8d0oz8Mlz-6dgNU"/>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-primary-container uppercase">In Stock: 12</div>
+</div>
+<div class="p-4">
+<h4 class="font-bold text-sm leading-tight text-on-surface">S-Works Tarmac SL8</h4>
+<p class="text-xs text-on-surface-variant mt-1 italic">Frame Set - Carbon</p>
+<div class="flex justify-between items-center mt-3">
+<span class="font-black text-primary-container leading-none text-lg">$5,200.00</span>
+<span class="material-symbols-outlined text-primary-container">add_circle</span>
+</div>
+</div>
+</div>
+<div class="group bg-surface-container-lowest border border-outline-variant/5 hover:border-primary-container/30 transition-all rounded-xl overflow-hidden cursor-pointer">
+<div class="relative h-40 bg-surface-container">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="High End Carbon Fiber Wheels" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_fJ3rB2F_qMU5OXGnpGuP3ky1GcCvTujHIxU4xJYkniPWf1ymgfDlY1KtA_oaA8PkjeIATEumVfY5vC2sm5TWN2MXVhE6st19cLHrqcbptK3TmxEtwp9WqXan9TTjNy_B6X3hVAgAyDQfwxxOmM2ciYDPuS5slE1kudN79ejQ72W4qfeaIXm39NxKKP4OwOnf3T2hztTQQvE3flNFDBZqkNOi2I4ZBhCVJrJrrWu-wwYxOsF5fsrIO0qCJCpuelP1LsLbZm33JYU"/>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-primary-container uppercase">In Stock: 4</div>
+</div>
+<div class="p-4">
+<h4 class="font-bold text-sm leading-tight text-on-surface">Roval Rapide CLX II</h4>
+<p class="text-xs text-on-surface-variant mt-1 italic">Wheelset - Disc</p>
+<div class="flex justify-between items-center mt-3">
+<span class="font-black text-primary-container leading-none text-lg">$2,800.00</span>
+<span class="material-symbols-outlined text-primary-container">add_circle</span>
+</div>
+</div>
+</div>
+<div class="group bg-surface-container-lowest border border-outline-variant/5 hover:border-primary-container/30 transition-all rounded-xl overflow-hidden cursor-pointer">
+<div class="relative h-40 bg-surface-container">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Gravel bike adventure gear" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSxSwdOJgfIMIaUc3ThgQwL29QxgLbFo5QIsK5nd5r3Y4pJeg-MVrYiKE2ZaQ2bp4Ub_paJBi4Bl6_15BOAzpnhNEqJW53-KStCcMkdG37VL86V4pvnwhZ3wNIG79NEFHCnFmpOo6alOwHIoKu6uabImDjYca2uFOkE0tkCGXLAvaU0cPdHgZwAZFQkVXgc_kCO3P1ix1yajYnTE4t1wM65NYLFzrOJvVbAWSXbiAaN7TOGndt8ctfudNpaK1asRV_fzeDKCgFktY"/>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-primary-container uppercase">In Stock: 24</div>
+</div>
+<div class="p-4">
+<h4 class="font-bold text-sm leading-tight text-on-surface">Pro Stealth Saddle</h4>
+<p class="text-xs text-on-surface-variant mt-1 italic">Ergonomic - 142mm</p>
+<div class="flex justify-between items-center mt-3">
+<span class="font-black text-primary-container leading-none text-lg">$189.99</span>
+<span class="material-symbols-outlined text-primary-container">add_circle</span>
+</div>
+</div>
+</div>
+<div class="group bg-surface-container-lowest border border-outline-variant/5 hover:border-primary-container/30 transition-all rounded-xl overflow-hidden cursor-pointer">
+<div class="relative h-40 bg-surface-container">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Full suspension mountain bike" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD67Nokjvlv1wUaYXapE8qG1MWgIkYY8Y8SfKhMUDiW7zWsyghC8WuaeHgkzXY8UgPJsmn2s6EHpk3SlX5qK-GROyNRkz0b3Gsjti75AhSoj4F9J0ljtzihZclvsS8hk8ZQzN8zGao63roCkJv8BykcL0_yKSPAVn2mdFbz9McpQNSpre5nCthDuReA6Ceiw_Rzpek4vPJrrQVi5_UdLVQW1BDUmcvrhElm1rwu4FiXCG4DOgnGIawcd6T2-kYpwIRmiHKCMQoPpxc"/>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-primary-container uppercase">In Stock: 2</div>
+</div>
+<div class="p-4">
+<h4 class="font-bold text-sm leading-tight text-on-surface">Santa Cruz Megatower</h4>
+<p class="text-xs text-on-surface-variant mt-1 italic">Enduro - CC Carbon</p>
+<div class="flex justify-between items-center mt-3">
+<span class="font-black text-primary-container leading-none text-lg">$8,499.00</span>
+<span class="material-symbols-outlined text-primary-container">add_circle</span>
+</div>
+</div>
+</div>
+<div class="group bg-surface-container-lowest border border-outline-variant/5 hover:border-primary-container/30 transition-all rounded-xl overflow-hidden cursor-pointer">
+<div class="relative h-40 bg-surface-container">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Cycling Jersey and Apparel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzXA9d9h7Vb5xwcRH-goWYPE6GpvWXv-T659Qg-8N8GWvMU_BHjGZpOMcnyo87w1aQxmG-bWh0OKf8RgG1DyivT4Ng5E3Y7joXltMlQjYFDsn8I_pha2XxBGudBAF2NzIHDVYZOe6BCjzjp_pa5sYwBJPne3ByL7kAoIfq2BY1zrTwdUCmjsAiw54HwicnBrXVkeM2rFj1eJmDT-998vpl466l4P73ZnwfXiBrNvjnXqaoeYivTqatFKG2266XDD3ZJ_guoACpyIs"/>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-error uppercase">Low Stock: 1</div>
+</div>
+<div class="p-4">
+<h4 class="font-bold text-sm leading-tight text-on-surface">Aero Race Jersey</h4>
+<p class="text-xs text-on-surface-variant mt-1 italic">Team Edition - MD</p>
+<div class="flex justify-between items-center mt-3">
+<span class="font-black text-primary-container leading-none text-lg">$145.00</span>
+<span class="material-symbols-outlined text-primary-container">add_circle</span>
+</div>
+</div>
+</div>
+<div class="group bg-surface-container-lowest border border-outline-variant/5 hover:border-primary-container/30 transition-all rounded-xl overflow-hidden cursor-pointer">
+<div class="relative h-40 bg-surface-container">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Bicycle maintenance parts" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcyFKT8VZd0gP-8kTzyxhxRTVfFxVL6-KxKII7algCrKa0PTDmuNwB65LgTWBTNy5gntMbGkEJWNzmqFuSXMkqz4rCOtrVDvuYkmoX1UFpqusgMqH8zZrSYID8rEpTnL-lAmN7Cv9zaVIt74pHlHm5CqImXQG35_tmZRfQYC47eiHVZ1_7aIKMLwyMuvEKcVtov66RSXL4N6Y8CGrIlamwlAaGbgM25BTKoIC_UiQvxOKVy8RPOUx8JjOl1ZIT0Gnxyc761wsB-4Y"/>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-primary-container uppercase">In Stock: 50+</div>
+</div>
+<div class="p-4">
+<h4 class="font-bold text-sm leading-tight text-on-surface">Finish Line Wet Lube</h4>
+<p class="text-xs text-on-surface-variant mt-1 italic">4oz Bottle</p>
+<div class="flex justify-between items-center mt-3">
+<span class="font-black text-primary-container leading-none text-lg">$12.50</span>
+<span class="material-symbols-outlined text-primary-container">add_circle</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Side: Cart / Quote Panel -->
+<section class="col-span-5 flex flex-col gap-6 sticky top-24">
+<!-- Customer Selection -->
+<div class="bg-surface-container-high p-5 rounded-xl border-l-4 border-primary-container">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-sm font-bold uppercase tracking-wider text-primary-container italic">Customer Details</h3>
+<span class="text-[10px] bg-primary-container/10 text-primary-container px-2 py-0.5 rounded uppercase font-bold">Search Existing</span>
+</div>
+<div class="relative mb-3">
+<input class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary-container px-4 py-2 text-sm rounded-lg font-bold" type="text" value="Julian Alvarez"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary-container text-sm">person_search</span>
+</div>
+<div class="flex gap-4 text-[11px] text-on-surface-variant font-medium">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">mail</span> julian.a@velo.com</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">phone</span> +57 311 000 2211</div>
+</div>
+</div>
+<!-- Active Cart / Quote -->
+<div class="bg-surface-container-low rounded-xl flex flex-col h-[500px] overflow-hidden shadow-2xl">
+<div class="p-4 bg-surface-container-highest flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">shopping_cart</span>
+<span class="headline-kinetic text-lg">Active Cart</span>
+</div>
+<button class="text-error text-xs font-bold uppercase underline-offset-4 hover:underline">Clear All</button>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<!-- Cart Item -->
+<div class="flex gap-3 items-center pb-4 border-b border-outline-variant/10">
+<div class="w-12 h-12 bg-surface-container-lowest rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Cart Item - Road Bike" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfYeU7QTeX5wSyZqDAdthbiepX6IQNZWTWjwyneSk8iWDoojw5dS-F7DTxyBA8UI6dbq_Dw1KVX4F7mtTpl7nlyCSNHaxHCW-2XIid2fbmMOZAkT9AVhn7CanwrjA3t7QRI6s3Nk1pvRPglq1ixXRezdtyomGJQpgiVsLRzJo_08E7q44ycTLK0b1SBTVz5HFl6avN9bhI__3WXX0LFTfJ1Mt8HATNw1jtywj7Pz5G4s97Bkc3uCoPPWZnTeGiNo8i3X-PPoU2BQM"/>
+</div>
+<div class="flex-1">
+<h5 class="text-xs font-bold leading-tight">S-Works Tarmac SL8</h5>
+<p class="text-[10px] text-on-surface-variant italic">$5,200.00 / unit</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center bg-surface-container-highest rounded border border-outline-variant/20">
+<button class="p-1 hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="px-2 text-xs font-black">1</span>
+<button class="p-1 hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<span class="text-sm font-black w-20 text-right">$5,200.00</span>
+</div>
+</div>
+<!-- Cart Item -->
+<div class="flex gap-3 items-center pb-4 border-b border-outline-variant/10">
+<div class="w-12 h-12 bg-surface-container-lowest rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Cart Item - Lube" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBH_vqJpdLzF3TId1yNhNpxIfMQ-HjYX6ohbjT5KqCV-Ji7x7eLucywOzuVf4SgyGg8fvTN4dPoBGATsvGi_uufzKteLEYleymcOxqGrrAYQz2Up50KZEPoIboLOTwvR39PmeCx8qMB1w4uTmAnCzyErb5xFpTvrW6kU-VAo9CqPxIXnaUzAtalD2hpsf01eoh_sf_IazUGVh5hZadh7AExCWP3fPDyn92pbz5RjMGKiKocniwFCAeCEm5exk-V8eWQcykyPaTMIA"/>
+</div>
+<div class="flex-1">
+<h5 class="text-xs font-bold leading-tight">Finish Line Wet Lube</h5>
+<p class="text-[10px] text-on-surface-variant italic">$12.50 / unit</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center bg-surface-container-highest rounded border border-outline-variant/20">
+<button class="p-1 hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="px-2 text-xs font-black">2</span>
+<button class="p-1 hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+<span class="text-sm font-black w-20 text-right">$25.00</span>
+</div>
+</div>
+<!-- Notes Section -->
+<div class="mt-4">
+<label class="text-[10px] font-black uppercase text-on-surface-variant tracking-wider block mb-1">Internal Notes / Quote Terms</label>
+<textarea class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary-container rounded-lg p-3 text-[11px] h-20 placeholder:text-on-surface-variant/40" placeholder="Add specific quote conditions or shipping notes..."></textarea>
+</div>
+</div>
+<!-- Totals Area -->
+<div class="bg-surface-container-highest p-6 space-y-3">
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">Subtotal (2 items)</span>
+<span class="font-bold">$5,225.00</span>
+</div>
+<div class="flex justify-between text-xs">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span>Discount</span>
+<span class="material-symbols-outlined text-xs cursor-pointer text-primary-container">edit</span>
+</div>
+<span class="font-bold text-primary-container">-$100.00</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">VAT (19%)</span>
+<span class="font-bold">$973.75</span>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 flex justify-between items-end">
+<span class="headline-kinetic text-xl uppercase italic">Total</span>
+<span class="headline-kinetic text-3xl text-primary-container">$6,098.75</span>
+</div>
+</div>
+</div>
+<!-- Action Hub -->
+<div class="grid grid-cols-2 gap-4">
+<button class="col-span-2 bg-primary-container text-on-primary py-4 rounded-lg flex items-center justify-center gap-3 font-black uppercase italic tracking-tighter hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(253,224,26,0.2)]">
+<span class="material-symbols-outlined">payments</span>
+                        Process Sale (POS)
+                    </button>
+<button class="bg-surface-container-highest text-on-surface py-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold uppercase border border-outline-variant/20 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                        Electronic Quote
+                    </button>
+<button class="bg-surface-container-highest text-on-surface py-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold uppercase border border-outline-variant/20 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-sm">save_as</span>
+                        Save Draft
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual "The Telemetry Chip" -->
+<div class="fixed bottom-6 right-6 flex items-center gap-3 bg-surface-container-highest px-4 py-2 rounded-full border border-[#fde01a]/20 shadow-xl">
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></div>
+<span class="text-[11px] font-black uppercase text-on-surface leading-none">Register Open</span>
+<div class="w-px h-3 bg-outline-variant/30"></div>
+<span class="text-[11px] font-medium text-primary-container">$12,450.00 Shift Total</span>
+</div>
+</body></html>

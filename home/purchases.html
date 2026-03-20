@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BikeGestion - Purchase Orders &amp; Supply Chain</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-surface": "#e5e2e1",
+                "on-tertiary-fixed-variant": "#004f52",
+                "on-primary-container": "#716300",
+                "on-secondary": "#303030",
+                "background": "#131313",
+                "outline-variant": "#4b4732",
+                "secondary-container": "#474746",
+                "error": "#ffb4ab",
+                "inverse-surface": "#e5e2e1",
+                "surface-variant": "#353534",
+                "tertiary-fixed-dim": "#00dce3",
+                "surface-container-low": "#1c1b1b",
+                "on-error-container": "#ffdad6",
+                "primary-container": "#fde01a",
+                "surface-bright": "#3a3939",
+                "primary-fixed": "#ffe32f",
+                "on-tertiary-container": "#006e72",
+                "on-secondary-container": "#b6b5b4",
+                "surface-container": "#201f1f",
+                "surface-container-highest": "#353534",
+                "surface-container-lowest": "#0e0e0e",
+                "on-error": "#690005",
+                "tertiary-container": "#31f7ff",
+                "secondary-fixed-dim": "#c8c6c5",
+                "inverse-on-surface": "#313030",
+                "tertiary-fixed": "#58f8ff",
+                "on-primary-fixed": "#211c00",
+                "on-secondary-fixed-variant": "#474746",
+                "on-background": "#e5e2e1",
+                "outline": "#979178",
+                "surface-container-high": "#2a2a2a",
+                "on-surface-variant": "#cec6ab",
+                "surface-dim": "#131313",
+                "inverse-primary": "#6c5e00",
+                "error-container": "#93000a",
+                "tertiary": "#f3ffff",
+                "on-primary": "#383000",
+                "primary-fixed-dim": "#e1c700",
+                "on-primary-fixed-variant": "#514700",
+                "surface-tint": "#e1c700",
+                "secondary-fixed": "#e4e2e1",
+                "secondary": "#c8c6c5",
+                "on-secondary-fixed": "#1b1c1c",
+                "surface": "#131313",
+                "primary": "#fffbff",
+                "on-tertiary-fixed": "#002021",
+                "on-tertiary": "#003739"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .italic-headline {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary">
+<!-- TopNavBar -->
+<header class="bg-[#131313] bg-opacity-90 backdrop-blur-xl flex justify-between items-center w-full px-6 py-3 sticky top-0 z-50 border-b border-[#353534]/15 shadow-[0px_8px_32px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold italic tracking-tighter text-[#fde01a] uppercase italic-headline">BikeGestion</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#fde01a] font-bold border-b-2 border-[#fde01a] pb-1 font-label text-sm" href="#">Cali Main Shop</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-lowest border-none text-on-surface text-sm rounded-md pl-10 pr-4 py-2 w-64 focus:ring-1 focus:ring-primary-container placeholder:text-on-surface-variant/50" placeholder="Search orders..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#cec6ab] hover:text-[#fde01a] transition-all p-2 rounded-md hover:bg-[#353534]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-[#cec6ab] hover:text-[#fde01a] transition-all p-2 rounded-md hover:bg-[#353534]">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-[#353534]/30">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold text-on-surface">Marcus V.</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Store Manager</p>
+</div>
+<img alt="Marcus V. Store Manager" class="w-8 h-8 rounded-full border border-primary-container/20" data-alt="Close up portrait of Marcus V Store Manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoo_OsP98-Za8vWByNROefZsUfSFCR9wNwWRZOemTikLKsIWx30c0-qfNPijVPc8aNN_T5dIjXTmcx78HTqS5WZCR2u85FFPXdfRNbFRvuh6GqFp2sdvt6_N0vX1KLMowX9XbvOhVO2gFSNv9RYiT9R2xqx9pVl-1KhSAhVfXxwlLP2wQCIkg6skbzBECuFk6TYOLj3TLtIgjvbINt_2gtoldncxM03VDCaFA0ZHYFUQBfMk5WEMNBTBK_NdFHtvo8pxlKwOr-ltk"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="bg-[#0e0e0e] h-screen w-64 fixed left-0 top-0 pt-20 border-r border-[#353534]/15 flex flex-col z-40">
+<div class="flex-1 px-2 space-y-1 mt-4">
+<a class="text-[#cec6ab] mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#353534]/50 rounded-md transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+                </a>
+<a class="text-[#cec6ab] mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#353534]/50 rounded-md transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined">inventory_2</span> Inventory
+                </a>
+<!-- Purchases Tab Active -->
+<a class="bg-[#fde01a] text-[#383000] font-bold rounded-md mx-2 px-4 py-3 flex items-center gap-3 transition-all transform translate-x-1 font-medium text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span> Purchases
+                </a>
+<a class="text-[#cec6ab] mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#353534]/50 rounded-md transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined">receipt_long</span> Sales/Quotes
+                </a>
+<a class="text-[#cec6ab] mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#353534]/50 rounded-md transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined">group</span> Customers/Users
+                </a>
+<a class="text-[#cec6ab] mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#353534]/50 rounded-md transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined">badge</span> Employees
+                </a>
+<a class="text-[#cec6ab] mx-2 px-4 py-3 flex items-center gap-3 hover:bg-[#353534]/50 rounded-md transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined">assessment</span> Reports
+                </a>
+</div>
+<div class="p-4 border-t border-[#353534]/15">
+<button class="text-[#cec6ab] w-full px-4 py-3 flex items-center gap-3 hover:bg-error/10 hover:text-error rounded-md transition-all font-medium text-sm">
+<span class="material-symbols-outlined">logout</span> Logout
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 p-8">
+<!-- Header Section -->
+<section class="mb-12">
+<h1 class="text-5xl italic-headline text-on-surface mb-2">Purchase Orders &amp; Supply Chain</h1>
+<p class="text-on-surface-variant font-medium text-lg max-w-2xl">Optimizing inventory velocity through precise procurement.</p>
+</section>
+<!-- Metrics Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-primary-container shadow-sm">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">Total Procurement</p>
+<div class="flex items-end gap-2">
+<span class="text-3xl italic-headline text-on-surface">$84,200</span>
+<span class="text-primary-container text-xs font-bold pb-1">+12.5%</span>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2 uppercase">Target: $100k This Month</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-on-surface-variant/20 shadow-sm">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">Pending Orders</p>
+<div class="flex items-end gap-2">
+<span class="text-3xl italic-headline text-on-surface">5</span>
+<span class="text-on-surface-variant text-xs font-bold pb-1 uppercase">Active</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 mt-4 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-3/5"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-error/20 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-error">warning</span>
+</div>
+<p class="text-error text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">emergency_home</span> Stock Heat Index
+                    </p>
+<div class="flex items-end gap-2">
+<span class="text-3xl italic-headline text-error">Critical</span>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2 uppercase">9 Items Below Safety Margin</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-l-4 border-primary-container/40 shadow-sm">
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">Supplier Performance</p>
+<div class="flex items-end gap-2">
+<span class="text-3xl italic-headline text-on-surface">98.2%</span>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2 uppercase">Accuracy Rating (Global)</p>
+</div>
+</section>
+<!-- Active Orders Table -->
+<section class="mb-12">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl italic-headline text-on-surface">Active Procurement Logs</h2>
+<button class="bg-primary-container text-on-primary font-bold px-6 py-2 rounded-md text-xs uppercase tracking-widest hover:brightness-110 transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span> New Purchase Order
+                    </button>
+</div>
+<div class="bg-surface-container-low rounded-lg overflow-hidden border border-[#353534]/10 shadow-xl">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-high">
+<tr>
+<th class="px-6 py-4 italic-headline text-xs text-on-surface-variant uppercase">Order ID</th>
+<th class="px-6 py-4 italic-headline text-xs text-on-surface-variant uppercase">Product/Item</th>
+<th class="px-6 py-4 italic-headline text-xs text-on-surface-variant uppercase">Supplier</th>
+<th class="px-6 py-4 italic-headline text-xs text-on-surface-variant uppercase">Est. Arrival</th>
+<th class="px-6 py-4 italic-headline text-xs text-on-surface-variant uppercase text-center">Status</th>
+<th class="px-6 py-4 italic-headline text-xs text-on-surface-variant uppercase text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#353534]/10">
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-6 py-5 text-sm font-bold text-on-surface">#PO-2940</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Carbon Frameset V4</span>
+<span class="text-[10px] text-on-surface-variant uppercase">Competition Grade</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant font-medium">AeroTech Inc</td>
+<td class="px-6 py-5 text-sm text-on-surface">Oct 24, 2023</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-primary-container/10 text-primary-container text-[10px] font-bold uppercase rounded-full border border-primary-container/20">In Transit</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/30 transition-colors bg-surface-container-lowest/30">
+<td class="px-6 py-5 text-sm font-bold text-on-surface">#PO-2941</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Dura-Pulse Groupset</span>
+<span class="text-[10px] text-on-surface-variant uppercase">Drivetrain Components</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant font-medium">Shimano Dist.</td>
+<td class="px-6 py-5 text-sm text-on-surface">Pending Approval</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase rounded-full border border-outline-variant/30">Processing</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-6 py-5 text-sm font-bold text-on-surface">#PO-2938</td>
+<td class="px-6 py-5">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-on-surface">Aero-Rims Pro 50mm</span>
+<span class="text-[10px] text-on-surface-variant uppercase">Wheelsets</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant font-medium">Zipp Global</td>
+<td class="px-6 py-5 text-sm text-on-surface">Delivered</td>
+<td class="px-6 py-5">
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim text-[10px] font-bold uppercase rounded-full border border-tertiary-fixed-dim/20">Received</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-on-surface-variant hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Supplier Management Section -->
+<section class="mb-20">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl italic-headline text-on-surface">Strategic Partners</h2>
+<a class="text-primary-container text-xs font-bold uppercase tracking-widest flex items-center gap-1 hover:underline" href="#">
+                        View Directory <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-5 rounded-xl border border-[#353534]/10 hover:border-primary-container/30 transition-all group flex gap-4 items-center">
+<div class="w-16 h-16 bg-surface-container-highest rounded-lg flex items-center justify-center p-2">
+<img alt="Shimano Dist." class="max-w-full opacity-80 group-hover:opacity-100 transition-opacity grayscale hover:grayscale-0" data-alt="Shimano corporate logo in dark theme" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpuTYGgWnlvoyGgYni4YmaE9EVhBnKb7sjIZtNgD76p-o_2pUmpxDFKkrjPM5TtkPGJIqwQmiRKQrVz1dP1pQOlejCYkDZzr3jmI-b4DwpX8tFmkVt9NeA5CvFnsOtlM4atZw60FJFO8NaQaWDS-z0_cCR5rSPSXy77HAv9bzESzW7sl2F9nswjYVWOEdyU5oT5_EPbVcEveY7aX1KihCWFEHpu4gLdP-2TaJUcp47Rz99AFQbjWgXgMstkmX4zdtBIoODASYvJQg"/>
+</div>
+<div class="flex-1">
+<h4 class="text-on-surface font-bold text-sm">Shimano Dist.</h4>
+<p class="text-[10px] text-on-surface-variant mb-1">contact@shimano-dist.com</p>
+<p class="text-[10px] font-bold uppercase text-primary-container">Last Order: 2 days ago</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border border-[#353534]/10 hover:border-primary-container/30 transition-all group flex gap-4 items-center">
+<div class="w-16 h-16 bg-surface-container-highest rounded-lg flex items-center justify-center p-2">
+<img alt="AeroTech Inc" class="max-w-full opacity-80 group-hover:opacity-100 transition-opacity grayscale hover:grayscale-0" data-alt="AeroTech Inc manufacturer logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdd_vkAHMvOaJfm1lyJmvvPnEnzwIWRMbqjH-52SwZCj3hCYEa-lwROjCw_LehtiaCR-kEcYj09OvKDOFQi53mvFUjmORG5zUr0yTo08GCk240HvtLozs9IObr6OSOC34ew80xWBaEeZ8byNeD0YBChRjFPR_wFdCa_TW_Sy6iNwT3SdQBNlg9wv7Jp8Ad2tuneTQokS1eyKeM35cemWrs0Mre0ifPfLj32AZcqDdUfD5k0pPrwnZwVd6S-gKGEFcmzIeahhd-cNw"/>
+</div>
+<div class="flex-1">
+<h4 class="text-on-surface font-bold text-sm">AeroTech Inc</h4>
+<p class="text-[10px] text-on-surface-variant mb-1">logistics@aerotech.inc</p>
+<p class="text-[10px] font-bold uppercase text-primary-container">Last Order: Oct 12, 2023</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border border-[#353534]/10 hover:border-primary-container/30 transition-all group flex gap-4 items-center">
+<div class="w-16 h-16 bg-surface-container-highest rounded-lg flex items-center justify-center p-2 text-primary-container">
+<span class="material-symbols-outlined text-4xl">factory</span>
+</div>
+<div class="flex-1">
+<h4 class="text-on-surface font-bold text-sm">Zipp Global</h4>
+<p class="text-[10px] text-on-surface-variant mb-1">orders@zipp.com</p>
+<p class="text-[10px] font-bold uppercase text-primary-container">Last Order: 1 week ago</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Bottom Action Bar (Fixed) -->
+<footer class="fixed bottom-0 left-64 right-0 bg-surface-container-lowest/80 backdrop-blur-md border-t border-[#353534]/20 px-8 py-4 flex justify-between items-center z-50">
+<div class="flex items-center gap-4">
+<button class="bg-surface-container-highest text-on-surface text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded border border-outline-variant/20 hover:bg-surface-bright transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">picture_as_pdf</span> Export PDF
+            </button>
+<button class="bg-surface-container-highest text-on-surface text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded border border-outline-variant/20 hover:bg-surface-bright transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">table_view</span> Export Excel
+            </button>
+</div>
+<div class="flex items-center gap-6">
+<p class="text-[10px] text-on-surface-variant uppercase font-medium">Sync Status: <span class="text-primary-container">Real-time Oxygen Core</span></p>
+<div class="h-1.5 w-1.5 rounded-full bg-primary-container animate-pulse shadow-[0_0_8px_#fde01a]"></div>
+</div>
+</footer>
+
+```</body></html>

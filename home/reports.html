@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#690005",
+              "surface-container": "#201f1f",
+              "surface-tint": "#e1c700",
+              "on-surface-variant": "#cec6ab",
+              "background": "#131313",
+              "outline-variant": "#4b4732",
+              "surface-variant": "#353534",
+              "on-tertiary-fixed-variant": "#004f52",
+              "primary-fixed": "#ffe32f",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed-dim": "#00dce3",
+              "on-secondary-fixed-variant": "#474746",
+              "primary": "#fffbff",
+              "surface-container-highest": "#353534",
+              "on-primary-container": "#716300",
+              "error-container": "#93000a",
+              "surface": "#131313",
+              "inverse-primary": "#6c5e00",
+              "on-primary-fixed-variant": "#514700",
+              "surface-bright": "#3a3939",
+              "secondary-fixed-dim": "#c8c6c5",
+              "on-tertiary-fixed": "#002021",
+              "on-background": "#e5e2e1",
+              "tertiary-fixed": "#58f8ff",
+              "on-primary": "#383000",
+              "inverse-surface": "#e5e2e1",
+              "tertiary-container": "#31f7ff",
+              "primary-container": "#fde01a",
+              "on-primary-fixed": "#211c00",
+              "surface-container-low": "#1c1b1b",
+              "on-tertiary": "#003739",
+              "inverse-on-surface": "#313030",
+              "surface-container-lowest": "#0e0e0e",
+              "error": "#ffb4ab",
+              "primary-fixed-dim": "#e1c700",
+              "on-secondary-container": "#b6b5b4",
+              "surface-dim": "#131313",
+              "outline": "#979178",
+              "surface-container-high": "#2a2a2a",
+              "tertiary": "#f3ffff",
+              "on-surface": "#e5e2e1",
+              "on-error-container": "#ffdad6",
+              "secondary-container": "#474746",
+              "secondary-fixed": "#e4e2e1",
+              "secondary": "#c8c6c5",
+              "on-tertiary-container": "#006e72",
+              "on-secondary": "#303030"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .headline-kinetic {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+        .ui-precision {
+            font-family: 'Manrope', sans-serif;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #353534; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background ui-precision antialiased selection:bg-primary-container selection:text-on-primary-container">
+<div class="flex min-h-screen">
+<!-- SideNavBar (Consistent with Screen 11) -->
+<aside class="fixed inset-y-0 left-0 w-64 bg-[#131313] border-r border-[#353534]/15 flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-[#fde01a] italic font-bold tracking-tighter text-2xl headline-kinetic">Velocity &amp; Precision</h1>
+<p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mt-1">Management Pro</p>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<a class="flex items-center px-4 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="text-sm font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center px-4 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">inventory_2</span>
+<span class="text-sm font-semibold">Inventory</span>
+</a>
+<a class="flex items-center px-4 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">receipt_long</span>
+<span class="text-sm font-semibold">Sales/Quotes</span>
+</a>
+<a class="flex items-center px-4 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">shopping_cart</span>
+<span class="text-sm font-semibold">Purchases</span>
+</a>
+<a class="flex items-center px-4 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">group</span>
+<span class="text-sm font-semibold">Customers/Users</span>
+</a>
+<a class="flex items-center px-4 py-3 text-[#cec6ab] hover:text-[#e5e2e1] hover:bg-[#353534]/40 transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">badge</span>
+<span class="text-sm font-semibold">Employees</span>
+</a>
+<a class="flex items-center px-4 py-3 text-[#fde01a] border-r-2 border-[#fde01a] bg-gradient-to-r from-[#fde01a]/10 to-transparent transition-colors duration-200 group" href="#">
+<span class="material-symbols-outlined mr-3">assessment</span>
+<span class="text-sm font-semibold">Reports</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-primary-container text-on-primary font-bold text-xs tracking-widest uppercase rounded shadow-[0px_8px_32px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-95 transition-all">
+                New Sale
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface ml-64">
+<!-- TopNavBar (Style matched to Screen 11) -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-[#131313]/80 backdrop-blur-xl z-40 flex justify-between items-center px-8 border-b border-[#353534]/15">
+<div class="flex items-center gap-6">
+<div class="flex items-center text-on-surface-variant gap-2 text-sm">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="font-medium">Cali Main Shop</span>
+</div>
+<div class="h-4 w-px bg-surface-variant"></div>
+<h2 class="headline-kinetic text-xl text-[#fde01a]">BikeGestion</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant/15">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-48 p-0" placeholder="Search analytics..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-[#fde01a] transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary-container rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-[#fde01a] transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-surface-variant">
+<div class="text-right">
+<p class="text-xs font-bold leading-none">Marcus V.</p>
+<p class="text-[10px] text-on-surface-variant">Store Manager</p>
+</div>
+<img class="w-8 h-8 rounded-full border border-primary-container/30" data-alt="Store Manager Profile Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnt5IIYMDH1va_TmQ4W0FyNo3qccZ5q1YlKbRCqI0UIM2GKB5j2hMw6bOykWkHYkMCxGjYPQcyY4Vm53-BGRK-JLOMCVE71d1dQWlWKDgHlB8YdfYlu62Rj5VBjWvngKKCT3WXtnTu-3xyG_POQB7rhz15T2zPwRyU-xkng7UJ2amw95d2HStt4LREynUGSGOdBdUXZnz2k1pKCnE6mBez0h-wpO4QNFTmesHmjtaddty1Tfabk_JIz3bAJAPO1IAETpKaNcvxRL0"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 pt-24 space-y-10">
+<!-- Header Section -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="headline-kinetic text-5xl text-on-surface uppercase">Performance Analytics</h2>
+<p class="text-on-surface-variant mt-2 max-w-xl">Real-time telemetry from inventory turnover, shop labor efficiency, and fiscal velocity.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container-high text-on-surface text-xs font-bold rounded-lg hover:bg-surface-variant transition-colors border-b border-transparent hover:border-primary-container">WEEKLY</button>
+<button class="px-4 py-2 bg-primary-container text-on-primary text-xs font-bold rounded-lg hover:brightness-110 transition-colors">MONTHLY</button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Revenue vs Expenses Line Chart -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group border border-outline-variant/5">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="headline-kinetic text-xl text-primary-container uppercase">Fiscal Momentum</h3>
+<p class="text-xs text-on-surface-variant uppercase tracking-tighter">Revenue vs. Expenses (Last 30 Days)</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<span class="text-[10px] text-on-surface">Revenue</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-on-surface-variant"></div>
+<span class="text-[10px] text-on-surface">Expenses</span>
+</div>
+</div>
+</div>
+<!-- Simplified Visual Representation of a Line Chart -->
+<div class="h-64 flex items-end justify-between gap-1 relative pt-10">
+<div class="absolute inset-0 flex flex-col justify-between py-10 opacity-5">
+<div class="w-full h-px bg-on-surface"></div>
+<div class="w-full h-px bg-on-surface"></div>
+<div class="w-full h-px bg-on-surface"></div>
+<div class="w-full h-px bg-on-surface"></div>
+</div>
+<svg class="absolute inset-0 w-full h-full py-10" preserveaspectratio="none">
+<path d="M0 180 Q 100 120 200 150 T 400 60 T 600 90 T 800 20" fill="none" stroke="#fde01a" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0 160 Q 100 170 200 140 T 400 150 T 600 130 T 800 140" fill="none" stroke="#cec6ab" stroke-dasharray="4 4" stroke-opacity="0.5" stroke-width="2"></path>
+</svg>
+<div class="absolute bottom-0 left-0 w-full flex justify-between text-[10px] text-on-surface-variant px-2">
+<span>WK 01</span><span>WK 02</span><span>WK 03</span><span>WK 04</span>
+</div>
+</div>
+<div class="mt-6 flex gap-8">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase">Net Velocity</p>
+<p class="text-2xl headline-kinetic text-on-surface">+$42,850.00</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase">Margin Efficiency</p>
+<p class="text-2xl headline-kinetic text-on-surface">24.2%</p>
+</div>
+</div>
+</div>
+<!-- Inventory Turnover Metrics -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="bg-surface-container-highest p-6 rounded-xl border border-outline-variant/10 shadow-[0px_8px_32px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary-container">autorenew</span>
+<h3 class="headline-kinetic text-lg uppercase">Turnover</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-end border-b border-outline-variant/10 pb-2">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase">Whole Bikes</p>
+<p class="text-xl font-bold">4.2x <span class="text-xs font-normal text-primary-container">yr</span></p>
+</div>
+<div class="h-2 w-24 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[70%]"></div>
+</div>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/10 pb-2">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase">Components</p>
+<p class="text-xl font-bold">8.1x <span class="text-xs font-normal text-primary-container">yr</span></p>
+</div>
+<div class="h-2 w-24 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[90%]"></div>
+</div>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/10 pb-2">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase">Apparel/Soft</p>
+<p class="text-xl font-bold">2.5x <span class="text-xs font-normal text-primary-container">yr</span></p>
+</div>
+<div class="h-2 w-24 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[40%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Telemetry Chip Section -->
+<div class="bg-[#fde01a] p-6 rounded-xl text-on-primary">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-[10px] font-bold border border-on-primary/20 px-2 py-1 rounded">LIVE SENSOR</span>
+</div>
+<div class="mt-4">
+<p class="text-xs uppercase font-bold tracking-widest opacity-80">Stock Heat Index</p>
+<p class="text-4xl headline-kinetic leading-none mt-1">CRITICAL</p>
+<p class="text-xs mt-2 font-medium">9 items below reorder point.</p>
+</div>
+</div>
+</div>
+<!-- Top Selling Products -->
+<div class="col-span-12 lg:col-span-6 bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/5">
+<div class="bg-surface-container-high p-4 flex justify-between items-center">
+<h3 class="headline-kinetic text-lg uppercase">Top Selling Products</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">trending_up</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest/50 text-[10px] uppercase tracking-wider text-on-surface-variant">
+<th class="px-6 py-4 font-bold">Product Engine</th>
+<th class="px-6 py-4 font-bold">Category</th>
+<th class="px-6 py-4 font-bold text-right">Revenue</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="hover:bg-[#353534]/40 transition-colors border-b border-outline-variant/5">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center">
+<img class="w-full h-full object-cover rounded" data-alt="Close up of a carbon fiber bike frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9glzlZ4j3iU1yaFb8idJgN-CsbSoLzL7IokTvTKPgy3g_jb4AuAZopaTteSp7lpz6yMUYHe_uoV8hNH8l2Zlfel23steht6sp6fll8MFhItVrPOQ7XPh9IdDn_G4e4Ghfyxqr4tbTmXUjFfLECRECode_Fa0UiBbNOJ2xb8HIsoAf5CYayPBDiy3t0CTnUtbAqPXBCLkBQghDClw_l_eS352SsaqytiKUmRvkGpetN9gNbi1DmhbDCrWgBVqSOrZ3Bb9sPpjZZqI"/>
+</div>
+<span class="font-bold">AeroCarbon V4 Frame</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">Framesets</td>
+<td class="px-6 py-4 text-right font-bold text-primary-container">$124,500</td>
+</tr>
+<tr class="bg-surface-container-lowest/20 hover:bg-[#353534]/40 transition-colors border-b border-outline-variant/5">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center">
+<img class="w-full h-full object-cover rounded" data-alt="High end hydraulic groupset components" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm8qlUFELV_IDV2Md-_g9DzpzLNcGuDRITFSOD6XSdLxtNKri_MI-qy0vxBigVOQyhCUadKYRx9fI6yzlxic8w5TiAfoSHqokDPxW6JhpgQ2k8KmYMjwqtpT-Nd_XCSy7XrEfN8e65V5Mfy4ayxyvvUlZgMyDV9ng_KET1HdRpiftxDq7t6PWtPpjoZjsiONqPLxGMGfPObsgejxvLguJYdcxRcfKlhEUI8d2Vy14hhY6MXWIg7iTJNVPGQyLY8Kp9OliJGG6Y-fM"/>
+</div>
+<span class="font-bold">Dura-Pulse Groupset</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">Drivetrain</td>
+<td class="px-6 py-4 text-right font-bold text-primary-container">$89,200</td>
+</tr>
+<tr class="hover:bg-[#353534]/40 transition-colors">
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center">
+<img class="w-full h-full object-cover rounded" data-alt="Carbon fiber road bike wheelset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAJ7WyCabqJ4zRMMFjuZ4mIcLNLmrgCbBCQPLS7S5Iw8iCt95ku51niXYVGeiQ0f1G3irsJKETxQkOwLupJ_MX8knN6eJx0EwAWUuYa1Byhjrt2ewRR8gu7ZAdZJiTuQXMgwUoQKL3K7XamDrApg1tB8bcc2RASDpnMCfLlAZO_0GhLwDTRZJuMHHRkVcf2QqIex7tApWd0S7v2RM85lZWSErT2dEFyKCOn1CKgND-VspKVZTFKrWM6d7XUyxlLXNBjPkB4Qm6UyQ"/>
+</div>
+<span class="font-bold">Z-Force Wheelset 60mm</span>
+</td>
+<td class="px-6 py-4 text-on-surface-variant">Wheelsets</td>
+<td class="px-6 py-4 text-right font-bold text-primary-container">$76,100</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Service Center Efficiency -->
+<div class="col-span-12 lg:col-span-6 bg-surface-container-low rounded-xl p-6 border border-outline-variant/5">
+<div class="flex justify-between items-center mb-6">
+<h3 class="headline-kinetic text-lg uppercase">Service Efficiency</h3>
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-1 rounded-full text-[10px] font-bold text-primary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>
+                            OPTIMIZED
+                        </div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-lg">
+<p class="text-[10px] text-on-surface-variant uppercase">Avg. Repair Time</p>
+<p class="text-3xl headline-kinetic mt-1">2.4 <span class="text-sm">HRS</span></p>
+<p class="text-[10px] text-primary-container mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">arrow_downward</span>
+                                12% vs last month
+                            </p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-lg">
+<p class="text-[10px] text-on-surface-variant uppercase">Shop Backlog</p>
+<p class="text-3xl headline-kinetic mt-1">4 <span class="text-sm">DAYS</span></p>
+<p class="text-[10px] text-error mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">arrow_upward</span>
+                                1 day increase
+                            </p>
+</div>
+</div>
+<div class="mt-6 space-y-4">
+<h4 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Technician Workload</h4>
+<div class="space-y-3">
+<div>
+<div class="flex justify-between text-[10px] mb-1 font-bold">
+<span>ANTON K. (Lead)</span>
+<span class="text-primary-container">92%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary-container w-[92%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] mb-1 font-bold">
+<span>SARAH M. (Junior)</span>
+<span>68%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full">
+<div class="h-full bg-on-surface-variant w-[68%] rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] mb-1 font-bold">
+<span>TOM L. (Suspension)</span>
+<span class="text-primary-container">85%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full">
+<div class="h-full bg-primary-container w-[85%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Export Options (Moved to bottom as requested) -->
+<div class="flex flex-col md:flex-row justify-between items-center pt-10 border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row items-center gap-4">
+<span class="text-xs font-bold text-on-surface-variant uppercase">Generate Archive:</span>
+<div class="flex bg-surface-container-low p-1 rounded-lg">
+<button class="px-4 py-2 hover:bg-surface-variant text-xs font-bold rounded flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                            PDF
+                        </button>
+<button class="px-4 py-2 hover:bg-surface-variant text-xs font-bold rounded flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">table_chart</span>
+                            EXCEL
+                        </button>
+<button class="px-4 py-2 hover:bg-surface-variant text-xs font-bold rounded flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">share</span>
+                            API PUSH
+                        </button>
+</div>
+</div>
+<div class="flex gap-8 mt-6 md:mt-0">
+<div class="flex flex-col items-end">
+<span class="text-[10px] uppercase text-on-surface-variant font-bold">Last Synchronized</span>
+<span class="text-sm font-bold">02 OCT 2023 - 14:45:01</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] uppercase text-on-surface-variant font-bold">Data Fidelity</span>
+<span class="text-sm font-bold text-primary-container">99.9% SHARP</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
