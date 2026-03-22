@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIKEGESTION - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">BIKEGESTION</div>
+            <div class="brand-section">
+                <h3>ADMINISTRADOR</h3>
+                <span></span>
+            </div>
+            <nav class="menu">
+                <a href="#" class="active"><i data-lucide="shopping-cart"></i> COMPRAS</a>
+                <a href="#"><i data-lucide="users"></i> PROVEEDORES</a>
+                <a href="#"><i data-lucide="bar-chart-3"></i> REPORTES</a>
+                <a href="#"><i data-lucide="layout-dashboard"></i> COTIZACIONES</a>
+                <a href="#"><i data-lucide="settings"></i> VENTAS</a>
+
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#"><i data-lucide="settings"></i> CONFIGURACIÓN</a>
+                <a href="#"><i data-lucide="log-out"></i> SALIR</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="nav-links">
+                    
+                    <a href="#">COMPRAS</a>
+                    <a href="#">PROVEEDORES</a>
+                    <a href="#">REPORTES</a>
+                    <a href="#">VENTAS</a>
+                    
+                </div>
+                <div class="user-actions">
+                    <i data-lucide="bell"></i>
+                    <i data-lucide="user-circle"></i>
+                </div>
+            </header>
+
+            <section class="dashboard-grid">
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <span class="label">GASTO TOTAL</span>
+                        <div class="value">$0,00</div>
+                        <div class="trend text-yellow">0% vs --</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="label">PROVEEDORES ACTIVOS</span>
+                        <div class="value">0</div>
+                        <div class="badge"><i data-lucide="check-circle"></i> CERTIFICADOS LAB</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="label">COMPRAS DEL MES</span>
+                        <div class="value">0</div>
+                        <div class="period">PERÍODO: --</div>
+                    </div>
+                </div>
+
+                <div class="forms-row">
+                    <div class="form-container">
+                        <h3><i data-lucide="user-plus"></i> REGISTRAR PROVEEDOR</h3>
+                        <form>
+                            <div class="input-group">
+                                <label>NOMBRE DE EMPRESA</label>
+                                <input type="text" placeholder="Ej: Shimano">
+                            </div>
+                            <div class="input-group">
+                                <label>CUIT / ID</label>
+                                <input type="text" placeholder="00-00000000-0">
+                            </div>
+                            <div class="input-group full">
+                                <label>CATEGORÍA DE COMPONENTES</label>
+                                <select>
+                                    <option value="">Seleccionar...</option>
+                                    <option>Transmisiones</option>
+                                    <option>Frenos</option>
+                                    <option>Cuadros</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary">GUARDAR PROVEEDOR</button>
+                        </form>
+                    </div>
+
+                    <div class="form-container">
+                        <h3><i data-lucide="shopping-cart"></i> NUEVA COMPRA</h3>
+                        <form>
+                            <div class="input-group full">
+                                <label>SELECCIONAR PROVEEDOR</label>
+                                <select>
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>MONTO TOTAL</label>
+                                <input type="number" placeholder="0.00">
+                            </div>
+                            <div class="input-group">
+                                <label>FECHA DE ENTREGA</label>
+                                <input type="date">
+                            </div>
+                            <button class="btn-primary">CONFIRMAR ORDEN</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i data-lucide="history"></i> HISTORIAL DE MOVIMIENTOS</h3>
+                        <div class="search-bar">
+                            <i data-lucide="search"></i>
+                            <input type="text" placeholder="BUSCAR ORDEN O PROVEEDOR...">
+                        </div>
+                    </div>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID ORDEN</th>
+                                <th>PROVEEDOR</th>
+                                <th>CATEGORÍA</th>
+                                <th>FECHA</th>
+                                <th>ESTADO</th>
+                                <th>MONTO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                    <div class="pagination">
+                        <span>MOSTRANDO 0 DE 0 TRANSACCIONES</span>
+                        <div class="nav-btns">
+                            <button>&lt;</button>
+                            <button>&gt;</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
