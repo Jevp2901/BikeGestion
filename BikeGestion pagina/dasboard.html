@@ -96,6 +96,23 @@
             background: rgba(53, 53, 52, 0.4);
             backdrop-filter: blur(12px);
         }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0e0e0e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #353534;
+            border-radius: 10px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 
@@ -126,7 +143,7 @@
             <a href="compras.html"
                 class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
                 <span class="material-symbols-outlined mr-3 text-[#fde01a]">shopping_cart</span>
-                <span class="text-sm font-semibold text-[#e5e2e1]">Compras</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Compras/Proveedores</span>
             </a>
             <a href="clientes.html"
                 class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
