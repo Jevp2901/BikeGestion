@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Compras y Proveedores | BikeGestion</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#e5e2e1",
+                        "error": "#ffb4ab",
+                        "primary-fixed": "#ffe32f",
+                        "primary-fixed-dim": "#e1c700",
+                        "on-primary": "#383000",
+                        "on-background": "#e5e2e1",
+                        "tertiary-container": "#31f7ff",
+                        "on-surface-variant": "#cec6ab",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-variant": "#353534",
+                        "surface-container-highest": "#353534",
+                        "surface-container": "#201f1f",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-container": "#fde01a",
+                        "surface": "#131313",
+                        "background": "#131313",
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .headline-kinetic {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            letter-spacing: -0.02em;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #131313;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .glass-card {
+            background: rgba(53, 53, 52, 0.4);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface">
+    <!-- Barra de Navegación Lateral -->
+    <aside class="fixed inset-y-0 left-0 w-80 bg-[#131313] border-r border-[#353534]/15 flex flex-col py-6 z-50">
+        <div class="px-6 mb-10">
+            <h1 class="text-[#fde01a] italic font-bold tracking-tighter text-2xl headline-kinetic">Gestión de Tienda
+            </h1>
+            <p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mt-1">Gestión Profesional
+            </p>
+        </div>
+        <nav class="flex-1 space-y-1 px-3">
+            <a href="dasboard.html"
+                class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">dashboard</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Dashboard</span>
+            </a>
+            <a href="inventario.html"
+                class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">inventory_2</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Inventario</span>
+            </a>
+            <a href="ventas.html"
+                class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">receipt_long</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Ventas/Cotizaciones</span>
+            </a>
+            <a href="compras.html"
+                class="flex items-center px-4 py-3 border-r-2 border-[#fde01a] bg-gradient-to-r from-[#fde01a]/10 to-transparent transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">shopping_cart</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Compras/Proveedores</span>
+            </a>
+            <a href="clientes.html"
+                class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">group</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Clientes</span>
+            </a>
+            <a href="empleados.html"
+                class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">badge</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Empleados</span>
+            </a>
+            <a href="reportes.html"
+                class="flex items-center px-4 py-3 hover:bg-[#353534]/40 transition-colors duration-200 group">
+                <span class="material-symbols-outlined mr-3 text-[#fde01a]">assessment</span>
+                <span class="text-sm font-semibold text-[#e5e2e1]">Reportes</span>
+            </a>
+        </nav>
+        <div class="px-4 mt-auto">
+            <a href="ventas.html"
+                class="w-full bg-primary-container text-on-primary py-3 rounded-lg font-bold uppercase text-xs tracking-wider flex items-center justify-center gap-2 shadow-[0px_4px_16px_rgba(253,224,26,0.2)] active:scale-95 transition-transform">
+                <span class="material-symbols-outlined text-sm">add_circle</span>
+                <span>Nueva Venta</span>
+            </a>
+            <div class="mt-6 flex items-center gap-3 px-2">
+                <div
+                    class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+                    <img class="w-full h-full object-cover" data-alt="Store Manager Profile Avatar"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoxSLHNZ59bB3ByimrhcdXL1-Gq-kP1Pa4iaI0BrlDP29VH30Qy97fHnHmoO89c9O6NPTk7Muns6XxZGZLGjKnrO0Yxh5MxiKDI9TdnjrwcFUrfPT9-PUWN26wadWvL1eQswBcbZxZ9RCgBntpozKq8XX1JZG6WvJMzDm4PtU7lXDFtjDgLX3iPxxOsrPkj65l8u6OhDLiJHW862wI98SZh3NCYrry3W9N4MUmpKsms7b2FyT6RIDq07qVbN6YXu1kkOvj68_NR-Q" />
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-on-surface">Alex Rivera</span>
+                    <span class="text-[10px] text-on-surface-variant">Gerente de Tienda</span>
+                    <a href="inicio_sesion.html"
+                        class="text-[10px] text-[#fde01a] font-bold uppercase tracking-wider mt-1 hover:underline">Cerrar
+                        Sesión</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Barra de Navegación Superior -->
+    <header
+        class="fixed top-0 right-0 left-80 h-16 bg-[#131313]/80 backdrop-blur-xl z-50 flex justify-between items-center px-8 border-b border-[#353534]/15">
+        <div class="flex items-center gap-6">
+            <h2 class="headline-kinetic text-xl text-white">Bike<span class="text-[#fde01a]">Gestión</span></h2>
+            <div class="h-6 w-px bg-outline-variant/20"></div>
+            <div class="flex items-center gap-2 text-[#fde01a] font-bold">
+                <span class="material-symbols-outlined text-sm">store</span>
+                <span class="text-sm font-bold text-[#fde01a]">Tienda Principal Bogota</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="inicio_sesion.html"
+                class="text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-[#fde01a] transition-all">Iniciar
+                Sesión</a>
+            <a href="registrar.html"
+                class="bg-[#fde01a] text-black px-4 py-2 rounded-lg text-xs font-black uppercase italic hover:scale-105 transition-all shadow-[0_0_15px_rgba(253,224,26,0.2)]">Registrarse</a>
+            <span
+                class="material-symbols-outlined text-[#e5e2e1] hover:text-[#fde01a] cursor-pointer transition-all">logout</span>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="ml-80 pt-24 pb-12 px-8 min-h-screen">
+        <header class="mb-10 flex justify-between items-end">
+            <div>
+                <h2 class="headline-kinetic text-4xl text-on-surface uppercase tracking-tighter">Gestión de Compras y
+                    Proveedores</h2>
+                <p class="text-on-surface-variant mt-1 font-medium italic opacity-70">Control de abastecimiento y
+                    relaciones comerciales de alto rendimiento</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="surface-container-low px-6 py-4 rounded-xl border border-outline-variant/10 text-center">
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Gasto
+                        Total</span>
+                    <span class="text-2xl font-black text-[#fde01a]">$0.00</span>
+                </div>
+                <div class="surface-container-low px-6 py-4 rounded-xl border border-outline-variant/10 text-center">
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Proveedores
+                        Activos</span>
+                    <span class="text-2xl font-black text-white">0</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Formularios de Acción -->
+            <div class="col-span-12 lg:col-span-4 space-y-6">
+                <!-- Registrar Proveedor -->
+                <section class="bg-surface-container-high rounded-xl p-6 border-l-4 border-[#fde01a] shadow-xl">
+                    <div class="flex items-center gap-2 mb-6 text-[#fde01a]">
+                        <span class="material-symbols-outlined">person_add</span>
+                        <h3 class="headline-kinetic text-lg uppercase">Registrar Proveedor</h3>
+                    </div>
+                    <form class="space-y-4">
+                        <div>
+                            <label
+                                class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Nombre
+                                de Empresa</label>
+                            <input type="text" placeholder="Ej: Shimano"
+                                class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#fde01a] rounded-lg p-3 text-sm placeholder:opacity-30">
+                        </div>
+                        <div>
+                            <label
+                                class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">CUIT
+                                / ID</label>
+                            <input type="text" placeholder="00-00000000-0"
+                                class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#fde01a] rounded-lg p-3 text-sm placeholder:opacity-30">
+                        </div>
+                        <div>
+                            <label
+                                class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Categoría</label>
+                            <select
+                                class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#fde01a] rounded-lg p-3 text-sm">
+                                <option value="">Seleccionar...</option>
+                                <option>Transmisiones</option>
+                                <option>Frenos</option>
+                                <option>Cuadros</option>
+                                <option>Accesorios</option>
+                            </select>
+                        </div>
+                        <button
+                            class="w-full bg-[#fde01a] text-black font-black uppercase italic py-3 rounded-lg hover:scale-[1.02] transition-transform active:scale-95 shadow-[0_4px_15px_rgba(253,224,26,0.2)]">Guardar
+                            Proveedor</button>
+                    </form>
+                </section>
+
+                <!-- Nueva Compra -->
+                <section class="bg-surface-container-high rounded-xl p-6 border-l-4 border-[#31f7ff] shadow-xl">
+                    <div class="flex items-center gap-2 mb-6 text-[#31f7ff]">
+                        <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                        <h3 class="headline-kinetic text-lg uppercase">Nueva Compra</h3>
+                    </div>
+                    <form class="space-y-4">
+                        <div>
+                            <label
+                                class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Seleccionar
+                                Proveedor</label>
+                            <select
+                                class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#31f7ff] rounded-lg p-3 text-sm">
+                                <option value="">Seleccionar...</option>
+                                <option>Shimano S.A.</option>
+                                <option>SRAM Global</option>
+                                <option>Specialized Parts</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Monto
+                                    Total</label>
+                                <input type="number" placeholder="0.00"
+                                    class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#31f7ff] rounded-lg p-3 text-sm">
+                            </div>
+                            <div>
+                                <label
+                                    class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant block mb-1">Fecha
+                                    Entrega</label>
+                                <input type="date"
+                                    class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#31f7ff] rounded-lg p-3 text-sm">
+                            </div>
+                        </div>
+                        <button
+                            class="w-full bg-[#31f7ff] text-black font-black uppercase italic py-3 rounded-lg hover:scale-[1.02] transition-transform active:scale-95 shadow-[0_4px_15px_rgba(49,247,255,0.2)]">Confirmar
+                            Orden</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Listado y Tabla -->
+            <div class="col-span-12 lg:col-span-8 space-y-8">
+                <div
+                    class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10 shadow-2xl">
+                    <div class="p-6 bg-surface-container-high flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[#fde01a]">history</span>
+                            <h3 class="headline-kinetic text-xl uppercase tracking-tight">Historial de Movimientos</h3>
+                        </div>
+                        <div class="relative w-64">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                            <input type="text" placeholder="Buscar orden o proveedor..."
+                                class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-[#fde01a] pl-10 pr-4 py-2 rounded-lg text-xs">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-surface-container/50 text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">
+                                    <th class="px-6 py-4">ID Orden</th>
+                                    <th class="px-6 py-4">Proveedor</th>
+                                    <th class="px-6 py-4">Categoría</th>
+                                    <th class="px-6 py-4">Fecha</th>
+                                    <th class="px-6 py-4">Estado</th>
+                                    <th class="px-6 py-4 text-right">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/10">
+                                <tr class="text-on-surface-variant italic">
+                                    <td colspan="6" class="px-6 py-12 text-center text-sm">No se encontraron movimientos
+                                        recientes.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div
+                        class="p-4 bg-surface-container-high border-t border-outline-variant/10 flex justify-between items-center text-[10px] font-bold uppercase text-on-surface-variant">
+                        <span>Mostrando 0 de 0 transacciones</span>
+                        <div class="flex gap-2">
+                            <button
+                                class="bg-surface-container-lowest px-3 py-1 rounded border border-outline-variant/10 hover:text-white transition-colors">Anterior</button>
+                            <button
+                                class="bg-surface-container-lowest px-3 py-1 rounded border border-outline-variant/10 hover:text-white transition-colors">Siguiente</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Categorías -->
+                <!--<div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-headline tracking-tighter uppercase italic">
+                    <div
+                        class="bg-surface-container-high p-6 rounded-2xl border border-outline-variant/10 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <span
+                                class="text-[10px] font-bold text-on-surface-variant tracking-widest block mb-2">Transmisiones</span>
+                            <div class="text-2xl font-black text-white">0% Participación</div>
+                        </div>
+                        <span
+                            class="material-symbols-outlined absolute -bottom-4 -right-4 text-7xl opacity-5 group-hover:opacity-10 transition-opacity">settings_suggest</span>
+                    </div>
+                    <div
+                        class="bg-surface-container-high p-6 rounded-2xl border border-outline-variant/10 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <span
+                                class="text-[10px] font-bold text-on-surface-variant tracking-widest block mb-2">Marcos
+                                y Cuadros</span>
+                            <div class="text-2xl font-black text-white">0% Participación</div>
+                        </div>
+                        <span
+                            class="material-symbols-outlined absolute -bottom-4 -right-4 text-7xl opacity-5 group-hover:opacity-10 transition-opacity">directions_bike</span>
+                    </div>
+                    <div
+                        class="bg-surface-container-high p-6 rounded-2xl border border-outline-variant/10 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <span
+                                class="text-[10px] font-bold text-on-surface-variant tracking-widest block mb-2">Accesorios</span>
+                            <div class="text-2xl font-black text-white">0% Participación</div>
+                        </div>
+                        <span
+                            class="material-symbols-outlined absolute -bottom-4 -right-4 text-7xl opacity-5 group-hover:opacity-10 transition-opacity">pedal_bike</span>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Decoraciones -->
+    <div
+        class="fixed top-0 right-0 -z-10 w-[500px] h-[500px] bg-[#fde01a]/5 blur-[120px] rounded-full pointer-events-none">
+    </div>
+    <div
+        class="fixed bottom-0 left-64 -z-10 w-[300px] h-[300px] bg-[#31f7ff]/5 blur-[100px] rounded-full pointer-events-none">
+    </div>
+
+</body>
+
+</html>
