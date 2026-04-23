@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0a0a0a",
+                        "surface-tint": "#FFEE00",
+                        "on-tertiary": "#68000b",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#121212",
+                        "on-tertiary-fixed-variant": "#930014",
+                        "surface-container-low": "#181818",
+                        "surface-container-highest": "#222222",
+                        "secondary-fixed-dim": "#00dbe9",
+                        "primary": "#ffffff",
+                        "surface-bright": "#393939",
+                        "on-surface-variant": "#a1a1aa",
+                        "on-primary": "#000000",
+                        "on-primary-container": "#6e6600",
+                        "background": "#0a0a0a",
+                        "on-primary-fixed": "#1f1c00",
+                        "surface-container": "#141414",
+                        "error": "#ff5252",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-container": "#ffdad7",
+                        "error-container": "#93000a",
+                        "on-tertiary-container": "#c31f29",
+                        "primary-container": "#FFEE00",
+                        "on-error": "#690005",
+                        "inverse-surface": "#e5e2e1",
+                        "inverse-primary": "#676000",
+                        "primary-fixed": "#FFEE00",
+                        "tertiary-fixed-dim": "#ffb3ae",
+                        "outline-variant": "#27272a",
+                        "primary-fixed-dim": "#d8ca00",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "tertiary": "#ffffff",
+                        "on-secondary": "#00363a",
+                        "on-primary-fixed-variant": "#4e4800",
+                        "inverse-on-surface": "#313030",
+                        "on-secondary-fixed": "#002022",
+                        "on-tertiary-fixed": "#410004",
+                        "on-background": "#e5e2e1",
+                        "surface-container-high": "#1c1c1c",
+                        "secondary": "#d3fbff",
+                        "secondary-fixed": "#7df4ff",
+                        "on-secondary-container": "#00686f",
+                        "surface-variant": "#27272a",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-dim": "#0a0a0a",
+                        "outline": "#3f3f46",
+                        "secondary-container": "#00eefc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "2px",
+                        "lg": "4px",
+                        "xl": "8px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "32px",
+                        "xl": "48px",
+                        "sm": "16px",
+                        "xs": "8px",
+                        "lg": "32px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter", "sans-serif"],
+                        "data-mono": ["Space Grotesk", "monospace"],
+                        "label-caps": ["Space Grotesk", "sans-serif"],
+                        "headline-md": ["Space Grotesk", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "headline-xl": ["Space Grotesk", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "data-mono": ["13px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-xl": ["28px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FFEE00; }
+        
+        .italic-title {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg antialiased min-h-screen">
+<!-- Updated Top Navigation Header based on IMAGE_6 and IMAGE_11 -->
+<header class="bg-[#121212] docked full-width top-0 border-b border-white/5 flex justify-between items-center w-full px-8 h-16 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<!-- Breadcrumb / System Name -->
+<div class="flex flex-col">
+<div class="text-[#FFEE00] font-headline-md italic-title uppercase tracking-tight text-sm leading-none">Gestión de Tienda</div>
+<div class="text-[9px] font-label-caps uppercase tracking-[0.2em] text-white/40 font-bold mt-1">GESTIÓN PROFESIONAL</div>
+</div>
+<!-- Logo Section -->
+<div class="flex items-center gap-6 ml-4">
+<div class="flex items-center">
+<span class="text-white font-black italic italic-title text-lg tracking-tighter">Bike</span>
+<span class="text-[#FFEE00] font-black italic italic-title text-lg tracking-tighter">Gestión</span>
+</div>
+<!-- Location -->
+<div class="flex items-center gap-2 text-white/60">
+<span class="material-symbols-outlined text-sm text-[#FFEE00]">store</span>
+<span class="font-label-caps text-[10px] uppercase tracking-wider">Tienda Principal Bogota</span>
+</div>
+</div>
+</div>
+<!-- Right Side Actions -->
+<div class="flex items-center gap-6">
+<button class="text-white/60 text-[10px] font-bold hover:text-[#FFEE00] transition-colors uppercase tracking-widest font-label-caps">INICIAR SESIÓN</button>
+<button class="bg-[#FFEE00] text-black px-4 py-1.5 text-[10px] font-black hover:brightness-110 active:opacity-90 transition-all uppercase tracking-widest font-label-caps">REGISTRARSE</button>
+<button class="text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">logout</span>
+</button>
+</div>
+</header>
+<div class="flex">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-[260px] bg-[#121212] border-r border-white/5 flex flex-col py-8 hidden lg:flex">
+<nav class="flex-1 px-0 space-y-0.5">
+<a class="text-white/70 flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest hover:bg-white/5 hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">grid_view</span>
+<span class="font-bold">Dashboard</span>
+</a>
+<a class="text-white/70 flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest hover:bg-white/5 hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">inventory_2</span>
+<span class="font-bold">Inventario</span>
+</a>
+<a class="text-white/70 flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest hover:bg-white/5 hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">point_of_sale</span>
+<span class="font-bold">Ventas/Cotizaciones</span>
+</a>
+<a class="bg-white/5 text-white flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest relative border-r-4 border-[#FFEE00]" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">shopping_cart</span>
+<span class="font-bold">Compras/Proveedores</span>
+</a>
+<a class="text-white/70 flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest hover:bg-white/5 hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">group</span>
+<span class="font-bold">Clientes</span>
+</a>
+<a class="text-white/70 flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest hover:bg-white/5 hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">badge</span>
+<span class="font-bold">Empleados</span>
+</a>
+<a class="text-white/70 flex items-center px-6 py-3.5 font-label-caps uppercase text-[10px] tracking-widest hover:bg-white/5 hover:text-white transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg text-[#FFEE00]">bar_chart_4_bars</span>
+<span class="font-bold">Reportes</span>
+</a>
+</nav>
+<div class="px-6 mb-6">
+<button class="w-full bg-[#FFEE00] text-black font-label-caps font-black py-3.5 uppercase text-[11px] tracking-widest hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 rounded-lg">
+<span class="material-symbols-outlined text-base">add_circle</span>
+                    NUEVA VENTA
+                </button>
+</div>
+<div class="px-6 pt-6 border-t border-white/5">
+<div class="flex items-center gap-3">
+<img alt="Alex Rivera" class="w-10 h-10 rounded-full object-cover border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgFvzzH2pmQqdAwqsW8_6CtAbP-qhTeQUjdm5ijco4lqp9chpqKs3exaSgQpYBDgSxc5hQJ7P9m2Rl-TSf95nA5FwqPW_BTEersKJYCnPK6wcqmW5eQ6myHhO9GQU9kWim2fWoONBrJ8Vcb3cu-4vWQl2LMnnxntF4SlsvruhxRVMVOu2fg6HtPNfXJW39GvLCBCFGEXc_Td-hhajsB5-DEC0SfDk7T2Y3n8xktU6IO80a7nQ2CzI4rAeAz_bCHERuhut9JnbuiSXm"/>
+<div class="flex-1 min-w-0">
+<div class="text-white font-bold text-[11px] leading-tight truncate">Alex Rivera</div>
+<div class="text-white/40 text-[9px] uppercase font-bold tracking-wider leading-tight">Gerente de Tienda</div>
+<button class="text-[#FFEE00] text-[9px] font-black uppercase tracking-widest mt-1 hover:underline">CERRAR SESIÓN</button>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-[260px] p-8 min-h-screen bg-background">
+<!-- Internal Header -->
+<div class="mb-10">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-8">
+<!-- Categories -->
+<div class="flex gap-2 overflow-x-auto pb-2">
+<button class="px-5 py-2 bg-[#FFEE00] text-black font-label-caps uppercase text-[10px] font-black">TODOS LOS COMPONENTES</button>
+<button class="px-5 py-2 bg-[#181818] border border-white/10 text-white/70 font-label-caps uppercase text-[10px] hover:border-[#FFEE00] hover:text-white transition-all">ACCESORIOS</button>
+<button class="px-5 py-2 bg-[#181818] border border-white/10 text-white/70 font-label-caps uppercase text-[10px] hover:border-[#FFEE00] hover:text-white transition-all">HERRAMIENTAS</button>
+<button class="px-5 py-2 bg-[#181818] border border-white/10 text-white/70 font-label-caps uppercase text-[10px] hover:border-[#FFEE00] hover:text-white transition-all">LUBRICANTES</button>
+</div>
+<!-- Search Section + Cart History -->
+<div class="flex items-center gap-4 min-w-[400px]">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/30">search</span>
+<input class="bg-[#141414] border border-white/10 text-white font-data-mono text-xs py-3.5 pl-12 pr-4 w-full focus:border-[#FFEE00] focus:ring-0 outline-none transition-all placeholder:text-white/20 uppercase" placeholder="BUSCAR EN CATÁLOGO..." type="text"/>
+</div>
+<button class="flex items-center gap-2 bg-[#141414] border border-white/10 hover:border-[#FFEE00] transition-all px-4 py-[13px] group">
+<span class="material-symbols-outlined text-white/40 group-hover:text-[#FFEE00]">history</span>
+<span class="font-label-caps text-[10px] text-white/40 group-hover:text-white uppercase tracking-wider whitespace-nowrap">Historial del Carrito</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Two-Column Layout -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+<!-- Left Column (Catalog) -->
+<div class="xl:col-span-8 space-y-gutter">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Product Card 1 -->
+<div class="bg-[#141414] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-300">
+<div class="h-56 relative overflow-hidden bg-black">
+<img alt="Ultegra Groupset" class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwiFU1-VTPAfeFIwlBWV1g8Q8OJ47vlbnrlo9drkGxtR0HuGmawiCDwDNeK9h9Ib56gdxoYiOtnt6LepvmB-bEooaRTeE9zMySWlTvCdRI8iLKnE6kabfiz2uU8KJNkk-aYA__Yhx5zWGm4m66csiiVGnzj0jiGx77kaan7MOrNcWkNrOizJUUUWb5i6vNQos351LROMExpI5djrNx6RK6peNxVIDIoZaf8F3hoB9HkN3ZmW4YlJv_0iLdzTeTGqzxi8aStSGXaOj3"/>
+<div class="absolute top-3 right-3 bg-black/80 backdrop-blur px-2 py-1 text-[10px] font-data-mono text-[#FFEE00] border border-[#FFEE00]/30">STOCK: 12</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-white uppercase italic-title tracking-tight">Ultegra Groupset</h3>
+<p class="text-[10px] text-white/40 uppercase font-label-caps mt-1">Ref: SH-U8000-D</p>
+</div>
+<span class="font-data-mono text-[#FFEE00] text-lg">$1,249.00</span>
+</div>
+<button class="w-full py-4 bg-transparent border border-[#FFEE00] text-[#FFEE00] font-label-caps uppercase text-[11px] font-black tracking-widest hover:bg-[#FFEE00] hover:text-black transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    AÑADIR AL PEDIDO
+                                </button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-[#141414] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-300">
+<div class="h-56 relative overflow-hidden bg-black">
+<img alt="Dura-Ace Pedals" class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8ESdarQ9rq20TRodElgdD4edGnhlgHb6FQA5gQKrfewChTEbs0KyeXnis8Id5Q2ve2KkqSB04rsedZ2T_vW43zfM77F0jVvSTLriCCec4Uk2PgIIQZt_l0xu4OXG0F9TnfwSngLBt5bWMAGbuLPXJvXP2N2vhZsMzqJAK15DIDSQZwPyV4v-ZQu98W4Q95rk6jbYiNpXanYNq1nXNETzMBuZQSMfRPGIOFfkD40cN3TpMd0W4JZtjffJKuvGCkvKW-U32uaLT1vWk"/>
+<div class="absolute top-3 right-3 bg-red-950/80 backdrop-blur px-2 py-1 text-[10px] font-data-mono text-red-400 border border-red-500/30">STOCK BAJO: 2</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-white uppercase italic-title tracking-tight">Dura-Ace Pedals</h3>
+<p class="text-[10px] text-white/40 uppercase font-label-caps mt-1">Ref: SH-PD9100</p>
+</div>
+<span class="font-data-mono text-[#FFEE00] text-lg">$280.00</span>
+</div>
+<button class="w-full py-4 bg-transparent border border-[#FFEE00] text-[#FFEE00] font-label-caps uppercase text-[11px] font-black tracking-widest hover:bg-[#FFEE00] hover:text-black transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    AÑADIR AL PEDIDO
+                                </button>
+</div>
+</div>
+<div class="bg-[#141414] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-300">
+<div class="h-56 relative overflow-hidden bg-black">
+<img alt="Carbon Wheelset" class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFjDQebrmTqVRKnU6LYi0FHco1yiwYdQeBbOSGQcf7uvYdcNJgz2JD0Dvw2300xiEL8duNZvUnL-xaqQzykVTAI-LcKaPf9Mu_mQfC3u3b7AvBvlLqHNYD2VFPmOt2tBqaoZrTMXrQOHNqBOMIl43bCrviyMgQtTF8gLsRp4OO_-tjgRCaoKqfRZQW5QYQSJEooZVXqW0zxhz5h_iBAMc8Lvusa99L0DSmQMhkYHjvF_ItOonQNTOC9Z_UWStaLhzk2fhy3pxumDRZ"/>
+<div class="absolute top-3 right-3 bg-black/80 backdrop-blur px-2 py-1 text-[10px] font-data-mono text-[#FFEE00] border border-[#FFEE00]/30">STOCK: 8</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-white uppercase italic-title tracking-tight">Zipp 303 Wheelset</h3>
+<p class="text-[10px] text-white/40 uppercase font-label-caps mt-1">Ref: ZP-303-C</p>
+</div>
+<span class="font-data-mono text-[#FFEE00] text-lg">$1,850.00</span>
+</div>
+<button class="w-full py-4 bg-transparent border border-[#FFEE00] text-[#FFEE00] font-label-caps uppercase text-[11px] font-black tracking-widest hover:bg-[#FFEE00] hover:text-black transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    AÑADIR AL PEDIDO
+                                </button>
+</div>
+</div><div class="bg-[#141414] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-300">
+<div class="h-56 relative overflow-hidden bg-black">
+<img alt="Hydraulic Brakes" class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLwJxUKglqi_MS2UaKqie2KdaZEdvRMXKwww1mGV4R_0mv10_9aOxrj8Wj4h7ikMqCE3dZ2ajDu3fvl2LoVZd7OWE9FvlCQVx7US9mOtYXMdnUN4p5MgORRz79ytKf1dGoG1dBX7Qk5WbYNorRXjuBqhqk90HBd-TZnZ4pacv0nniNmJXKFoHRs1zWCVH_qWqzsp6-__DgkWkdllQf1NyBaee3yrs5ozGrCa3Sg5qIlopzvG7FvYhbLsdhbdMlagbg3BU0R706Lh92"/>
+<div class="absolute top-3 right-3 bg-red-950/80 backdrop-blur px-2 py-1 text-[10px] font-data-mono text-red-400 border border-red-500/30">STOCK BAJO: 3</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-white uppercase italic-title tracking-tight">Magura MT7 Pro</h3>
+<p class="text-[10px] text-white/40 uppercase font-label-caps mt-1">Ref: MG-MT7-P</p>
+</div>
+<span class="font-data-mono text-[#FFEE00] text-lg">$450.00</span>
+</div>
+<button class="w-full py-4 bg-transparent border border-[#FFEE00] text-[#FFEE00] font-label-caps uppercase text-[11px] font-black tracking-widest hover:bg-[#FFEE00] hover:text-black transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    AÑADIR AL PEDIDO
+                                </button>
+</div>
+</div><div class="bg-[#141414] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-300">
+<div class="h-56 relative overflow-hidden bg-black">
+<img alt="Suspension Fork" class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyYBgJ_DFwlu8uuBncH5OhuRWiHuJ9yTH7yaGgcl1l-fO0RJF1xucwBMRThLRyf4E-oT4sDIxKKyAoubv4t31YgNVTOGpVsubyC77BTR4DyqSpffKgngXQ6jhU5CvSPAIC8daTxlmv0-3LF5RY-ua7bM4MjpwZL28aUqgp5lNzOoZjQQ9ze12JCZCKH65WYPNjS1bu8T9y_wuZ-Cri3F8ZenPYWxjOZDwneqPsv27aexZ5JlLh_iWJ4qbYBV7b6iGldDNQHSAJWtsP"/>
+<div class="absolute top-3 right-3 bg-black/80 backdrop-blur px-2 py-1 text-[10px] font-data-mono text-[#FFEE00] border border-[#FFEE00]/30">STOCK: 5</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-white uppercase italic-title tracking-tight">Fox 38 Factory</h3>
+<p class="text-[10px] text-white/40 uppercase font-label-caps mt-1">Ref: FX-38F-29</p>
+</div>
+<span class="font-data-mono text-[#FFEE00] text-lg">$1,189.00</span>
+</div>
+<button class="w-full py-4 bg-transparent border border-[#FFEE00] text-[#FFEE00] font-label-caps uppercase text-[11px] font-black tracking-widest hover:bg-[#FFEE00] hover:text-black transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    AÑADIR AL PEDIDO
+                                </button>
+</div>
+</div><div class="bg-[#141414] border border-white/5 overflow-hidden group hover:border-white/20 transition-all duration-300">
+<div class="h-56 relative overflow-hidden bg-black">
+<img alt="Bicycle Chain" class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgDesLT81Bj8UVk0Q-GzkR_atYM0C4TBjeJzFP87A0bfjX_wy_ZlV9rmKJyBUd62ZTk-M8CqdT7pjn1H3jtJMxP2ria-66Jkr0liaTohGdZMqGb-HNYcUc97xJxl_a7Po41bnDltthjRrmRHHe5wRPZsfKmn-JhPfRkVZlpPt2qi9Q82s62ayXX5cqOjCuuz7MTrXgpIe-az5Nakjd7PqIhJacM-22CjqpjchNBWH15pjZOMAI-IKh7WTLlEtnUzBF4d_mcNoiy_mm"/>
+<div class="absolute top-3 right-3 bg-black/80 backdrop-blur px-2 py-1 text-[10px] font-data-mono text-[#FFEE00] border border-[#FFEE00]/30">STOCK: 20</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-white uppercase italic-title tracking-tight">KMC DLC11 Chain</h3>
+<p class="text-[10px] text-white/40 uppercase font-label-caps mt-1">Ref: KM-DLC11-B</p>
+</div>
+<span class="font-data-mono text-[#FFEE00] text-lg">$120.00</span>
+</div>
+<button class="w-full py-4 bg-transparent border border-[#FFEE00] text-[#FFEE00] font-label-caps uppercase text-[11px] font-black tracking-widest hover:bg-[#FFEE00] hover:text-black transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    AÑADIR AL PEDIDO
+                                </button>
+</div>
+</div></div>
+</div>
+<!-- Right Column (Sticky Panel) -->
+<aside class="xl:col-span-4">
+<div class="sticky top-24 space-y-6">
+<!-- Client Details Panel -->
+<div class="bg-[#141414] border border-white/10 p-6 relative">
+<div class="absolute left-0 top-6 w-1 h-4 bg-[#FFEE00]"></div>
+<div class="flex justify-between items-center mb-6 pl-4">
+<h2 class="font-label-caps text-[#FFEE00] uppercase text-[11px] tracking-widest font-black">DETALLES DEL PROVEEDOR</h2>
+<button class="text-[9px] font-label-caps text-white/40 hover:text-[#FFEE00] border border-white/10 px-2 py-1 transition-all uppercase">BUSCAR OTRO</button>
+</div>
+<div class="bg-black/40 border border-white/5 p-4 space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#FFEE00] text-sm">business</span>
+<div class="text-xs font-bold text-white uppercase tracking-tight">Shimano Distribution Iberia</div>
+</div>
+<div class="flex items-center gap-3 text-white/40">
+<span class="material-symbols-outlined text-xs">mail</span>
+<span class="text-[10px] font-data-mono">orders@shimano-dist.com</span>
+</div>
+</div>
+</div>
+<!-- Cart Panel -->
+<div class="bg-[#141414] border border-white/10 p-6 flex flex-col max-h-[calc(100vh-320px)] relative">
+<div class="absolute left-0 top-6 w-1 h-4 bg-[#FFEE00]"></div>
+<div class="flex justify-between items-center mb-6 pl-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#FFEE00] text-lg">shopping_cart</span>
+<h2 class="font-label-caps text-white uppercase text-[11px] tracking-widest font-black">CARRITO ACTIVO</h2>
+</div>
+<button class="text-[9px] font-label-caps text-red-400/60 hover:text-red-400 uppercase tracking-widest transition-all">Limpiar Todo</button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-4 pr-1 mb-6">
+<!-- Cart Items (Simplified for brevity) -->
+<div class="bg-black/30 border border-white/5 p-3 flex gap-4 group">
+<div class="w-12 h-12 bg-black overflow-hidden flex-shrink-0 border border-white/10">
+<img alt="item" class="w-full h-full object-cover opacity-60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwiFU1-VTPAfeFIwlBWV1g8Q8OJ47vlbnrlo9drkGxtR0HuGmawiCDwDNeK9h9Ib56gdxoYiOtnt6LepvmB-bEooaRTeE9zMySWlTvCdRI8iLKnE6kabfiz2uU8KJNkk-aYA__Yhx5zWGm4m66csiiVGnzj0jiGx77kaan7MOrNcWkNrOizJUUUWb5i6vNQos351LROMExpI5djrNx6RK6peNxVIDIoZaf8F3hoB9HkN3ZmW4YlJv_0iLdzTeTGqzxi8aStSGXaOj3"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<div class="text-[10px] font-black uppercase text-white tracking-tight">Ultegra Groupset</div>
+<button class="material-symbols-outlined text-white/20 hover:text-red-500 text-sm transition-all">delete</button>
+</div>
+<div class="flex justify-between items-end mt-2">
+<div class="flex items-center bg-black/50 border border-white/10">
+<button class="px-2 py-0.5 text-white/40 hover:text-[#FFEE00]">-</button>
+<span class="px-2 text-[10px] font-data-mono text-white border-x border-white/10">02</span>
+<button class="px-2 py-0.5 text-white/40 hover:text-[#FFEE00]">+</button>
+</div>
+<span class="text-[10px] font-data-mono text-[#FFEE00]">$2,498.00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4 pt-6 border-t border-white/10">
+<div class="flex justify-between items-center py-4 border-y border-white/5">
+<span class="font-label-caps text-white uppercase text-[12px] font-black tracking-widest">TOTAL</span>
+<span class="font-data-mono text-[#FFEE00] text-3xl font-black italic-title tracking-tighter">$4,638.62</span>
+</div>
+<button class="w-full bg-[#FFEE00] text-black font-label-caps font-black py-5 uppercase text-[13px] tracking-widest hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-xl">payments</span>
+                                    PROCESAR PEDIDO (POS)
+                                </button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#0a0a0a] border-t border-white/10 flex justify-around items-center h-16 z-50">
+<a class="flex flex-col items-center text-[#FFEE00]" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[9px] font-label-caps uppercase mt-1">Catalog</span>
+</a>
+<a class="flex flex-col items-center text-white/40" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[9px] font-label-caps uppercase mt-1">History</span>
+</a>
+<div class="-mt-10 bg-[#FFEE00] p-4 rounded-full border-4 border-[#0a0a0a] shadow-lg">
+<span class="material-symbols-outlined text-black">shopping_cart</span>
+</div>
+<a class="flex flex-col items-center text-white/40" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[9px] font-label-caps uppercase mt-1">Report</span>
+</a>
+<a class="flex flex-col items-center text-white/40" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[9px] font-label-caps uppercase mt-1">Account</span>
+</a>
+</nav>
+</body></html>
