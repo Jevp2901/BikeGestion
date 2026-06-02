@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+.env
+*.sqlite3
+
+# Node (frontend)
+Frontend/node_modules/
+Frontend/dist/
+Frontend/dist-ssr/
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
