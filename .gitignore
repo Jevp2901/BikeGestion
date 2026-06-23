@@ -1,0 +1,20 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+*.sqlite3
+
+# Node & React (Frontend)
+Frontend/node_modules/
+Frontend/dist/
+Frontend/dist-ssr/
+*.local
+
+# Editor & System files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
