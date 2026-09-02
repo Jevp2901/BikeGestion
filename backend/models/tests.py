@@ -7,7 +7,7 @@ from .models import Rol, Usuario
 class EditarUsuarioTests(TestCase):
     def setUp(self):
         # Create roles
-        self.role_empleado = Rol.objects.create(id_rol=1, nombre_rol="Empleado", permisos="lectura,escritura")
+        self.role_vendedor = Rol.objects.create(id_rol=1, nombre_rol="Vendedor", permisos="lectura,escritura")
         self.role_admin = Rol.objects.create(id_rol=2, nombre_rol="Administrador", permisos="todos")
         
         # Create test user

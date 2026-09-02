@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { obtenerSesion } from "../utils/sesion";
+import { getRoleName } from "../utils/roles";
 import "../App.css";
 
 const kpis = [
@@ -101,6 +102,9 @@ function Dashboard() {
     setUsuario(obtenerSesion());
   }, []);
 
+  const rolId = Number(usuario?.rol);
+  const primaryModule = rolId === 1 ? "/venta" : rolId === 2 ? "/reportes" : "/dashboard";
+
   if (!usuario) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -117,7 +121,7 @@ function Dashboard() {
             Bienvenido, {usuario.nombre}
           </h2>
           <p className="text-[#e3e2e2]">
-            La tienda en Bogotá está operativa. Gestiona tu ecosistema con precisión quirúrgica.
+            {getRoleName(rolId)} activo. Gestiona tu ecosistema con precisión quirúrgica.
           </p>
         </div>
         <div className="flex flex-wrap gap-4">
@@ -192,7 +196,7 @@ function Dashboard() {
               Actividad Reciente del Taller
             </h3>
             <Link
-              to="/venta"
+              to={primaryModule}
               className="font-mono text-xs uppercase text-[#ffd700] hover:underline"
             >
               Ver Todo
@@ -234,37 +238,64 @@ function Dashboard() {
         </section>
 
         <div className="flex flex-col gap-4">
-          <section className="flex-1 rounded border border-[#ffb4ab]/50 bg-[#0a0a0a]">
-            <div className="flex items-center gap-2 border-b border-[#1a1a1a] p-5">
-              <span className="material-symbols-outlined text-[#ffb4ab]">warning</span>
-              <h3 className="text-lg font-bold uppercase tracking-widest text-[#ffb4ab]">
-                Alertas Críticas
-              </h3>
-            </div>
-            <div className="space-y-4 p-5">
-              {alertas.map((alerta) => (
-                <div
-                  key={alerta.producto}
-                  className="relative rounded border border-[#333333] bg-[#121212] p-4"
-                >
-                  <div className={`absolute left-0 top-0 h-full w-1 rounded-l ${alerta.color}`} />
-                  <div className="mb-1 flex items-start justify-between gap-3">
-                    <h4 className="font-mono text-sm text-[#e3e2e2]">{alerta.producto}</h4>
-                    <span className={`font-mono text-xs font-bold uppercase ${alerta.estadoClass}`}>
-                      {alerta.estado}
-                    </span>
-                  </div>
-                  <p className="mb-2 font-mono text-sm text-[#d0c6ab]">{alerta.detalle}</p>
-                  <Link
-                    to="/inventario"
-                    className="text-xs uppercase text-[#ffd700] hover:underline"
+          {rolId === 1 ? (
+            <section className="flex-1 rounded border border-[#ffb4ab]/50 bg-[#0a0a0a]">
+              <div className="flex items-center gap-2 border-b border-[#1a1a1a] p-5">
+                <span className="material-symbols-outlined text-[#ffb4ab]">warning</span>
+                <h3 className="text-lg font-bold uppercase tracking-widest text-[#ffb4ab]">
+                  Alertas Críticas
+                </h3>
+              </div>
+              <div className="space-y-4 p-5">
+                {alertas.map((alerta) => (
+                  <div
+                    key={alerta.producto}
+                    className="relative rounded border border-[#333333] bg-[#121212] p-4"
                   >
-                    {alerta.accion}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </section>
+                    <div className={`absolute left-0 top-0 h-full w-1 rounded-l ${alerta.color}`} />
+                    <div className="mb-1 flex items-start justify-between gap-3">
+                      <h4 className="font-mono text-sm text-[#e3e2e2]">{alerta.producto}</h4>
+                      <span className={`font-mono text-xs font-bold uppercase ${alerta.estadoClass}`}>
+                        {alerta.estado}
+                      </span>
+                    </div>
+                    <p className="mb-2 font-mono text-sm text-[#d0c6ab]">{alerta.detalle}</p>
+                    <Link
+                      to="/inventario"
+                      className="text-xs uppercase text-[#ffd700] hover:underline"
+                    >
+                      {alerta.accion}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : (
+            <section className="flex-1 rounded border border-[#1a1a1a] bg-[#0a0a0a] p-5">
+              <h3 className="font-mono text-sm uppercase tracking-widest text-[#d0c6ab]">
+                Accesos administrativos
+              </h3>
+              <p className="mt-3 text-sm text-[#e3e2e2]">
+                Tu rol se centra en empleados y reportes. Usa el menú lateral para abrir esas funciones.
+              </p>
+              <div className="mt-4 flex flex-col gap-3">
+                <Link
+                  to="/empleados"
+                  className="flex items-center gap-3 rounded-lg border border-[#333333] bg-[#121212] px-4 py-3 text-sm text-[#e3e2e2] transition-colors hover:border-[#ffd700] hover:text-[#ffd700]"
+                >
+                  <span className="material-symbols-outlined text-sm">badge</span>
+                  <span>Empleados</span>
+                </Link>
+                <Link
+                  to="/reportes"
+                  className="flex items-center gap-3 rounded-lg border border-[#333333] bg-[#121212] px-4 py-3 text-sm text-[#e3e2e2] transition-colors hover:border-[#ffd700] hover:text-[#ffd700]"
+                >
+                  <span className="material-symbols-outlined text-sm">analytics</span>
+                  <span>Reportes</span>
+                </Link>
+              </div>
+            </section>
+          )}
 
           <section className="rounded border border-[#1a1a1a] bg-[#0a0a0a] p-5">
             <h3 className="mb-4 font-mono text-sm uppercase tracking-widest text-[#d0c6ab]">

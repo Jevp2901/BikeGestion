@@ -208,8 +208,9 @@ function Registro() {
                               </label>
                               <select name="id_rol" value={formData.id_rol} onChange={handleChange} className={fieldClass('id_rol')} required>
                                   <option className="bg-black" value="">Selecciona un rol</option>
-                                  <option className="bg-black" value="1">Empleado</option>
+                                  <option className="bg-black" value="1">Vendedor</option>
                                   <option className="bg-black" value="2">Administrador</option>
+                                  <option className="bg-black" value="3">Mecanico</option>
                               </select>
                               <FieldError name="id_rol" />
                           </div>

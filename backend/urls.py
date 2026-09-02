@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('bikegestion/', include('backend.models.urls')),
+    path('bikegestion/api/v1/', include('backend.apps.core.urls')),
 ]

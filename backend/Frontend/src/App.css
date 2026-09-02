@@ -24,6 +24,17 @@
   --color-outline: #999077;
 }
 
+:root {
+  --ui-background: #050505;
+  --ui-surface: #0d0e0f;
+  --ui-surface-raised: #121212;
+  --ui-surface-field: #0a0a0a;
+  --ui-accent: #ffd700;
+  --ui-text: #f3f1ea;
+  --ui-text-muted: #d0c6ab;
+  --ui-border: #2c2d2d;
+}
+
 html,
 body,
 #root {
@@ -38,6 +49,30 @@ textarea,
 table {
   font-family: "Hanken Grotesk", Arial, sans-serif;
 }
+
+body {
+  background: var(--ui-background);
+  color: var(--ui-text);
+}
+
+button,
+input,
+select,
+textarea,
+.rounded,
+.rounded-sm,
+.rounded-md {
+  border-radius: 10px;
+}
+
+.ui-surface { background: var(--ui-surface); }
+.ui-surface-raised { background: var(--ui-surface-raised); }
+.ui-field { background: var(--ui-surface-field); }
+.ui-action { background: var(--ui-accent); color: #171300; }
+.ui-copy { color: var(--ui-text); }
+.ui-copy-muted { color: var(--ui-text-muted); }
+.ui-border { border-color: var(--ui-border); }
+.ui-badge { border: 1px solid rgba(255, 215, 0, 0.28); background: rgba(255, 215, 0, 0.1); color: var(--ui-accent); }
 
 h1,
 h2,

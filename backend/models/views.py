@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
 from django.contrib.auth.hashers import check_password
+from django.db.models import OuterRef, Subquery
 from datetime import datetime
 
-from .models import Usuario, Articulo
+from .models import Usuario, Articulo, InventarioArticulo
 from .movimientos_store import (
     list_movimientos,
     get_movimiento,
@@ -59,24 +60,50 @@ class LoginUsuario(APIView):
         
         try:
             usuario = Usuario.objects.get(nombre_usuario=nombre_usuario)
-            
-            # Usar check_password para comparar contraseñas encriptadas
-            if check_password(contrasena, usuario.contrasena):
-                return Response({
-                    "mensaje": "Inicio de sesión exitoso",
-                    "usuario": usuario_response(usuario)
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    {"error": "Contraseña incorrecta"},
-                    status=status.HTTP_401_UNAUTHORIZED
-                )
-        
         except Usuario.DoesNotExist:
             return Response(
                 {"error": "Usuario no encontrado"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        # Si la contraseña guardada NO tiene formato de hash de Django
+        # (p.ej. está en texto plano), intentar comparación directa como
+        # fallback. Esto evita el 500 que se produce cuando check_password
+        # no puede parsear un valor que no es un hash válido.
+        contrasena_guardada = usuario.contrasena or ''
+        es_hash_django = (
+            contrasena_guardada.startswith('argon2$')
+            or contrasena_guardada.startswith('pbkdf2_sha256$')
+            or contrasena_guardada.startswith('pbkdf2_sha1$')
+            or contrasena_guardada.startswith('bcrypt$')
+            or contrasena_guardada.startswith('bcrypt_sha256$')
+            or contrasena_guardada.startswith('md5$')
+            or contrasena_guardada.startswith('sha1$')
+            or contrasena_guardada.startswith('unsalted_sha1$')
+            or contrasena_guardada.startswith('crypt$')
+        )
+
+        contrasena_valida = False
+        try:
+            if es_hash_django:
+                contrasena_valida = check_password(contrasena, contrasena_guardada)
+            else:
+                # Texto plano: comparar directamente. NO recomendado para
+                # producción; sólo evita el crash con datos legacy.
+                contrasena_valida = (contrasena == contrasena_guardada)
+        except (ValueError, TypeError):
+            contrasena_valida = False
+
+        if contrasena_valida:
+            return Response({
+                "mensaje": "Inicio de sesión exitoso",
+                "usuario": usuario_response(usuario)
+            }, status=status.HTTP_200_OK)
+
+        return Response(
+            {"error": "Contraseña incorrecta"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class EditarUsuarioView(APIView):
@@ -119,7 +146,12 @@ class EditarUsuarioView(APIView):
 
 class ArticuloListCreateView(APIView):
     def get(self, request):
-        articulos = Articulo.objects.all().order_by('-id_articulo')
+        stock_actual = InventarioArticulo.objects.filter(
+            id_articulo=OuterRef('pk')
+        ).order_by('-id_inventario_articulo').values('cantidad_actual')[:1]
+        articulos = Articulo.objects.annotate(
+            cantidad_articulo=Subquery(stock_actual)
+        ).filter(activo=True).order_by('-id_articulo')
         serializer = ArticuloSerializer(articulos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -146,21 +178,16 @@ class ArticuloDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, id_articulo):
-        articulo = self.get_object(id_articulo)
-        if not articulo:
-            return Response({'error': 'Artículo no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ArticuloSerializer(articulo, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Los artículos no se pueden editar desde Inventario.'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
 
     def delete(self, request, id_articulo):
-        articulo = self.get_object(id_articulo)
-        if not articulo:
-            return Response({'error': 'Artículo no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        articulo.delete()
-        return Response({'mensaje': 'Artículo eliminado correctamente'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'error': 'Los artículos no se pueden eliminar desde Inventario.'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
 
 
 def _parse_iso_date(value):

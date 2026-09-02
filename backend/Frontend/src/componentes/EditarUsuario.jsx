@@ -650,8 +650,9 @@ function EditarUsuario() {
                       disabled={Number(usuarioSesion?.rol) !== 2}
                       className="input-mech w-full p-4 font-body-lg text-on-surface appearance-none pr-12 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <option className="bg-black" value="1">Empleado</option>
+                      <option className="bg-black" value="1">Vendedor</option>
                       <option className="bg-black" value="2">Administrador</option>
+                      <option className="bg-black" value="3">Mecanico</option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">
                       <span className="material-symbols-outlined">expand_more</span>

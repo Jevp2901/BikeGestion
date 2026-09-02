@@ -1,4 +1,5 @@
 export const API_BASE_URL = 'http://127.0.0.1:8000/bikegestion/api';
+export const API_V1_BASE_URL = 'http://127.0.0.1:8000/bikegestion/api/v1';
 
 export function guardarSesion(usuario) {
   localStorage.setItem('usuario', JSON.stringify(usuario));

@@ -30,6 +30,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return value
 
     def validate_id_rol(self, value):
+        if value not in {1, 2, 3}:
+            raise serializers.ValidationError('El rol debe ser Administrador, Vendedor o Mecanico.')
         if not Rol.objects.filter(id_rol=value).exists():
             raise serializers.ValidationError('El rol seleccionado no existe.')
         return value
@@ -119,6 +121,8 @@ class UsuarioUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_id_rol(self, value):
+        if value not in {1, 2, 3}:
+            raise serializers.ValidationError('El rol debe ser Administrador, Vendedor o Mecanico.')
         if not Rol.objects.filter(id_rol=value).exists():
             raise serializers.ValidationError('El rol seleccionado no existe.')
         return value
@@ -203,9 +207,23 @@ class UsuarioUpdateSerializer(serializers.ModelSerializer):
 
 
 class ArticuloSerializer(serializers.ModelSerializer):
+    cantidad_articulo = serializers.IntegerField(read_only=True, allow_null=True)
+
     class Meta:
         model = Articulo
-        fields = '__all__'
+        fields = [
+            'id_articulo',
+            'nombre_articulo',
+            'cantidad_articulo',
+            'descripcion_articulo',
+            'tipo_articulo',
+            'material',
+            'color',
+            'tamano',
+            'precio_articulo',
+            'porcentaje_ganancia',
+            'activo',
+        ]
         read_only_fields = ['id_articulo']
 
 

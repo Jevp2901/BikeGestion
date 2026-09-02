@@ -217,8 +217,7 @@ function Inventario() {
     setSubmittingArticulo(true);
     setError("");
 
-    const payload = { ...articuloForm, id_inventario: 1 };
-    if (payload.cantidad_articulo === "") payload.cantidad_articulo = null;
+    const { cantidad_articulo, ...payload } = articuloForm;
     if (payload.precio_articulo !== "") {
       payload.precio_articulo = parseFloat(payload.precio_articulo);
     }
@@ -426,13 +425,9 @@ function Inventario() {
                 Control de entradas, salidas y ajuste automático del stock sobre `articulo`.
               </p>
             </div>
-            <button
-              onClick={openArticuloCreateModal}
-              className="inline-flex items-center gap-2 self-start rounded-sm bg-[#ffd700] px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition-all hover:bg-[#e6c200]"
-            >
-              <span className="material-symbols-outlined text-sm">add</span>
-              Nuevo Artículo
-            </button>
+            <span className="self-start rounded-sm border border-[#4d4732] px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#d0c6ab]">
+              Catálogo gestionado por Compras
+            </span>
           </div>
 
           <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
@@ -577,23 +572,8 @@ function Inventario() {
                               </button>
                             </div>
                           </td>
-                          <td className="p-4 text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <button
-                                onClick={() => openArticuloEditModal(articulo)}
-                                className="p-1 text-[#d0c6ab] transition-all hover:text-[#ffd700]"
-                                title="Editar"
-                              >
-                                <span className="material-symbols-outlined text-lg">edit</span>
-                              </button>
-                              <button
-                                onClick={() => handleArticuloDelete(articulo.id_articulo)}
-                                className="p-1 text-[#d0c6ab] transition-all hover:text-[#ffb4ab]"
-                                title="Eliminar"
-                              >
-                                <span className="material-symbols-outlined text-lg">delete</span>
-                              </button>
-                            </div>
+                          <td className="p-4 text-right text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]/60">
+                            Solo consulta
                           </td>
                         </tr>
                       );

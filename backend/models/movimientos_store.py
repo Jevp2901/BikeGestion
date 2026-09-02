@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import NotFound, ValidationError
 
-from .models import Articulo, Usuario
+from .models import Articulo, InventarioArticulo, Usuario
 
 MOVIMIENTOS_VALIDOS = ("Entrada", "Salida")
 RAZONES_VALIDAS = ("Compra", "Venta", "Ajuste", "Pérdida", "Devolución", "Otro")
@@ -112,11 +112,14 @@ def registrar_movimiento(
 
     with transaction.atomic():
         try:
-            articulo = Articulo.objects.select_for_update().get(id_articulo=id_articulo)
-        except Articulo.DoesNotExist:
+            articulo = Articulo.objects.get(id_articulo=id_articulo)
+            inventario_articulo = InventarioArticulo.objects.select_for_update().get(
+                id_articulo=id_articulo
+            )
+        except (Articulo.DoesNotExist, InventarioArticulo.DoesNotExist):
             raise ValidationError({"id_articulo": "Artículo no encontrado."})
 
-        stock_actual = int(articulo.cantidad_articulo or 0)
+        stock_actual = int(inventario_articulo.cantidad_actual or 0)
         if tipo_movimiento == "Salida" and cantidad > stock_actual:
             raise ValidationError(
                 {
@@ -130,8 +133,18 @@ def registrar_movimiento(
         if nuevo_stock < 0:
             raise ValidationError({"error": "El stock no puede quedar en negativo."})
 
-        articulo.cantidad_articulo = nuevo_stock
-        articulo.save(update_fields=["cantidad_articulo"])
+        inventario_articulo.cantidad_actual = nuevo_stock
+        if tipo_movimiento == "Entrada":
+            inventario_articulo.entrada += cantidad
+        else:
+            inventario_articulo.salida += cantidad
+        inventario_articulo.fecha_actualizacion = timezone.localdate()
+        inventario_articulo.save(update_fields=[
+            "cantidad_actual",
+            "entrada",
+            "salida",
+            "fecha_actualizacion",
+        ])
 
         movimiento = {
             "id_articulo": articulo.id_articulo,
@@ -158,13 +171,14 @@ def revertir_movimiento(id_movimiento: Any) -> dict[str, Any]:
             raise NotFound("Movimiento no encontrado")
 
         try:
-            articulo = Articulo.objects.select_for_update().get(
+            articulo = Articulo.objects.get(id_articulo=movimiento["id_articulo"])
+            inventario_articulo = InventarioArticulo.objects.select_for_update().get(
                 id_articulo=movimiento["id_articulo"]
             )
-        except Articulo.DoesNotExist:
+        except (Articulo.DoesNotExist, InventarioArticulo.DoesNotExist):
             raise ValidationError({"id_articulo": "Artículo no encontrado."})
 
-        stock_actual = int(articulo.cantidad_articulo or 0)
+        stock_actual = int(inventario_articulo.cantidad_actual or 0)
         cantidad = int(movimiento["cantidad"])
 
         if movimiento["tipo_movimiento"] == "Entrada":
@@ -175,8 +189,18 @@ def revertir_movimiento(id_movimiento: Any) -> dict[str, Any]:
         if nuevo_stock < 0:
             raise ValidationError({"error": "No es posible revertir el movimiento porque dejaría el stock en negativo."})
 
-        articulo.cantidad_articulo = nuevo_stock
-        articulo.save(update_fields=["cantidad_articulo"])
+        inventario_articulo.cantidad_actual = nuevo_stock
+        if movimiento["tipo_movimiento"] == "Entrada":
+            inventario_articulo.entrada = max(0, inventario_articulo.entrada - cantidad)
+        else:
+            inventario_articulo.salida = max(0, inventario_articulo.salida - cantidad)
+        inventario_articulo.fecha_actualizacion = timezone.localdate()
+        inventario_articulo.save(update_fields=[
+            "cantidad_actual",
+            "entrada",
+            "salida",
+            "fecha_actualizacion",
+        ])
         delete_movimiento(id_movimiento)
         movimiento["stock_actualizado_a"] = nuevo_stock
         movimiento["nuevo_stock"] = nuevo_stock

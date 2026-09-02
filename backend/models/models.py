@@ -4,11 +4,11 @@ from django.db import models
 class Usuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
     id_rol = models.IntegerField()
-    nombre_usuario = models.CharField(max_length=50)
+    nombre_usuario = models.CharField(max_length=100)
     telefono = models.CharField(max_length=20)
-    correo = models.EmailField(max_length=50)
-    contrasena = models.CharField(max_length=255, db_column='contraseña')
-    direccion = models.CharField(max_length=50)
+    correo = models.EmailField(max_length=254)
+    contrasena = models.CharField(max_length=255)
+    direccion = models.CharField(max_length=150)
     
     class Meta:
         db_table = 'usuario'
@@ -44,15 +44,15 @@ class Inventario(models.Model):
 
 class Articulo(models.Model):
     id_articulo = models.AutoField(primary_key=True)
-    id_inventario = models.IntegerField()
     nombre_articulo = models.CharField(max_length=100)
-    cantidad_articulo = models.IntegerField(null=True, blank=True)
-    descripcion_articulo = models.CharField(max_length=150, null=True, blank=True)
-    tipo_articulo = models.CharField(max_length=50, null=True, blank=True)
+    descripcion_articulo = models.CharField(max_length=255, null=True, blank=True)
+    tipo_articulo = models.CharField(max_length=50)
     material = models.CharField(max_length=50, null=True, blank=True)
-    color = models.CharField(max_length=50, null=True, blank=True)
-    tamano = models.CharField(max_length=50, null=True, blank=True, db_column='tamaño')
+    color = models.CharField(max_length=80, null=True, blank=True)
+    tamano = models.CharField(max_length=50, null=True, blank=True, db_column='tamano')
     precio_articulo = models.DecimalField(max_digits=12, decimal_places=2)
+    porcentaje_ganancia = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    activo = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'articulo'
@@ -60,6 +60,22 @@ class Articulo(models.Model):
 
     def __str__(self):
         return self.nombre_articulo
+
+
+class InventarioArticulo(models.Model):
+    id_inventario_articulo = models.AutoField(primary_key=True)
+    id_inventario = models.IntegerField()
+    id_articulo = models.IntegerField()
+    cantidad_actual = models.IntegerField(default=0)
+    stock_minimo = models.IntegerField(default=0)
+    stock_maximo = models.IntegerField(default=0)
+    entrada = models.IntegerField(default=0)
+    salida = models.IntegerField(default=0)
+    fecha_actualizacion = models.DateField()
+
+    class Meta:
+        db_table = 'inventario_articulo'
+        managed = False
 
 
 class MovimientoInventario(models.Model):

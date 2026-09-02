@@ -33,7 +33,10 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'backend.models',
 ]
@@ -118,11 +122,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Argon2 es el hasher preferido para nuevos registros; bcrypt queda habilitado
-# para compatibilidad si la base existente ya contiene hashes con ese algoritmo.
+# Argon2 es el hasher preferido para nuevos registros. PBKDF2 queda habilitado
+# como fallback compatible (incluido en Django, no requiere libs externas).
+# BCryptSHA256 NO se incluye porque el módulo `bcrypt` no está instalado en el
+# entorno actual; incluirlo hace que `check_password` reviente con
+# ValueError -> HTTP 500 en cualquier login.
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 ]

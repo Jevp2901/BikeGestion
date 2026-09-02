@@ -1,12 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import LogoMarca from './LogoMarca';
+import { getRoleName } from '../utils/roles';
 import '../App.css';
 
 function DashboardPrincipal() {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const rolId = Number(usuario?.rol);
+  const quickLinks = rolId === 1
+    ? [
+        { to: "/inventario", label: "Inventario", emoji: "📦" },
+        { to: "/venta", label: "Ventas", emoji: "💰" },
+        { to: "/cotizacion", label: "Cotizaciones", emoji: "📝" },
+        { to: "/compras", label: "Compras", emoji: "🚚" },
+        { to: "/proveedores", label: "Proveedores", emoji: "🤝" },
+      ]
+    : rolId === 2
+      ? [
+          { to: "/empleados", label: "Empleados", emoji: "👥" },
+          { to: "/reportes", label: "Reportes", emoji: "📊" },
+        ]
+      : [];
 
   useEffect(() => {
     // Verificar si el usuario está autenticado
@@ -50,7 +66,7 @@ function DashboardPrincipal() {
                 {usuario?.nombre || 'Andres'}
               </p>
               <p className="text-white/60 text-xs font-medium tracking-wider">
-                {usuario?.rol === 1 ? 'Administrador' : usuario?.rol === 2 ? 'Empleado' : 'Usuario'}
+                {getRoleName(rolId)}
               </p>
             </div>
 
@@ -104,8 +120,8 @@ function DashboardPrincipal() {
               </div>
               <div>
                 <p className="text-white/70 text-sm mb-1">Rol</p>
-                <p className="text-white text-lg font-semibold">
-                  {usuario?.rol === 1 ? 'Administrador' : usuario?.rol === 2 ? 'Empleado' : 'Usuario'}
+              <p className="text-white text-lg font-semibold">
+                  {getRoleName(rolId)}
                 </p>
               </div>
               <div>
@@ -126,35 +142,17 @@ function DashboardPrincipal() {
           {/* Quick Links */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6 text-white">Accesos Rápidos</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link
-                to="/inventario"
-                className="rounded-xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors text-center"
-              >
-                <div className="text-4xl mb-3">📦</div>
-                <p className="text-white font-semibold">Inventario</p>
-              </Link>
-              <Link
-                to="/empleados"
-                className="rounded-xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors text-center"
-              >
-                <div className="text-4xl mb-3">👥</div>
-                <p className="text-white font-semibold">Empleados</p>
-              </Link>
-              <Link
-                to="/venta"
-                className="rounded-xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors text-center"
-              >
-                <div className="text-4xl mb-3">💰</div>
-                <p className="text-white font-semibold">Ventas</p>
-              </Link>
-              <Link
-                to="/reportes"
-                className="rounded-xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors text-center"
-              >
-                <div className="text-4xl mb-3">📊</div>
-                <p className="text-white font-semibold">Reportes</p>
-              </Link>
+            <div className={`grid grid-cols-1 gap-4 ${quickLinks.length > 2 ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-2'}`}>
+              {quickLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="rounded-xl border border-white/10 bg-white/5 p-6 text-center transition-colors hover:bg-white/10"
+                >
+                  <div className="mb-3 text-4xl">{link.emoji}</div>
+                  <p className="font-semibold text-white">{link.label}</p>
+                </Link>
+              ))}
             </div>
           </section>
 
