@@ -2,18 +2,21 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Hanken Grotesk", Arial, sans-serif;
-  --font-body: "Hanken Grotesk", Arial, sans-serif;
-  --font-headline: "Hanken Grotesk", Arial, sans-serif;
-  --font-headline-lg: "Hanken Grotesk", Arial, sans-serif;
-  --font-headline-md: "Hanken Grotesk", Arial, sans-serif;
-  --font-headline-xl: "Hanken Grotesk", Arial, sans-serif;
-  --font-body-lg: "Hanken Grotesk", Arial, sans-serif;
-  --font-body-md: "Hanken Grotesk", Arial, sans-serif;
-  --font-label-md: "Hanken Grotesk", Arial, sans-serif;
-  --font-label-sm: "Hanken Grotesk", Arial, sans-serif;
-  --font-label-caps: "Hanken Grotesk", Arial, sans-serif;
-  --font-data-mono: "Hanken Grotesk", Arial, sans-serif;
+  --font-ui: "Hanken Grotesk", Arial, sans-serif;
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-ui);
+  --font-serif: var(--font-ui);
+  --font-body: var(--font-ui);
+  --font-headline: var(--font-ui);
+  --font-headline-lg: var(--font-ui);
+  --font-headline-md: var(--font-ui);
+  --font-headline-xl: var(--font-ui);
+  --font-body-lg: var(--font-ui);
+  --font-body-md: var(--font-ui);
+  --font-label-md: var(--font-ui);
+  --font-label-sm: var(--font-ui);
+  --font-label-caps: var(--font-ui);
+  --font-data-mono: var(--font-ui);
   --color-primary-container: #ffd700;
   --color-on-primary-fixed: #221b00;
   --color-on-surface-variant: #d0c6ab;
@@ -25,6 +28,7 @@
 }
 
 :root {
+  --font-ui: "Hanken Grotesk", Arial, sans-serif;
   --ui-background: #050505;
   --ui-surface: #0d0e0f;
   --ui-surface-raised: #121212;
@@ -38,7 +42,7 @@
 html,
 body,
 #root {
-  font-family: "Hanken Grotesk", Arial, sans-serif;
+  font-family: var(--font-ui);
 }
 
 body,
@@ -46,8 +50,10 @@ button,
 input,
 select,
 textarea,
-table {
-  font-family: "Hanken Grotesk", Arial, sans-serif;
+table,
+optgroup,
+option {
+  font-family: var(--font-ui);
 }
 
 body {
@@ -105,11 +111,37 @@ th,
 .headline-kinetic,
 .kinetic-headline,
 .italic-title {
-  font-family: "Hanken Grotesk", Arial, sans-serif;
+  font-family: var(--font-ui);
+}
+
+/* Keep Tailwind's font utilities aligned with the Dashboard typography. */
+.font-sans,
+.font-mono,
+.font-serif,
+.font-ui,
+.font-body,
+.font-body-lg,
+.font-body-md,
+.font-headline,
+.font-headline-lg,
+.font-headline-md,
+.font-headline-xl,
+.font-label,
+.font-label-md,
+.font-label-sm,
+.font-label-caps,
+.font-data-mono {
+  font-family: var(--font-ui) !important;
+}
+
+/* The dashboard and every protected module share this layout shell. */
+.panel-layout,
+.panel-layout * {
+  font-family: var(--font-ui) !important;
 }
 
 .material-symbols-outlined {
-  font-family: "Material Symbols Outlined";
+  font-family: "Material Symbols Outlined" !important;
 }
 
 .dot-grid {

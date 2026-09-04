@@ -54,36 +54,37 @@ class ClienteListView(APIView):
 
 class ProveedorListView(APIView):
     def get(self, request):
-        tipo = request.query_params.get("tipo_articulo")
         sql = """
             SELECT p.nit_proveedor, p.nombre_proveedor, p.direccion,
                    p.telefono, p.correo, p.estado,
-                   COUNT(DISTINCT pa.id_articulo) AS articulos_asociados
+                   COUNT(DISTINCT pa.id_articulo) AS articulos_asociados,
+                   GROUP_CONCAT(DISTINCT a.tipo_articulo ORDER BY a.tipo_articulo SEPARATOR ', ') AS tipos_articulo
             FROM proveedor p
             LEFT JOIN proveedor_articulo pa ON pa.nit_proveedor = p.nit_proveedor
+            LEFT JOIN articulo a ON a.id_articulo = pa.id_articulo
         """
-        params = []
-        if tipo:
-            sql += " JOIN articulo a ON a.id_articulo = pa.id_articulo AND a.tipo_articulo = %s "
-            params.append(tipo)
         sql += " GROUP BY p.nit_proveedor ORDER BY p.estado, p.nombre_proveedor"
-        return Response(_json_rows(sql, params))
+        return Response(_json_rows(sql))
 
     def post(self, request):
-        errors = _required(request.data, ["nit_proveedor", "nombre_proveedor"])
+        errors = _required(request.data, ["nombre_proveedor"])
         if errors:
             return Response(errors, status=400)
         data = request.data
         try:
             with transaction.atomic(), connection.cursor() as cursor:
                 cursor.execute(
+                    "SELECT COALESCE(MAX(nit_proveedor), 900100000) + 1 FROM proveedor"
+                )
+                nit_proveedor = cursor.fetchone()[0]
+                cursor.execute(
                     """INSERT INTO proveedor
                     (nit_proveedor, nombre_proveedor, direccion, telefono, correo, estado)
                     VALUES (%s, %s, %s, %s, %s, 'Activo')""",
-                    [data["nit_proveedor"], data["nombre_proveedor"], data.get("direccion"),
-                     data.get("telefono"), data.get("correo")],
+                    [nit_proveedor, data["nombre_proveedor"].strip(), data.get("direccion"),
+                     data.get("telefono") or None, data.get("correo") or None],
                 )
-                proveedor = _one("SELECT * FROM proveedor WHERE nit_proveedor = %s", [data["nit_proveedor"]])
+                proveedor = _one("SELECT * FROM proveedor WHERE nit_proveedor = %s", [nit_proveedor])
             return Response(proveedor, status=201)
         except Exception as exc:
             return Response({"error": str(exc)}, status=400)
@@ -97,7 +98,10 @@ class ProveedorDetailView(APIView):
         proveedor["articulos"] = _json_rows(
             """SELECT a.id_articulo, a.nombre_articulo, a.tipo_articulo,
                       a.precio_articulo,
-                      pa.precio_compra
+                      pa.precio_compra,
+                      COALESCE((SELECT SUM(ia.cantidad_actual)
+                                FROM inventario_articulo ia
+                                WHERE ia.id_articulo = a.id_articulo), 0) AS stock_actual
                FROM proveedor_articulo pa JOIN articulo a ON a.id_articulo = pa.id_articulo
                WHERE pa.nit_proveedor = %s ORDER BY a.nombre_articulo""",
             [nit_proveedor],
@@ -106,6 +110,8 @@ class ProveedorDetailView(APIView):
 
     def patch(self, request, nit_proveedor):
         allowed = {"nombre_proveedor", "direccion", "telefono", "correo", "estado"}
+        if "estado" in request.data and request.data["estado"] not in {"Activo", "Inactivo"}:
+            return Response({"estado": "El estado debe ser Activo o Inactivo."}, status=400)
         fields = [(key, request.data[key]) for key in allowed if key in request.data]
         if not fields:
             return Response({"error": "No hay campos para actualizar."}, status=400)
@@ -117,6 +123,39 @@ class ProveedorDetailView(APIView):
                     [value for _, value in fields] + [nit_proveedor],
                 )
             return self.get(request, nit_proveedor)
+        except Exception as exc:
+            return Response({"error": str(exc)}, status=400)
+
+
+class ProveedorArticuloView(APIView):
+    def post(self, request, nit_proveedor):
+        articulo = request.data.get("id_articulo")
+        precio = request.data.get("precio_compra")
+        if not articulo or precio in (None, ""):
+            return Response({"error": "Artículo y precio de compra son obligatorios."}, status=400)
+        try:
+            if float(precio) <= 0:
+                raise ValueError("El precio de compra debe ser mayor que cero.")
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO proveedor_articulo (nit_proveedor, id_articulo, precio_compra) VALUES (%s, %s, %s)",
+                    [nit_proveedor, articulo, precio],
+                )
+            return ProveedorDetailView().get(request, nit_proveedor)
+        except Exception as exc:
+            return Response({"error": str(exc)}, status=400)
+
+    def patch(self, request, nit_proveedor, id_articulo):
+        precio = request.data.get("precio_compra")
+        try:
+            if precio in (None, "") or float(precio) <= 0:
+                return Response({"error": "El precio de compra debe ser mayor que cero."}, status=400)
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE proveedor_articulo SET precio_compra = %s WHERE nit_proveedor = %s AND id_articulo = %s",
+                    [precio, nit_proveedor, id_articulo],
+                )
+            return ProveedorDetailView().get(request, nit_proveedor)
         except Exception as exc:
             return Response({"error": str(exc)}, status=400)
 
@@ -195,6 +234,8 @@ class CompraListView(APIView):
                 FROM detalle_compra d
                 JOIN articulo a ON a.id_articulo = d.id_articulo
                 WHERE d.id_compra = %s""", [compra["id_compra"]])
+            compra["recibo"] = _one("""SELECT id_recibo, fecha_emision, total
+                FROM recibo WHERE id_compra = %s""", [compra["id_compra"]])
         return Response(compras)
 
     def post(self, request):
@@ -205,8 +246,6 @@ class CompraListView(APIView):
         if data.get("metodo_pago") not in {"Tarjeta credito", "Debito", "Efectivo"}:
             return Response({"metodo_pago": "Medio de pago inválido."}, status=400)
         detalles = data.get("detalles") or []
-        if not detalles:
-            return Response({"detalles": "Debe incluir al menos un artículo."}, status=400)
         try:
             proveedor = _one(
                 "SELECT nit_proveedor FROM proveedor WHERE nit_proveedor = %s AND estado = 'Activo'",
@@ -214,6 +253,31 @@ class CompraListView(APIView):
             )
             if not proveedor:
                 raise ValueError("Solo se puede comprar a un proveedor activo.")
+
+            if not _one("SELECT id_usuario FROM usuario WHERE id_usuario = %s", [data["id_usuario"]]):
+                raise ValueError("El usuario que registra la compra no existe.")
+
+            try:
+                date.fromisoformat(str(data["fecha_compra"]))
+            except (TypeError, ValueError):
+                raise ValueError("La fecha de compra no es válida.")
+
+            def register_rejected(reason):
+                with transaction.atomic(), connection.cursor() as cursor:
+                    cursor.execute("""INSERT INTO compra
+                        (id_usuario, nit_proveedor, fecha_compra, estado_compra, metodo_pago)
+                        VALUES (%s, %s, %s, 'Rechazada', %s)""",
+                        [data["id_usuario"], data["nit_proveedor"], data["fecha_compra"], data["metodo_pago"]])
+                    rejected_id = cursor.lastrowid
+                return Response({
+                    "error": reason,
+                    "id_compra": rejected_id,
+                    "estado_compra": "Rechazada",
+                }, status=400)
+
+            if not detalles:
+                return register_rejected("Debe incluir al menos un artículo.")
+
             validated_details = []
             for detail in detalles:
                 article_id = detail.get("id_articulo")
@@ -223,11 +287,17 @@ class CompraListView(APIView):
                     [data["nit_proveedor"], article_id],
                 )
                 if not association:
-                    raise ValueError("Uno de los artículos no está asociado al proveedor seleccionado.")
+                    return register_rejected("Uno de los artículos no está asociado al proveedor seleccionado.")
                 fixed_price = association["precio_compra"]
-                if int(quantity) <= 0 or fixed_price is None or float(fixed_price) <= 0:
-                    raise ValueError("El artículo no tiene un precio de compra fijo válido.")
-                validated_details.append({**detail, "valor_unitario": fixed_price})
+                try:
+                    quantity = int(quantity)
+                except (TypeError, ValueError):
+                    return register_rejected("La cantidad de cada artículo debe ser un número entero mayor que cero.")
+                if quantity <= 0:
+                    return register_rejected("La cantidad de cada artículo debe ser mayor que cero.")
+                if fixed_price is None or float(fixed_price) <= 0:
+                    return register_rejected("El artículo no tiene un precio de compra fijo válido.")
+                validated_details.append({**detail, "cantidad_articulo": quantity, "valor_unitario": fixed_price})
             with transaction.atomic(), connection.cursor() as cursor:
                 cursor.execute("""INSERT INTO compra
                     (id_usuario, nit_proveedor, fecha_compra, estado_compra, metodo_pago)

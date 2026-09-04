@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Sum
 from django.db import connection
 from datetime import datetime
 
@@ -141,12 +141,14 @@ class EditarUsuarioView(APIView):
 
 class ArticuloListCreateView(APIView):
     def get(self, request):
-        stock_actual = InventarioArticulo.objects.filter(
-            id_articulo=OuterRef('pk')
-        ).order_by('-id_inventario_articulo').values('cantidad_actual')[:1]
-        articulos = Articulo.objects.annotate(
-            cantidad_articulo=Subquery(stock_actual)
-        ).filter(activo=True).order_by('-id_articulo')
+        articulos = Articulo.objects.filter(activo=True).annotate(
+            cantidad_articulo=Subquery(
+                InventarioArticulo.objects.filter(id_articulo=OuterRef('pk'))
+                .values('id_articulo')
+                .annotate(total=Sum('cantidad_actual'))
+                .values('total')[:1]
+            )
+        ).order_by('-id_articulo')
         serializer = ArticuloSerializer(articulos, many=True)
         resultado = serializer.data
         precios_compra = {}
@@ -176,6 +178,11 @@ class ArticuloListCreateView(APIView):
                 ganancia = float(item.get("porcentaje_ganancia") or 0)
                 precio_compra = round(precio_venta / (1 + ganancia / 100), 2) if precio_venta else 0
             item["precio_compra"] = precio_compra
+            # El precio comercial debe ser costo + porcentaje de ganancia.
+            item["precio_articulo"] = round(
+                float(precio_compra or 0) * (1 + float(item.get("porcentaje_ganancia") or 0) / 100),
+                2,
+            )
         return Response(resultado, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -220,10 +227,12 @@ class InventarioAlertasView(APIView):
         filas = list(
             InventarioArticulo.objects.raw(
                 """
-                SELECT ia.id_inventario_articulo, ia.id_articulo,
-                       ia.cantidad_actual, ia.stock_minimo, ia.stock_maximo,
-                       ia.fecha_actualizacion, a.nombre_articulo,
-                       a.tipo_articulo, a.precio_articulo,
+                SELECT MIN(ia.id_inventario_articulo) AS id_inventario_articulo,
+                       ia.id_articulo, SUM(ia.cantidad_actual) AS cantidad_actual,
+                       MIN(ia.stock_minimo) AS stock_minimo,
+                       MAX(ia.stock_maximo) AS stock_maximo,
+                       MAX(ia.fecha_actualizacion) AS fecha_actualizacion,
+                       a.nombre_articulo, a.tipo_articulo, a.precio_articulo,
                        p.nit_proveedor, p.nombre_proveedor
                 FROM inventario_articulo ia
                 JOIN articulo a ON a.id_articulo = ia.id_articulo
@@ -236,7 +245,8 @@ class InventarioAlertasView(APIView):
                     )
                 LEFT JOIN proveedor p ON p.nit_proveedor = pa.nit_proveedor
                 WHERE a.activo = 1
-                ORDER BY ia.cantidad_actual ASC, a.nombre_articulo ASC
+                GROUP BY ia.id_articulo, a.nombre_articulo, a.tipo_articulo, a.precio_articulo
+                ORDER BY cantidad_actual ASC, a.nombre_articulo ASC
                 """
             )
         )
@@ -245,10 +255,11 @@ class InventarioAlertasView(APIView):
             minimo = int(fila.stock_minimo or 0)
             actual = int(fila.cantidad_actual or 0)
             maximo = int(fila.stock_maximo or minimo)
-            if minimo <= 0 or actual > minimo * 0.75:
+            # El monitor separa exactamente cinco unidades de los niveles críticos.
+            if actual > 5:
                 continue
-            ratio = actual / minimo
-            nivel = "Crítico" if ratio <= 0.25 else "Reposición"
+            ratio = (actual / minimo) if minimo > 0 else 0
+            nivel = "Crítico" if actual < 5 else "Reposición"
             sugerencia = max(0, maximo - actual) if maximo > 0 else max(0, minimo - actual)
             alertas.append({
                 "id_articulo": fila.id_articulo,

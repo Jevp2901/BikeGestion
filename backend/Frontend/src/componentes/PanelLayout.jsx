@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { obtenerSesion } from "../utils/sesion";
 import { getRoleName } from "../utils/roles";
@@ -10,27 +10,19 @@ const NAV_ITEMS = [
   { to: "/inventario", label: "Inventario", icon: "inventory_2", roles: [1] },
   { to: "/venta", label: "Ventas", icon: "point_of_sale", roles: [1] },
   { to: "/compras", label: "Compras", icon: "local_shipping", roles: [1] },
-  { to: "/proveedores", label: "Proveedores", icon: "handshake", roles: [1] },
   { to: "/empleados", label: "Empleados", icon: "badge", roles: [2] },
   { to: "/reportes", label: "Reportes", icon: "analytics", roles: [2] },
 ];
 
 function PanelLayout() {
-  const [usuario, setUsuario] = useState(null);
-  const [fotoPerfil, setFotoPerfil] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
+  const [usuario] = useState(() => obtenerSesion());
+  const [fotoPerfil] = useState(() => {
     const sesion = obtenerSesion();
-    setUsuario(sesion);
-    if (sesion?.id) {
-      const savedPhoto = localStorage.getItem(`foto_perfil_usuario_${sesion.id}`);
-      if (savedPhoto) {
-        setFotoPerfil(savedPhoto);
-      }
-    }
-  }, []);
+    return sesion?.id ? localStorage.getItem(`foto_perfil_usuario_${sesion.id}`) : null;
+  });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem("bikegestion_sidebar_collapsed") === "true");
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("usuario");
@@ -39,6 +31,10 @@ function PanelLayout() {
   };
 
   const closeSidebar = () => setSidebarOpen(false);
+  const toggleSidebar = () => setSidebarCollapsed((value) => {
+    localStorage.setItem("bikegestion_sidebar_collapsed", String(!value));
+    return !value;
+  });
 
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors duration-200 group ${
@@ -51,7 +47,7 @@ function PanelLayout() {
   const visibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(rolId));
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#e3e2e2] dot-grid">
+    <div className="panel-layout min-h-screen bg-[#050505] text-[#e3e2e2] dot-grid">
       {sidebarOpen && (
         <button
           type="button"
@@ -62,12 +58,12 @@ function PanelLayout() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#4d4732] bg-[#0d0e0f] px-4 py-6 shadow-2xl shadow-black/40 transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#4d4732] bg-[#0d0e0f] px-4 py-6 shadow-2xl shadow-black/40 transition-[width,transform] duration-300 md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:w-64`}
+        } ${sidebarCollapsed ? "md:w-20 md:px-3" : "md:w-64 md:px-4"}`}
       >
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <LogoMarca subtitle />
+        <div className={`mb-8 flex items-center justify-between gap-4 ${sidebarCollapsed ? "md:justify-center" : ""}`}>
+          <LogoMarca subtitle={!sidebarCollapsed} compact={sidebarCollapsed} />
           <button
             type="button"
             onClick={closeSidebar}
@@ -82,10 +78,11 @@ function PanelLayout() {
           to={rolId === 1 ? "/venta" : "/dashboard"}
           onClick={closeSidebar}
           aria-disabled={rolId !== 1}
-          className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#ffd700] px-4 py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-[#ffe16d]"
+          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#ffd700] px-4 py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-[#ffe16d] ${sidebarCollapsed ? "md:px-2" : ""}`}
+          title={sidebarCollapsed ? (rolId === 1 ? "Nueva Orden" : "Ir al Dashboard") : undefined}
         >
           <span className="material-symbols-outlined">add</span>
-          {rolId === 1 ? "Nueva Orden" : "Ir al Dashboard"}
+          <span className={sidebarCollapsed ? "md:hidden" : ""}>{rolId === 1 ? "Nueva Orden" : "Ir al Dashboard"}</span>
         </NavLink>
 
         <nav className="flex-1 space-y-2 overflow-y-auto pr-1">
@@ -95,10 +92,11 @@ function PanelLayout() {
               to={item.to}
               end={item.end}
               onClick={closeSidebar}
-              className={navLinkClass}
+              className={(state) => `${navLinkClass(state)} ${sidebarCollapsed ? "md:justify-center md:px-2" : ""}`}
+              title={sidebarCollapsed ? item.label : undefined}
             >
               <span className="material-symbols-outlined text-sm">{item.icon}</span>
-              <span>{item.label}</span>
+              <span className={sidebarCollapsed ? "md:hidden" : ""}>{item.label}</span>
             </NavLink>
           ))}
         </nav>
@@ -107,23 +105,28 @@ function PanelLayout() {
           <NavLink
             to="/editarusuario"
             onClick={closeSidebar}
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#e3e2e2] transition-colors hover:bg-[#1a1a1a] hover:text-[#ffd700]"
+            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#e3e2e2] transition-colors hover:bg-[#1a1a1a] hover:text-[#ffd700] ${sidebarCollapsed ? "md:justify-center md:px-2" : ""}`}
+            title={sidebarCollapsed ? "Configuración" : undefined}
           >
             <span className="material-symbols-outlined text-sm">settings</span>
-            <span>Configuración</span>
+            <span className={sidebarCollapsed ? "md:hidden" : ""}>Configuración</span>
           </NavLink>
           <button
             type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-[#e3e2e2] transition-colors hover:bg-[#1a1a1a] hover:text-[#ffd700]"
+            className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-[#e3e2e2] transition-colors hover:bg-[#1a1a1a] hover:text-[#ffd700] ${sidebarCollapsed ? "md:justify-center md:px-2" : ""}`}
+            title={sidebarCollapsed ? "Cerrar Sesión" : undefined}
           >
             <span className="material-symbols-outlined text-sm">logout</span>
-            <span>Cerrar Sesión</span>
+            <span className={sidebarCollapsed ? "md:hidden" : ""}>Cerrar Sesión</span>
+          </button>
+          <button type="button" onClick={toggleSidebar} className="hidden w-full items-center justify-center rounded-lg border border-[#292b2b] py-2 text-[#aaa79d] transition hover:border-[#ffd700] hover:text-[#ffd700] md:flex" title={sidebarCollapsed ? "Expandir panel" : "Contraer panel"} aria-label={sidebarCollapsed ? "Expandir panel" : "Contraer panel"}>
+            <span className="material-symbols-outlined text-sm">{sidebarCollapsed ? "chevron_right" : "chevron_left"}</span>
           </button>
         </div>
       </aside>
 
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-[#4d4732] bg-[#0d0e0f]/95 px-4 backdrop-blur md:left-64 md:px-6">
+      <header className={`fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-[#4d4732] bg-[#0d0e0f]/95 px-4 backdrop-blur md:px-6 ${sidebarCollapsed ? "md:left-20" : "md:left-64"}`}>
         <div className="flex items-center gap-3 md:gap-4">
           <button
             type="button"
@@ -193,7 +196,7 @@ function PanelLayout() {
         </div>
       </header>
 
-      <main className="min-h-screen px-4 pb-12 pt-24 md:ml-64 md:px-6">
+      <main className={`min-h-screen px-4 pb-12 pt-24 md:px-6 ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"}`}>
         <Outlet />
       </main>
     </div>

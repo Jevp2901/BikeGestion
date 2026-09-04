@@ -65,7 +65,7 @@ function StockAlertMonitor() {
 function Inventario() {
   const usuarioSesion = useMemo(() => obtenerSesion(), []);
   const toastTimerRef = useRef(null);
-  const itemsPorPagina = 5;
+  const itemsPorPagina = 10;
 
   const [articulos, setArticulos] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
@@ -111,25 +111,31 @@ function Inventario() {
         fetch(`${API_V1_BASE_URL}/compras/`),
       ]);
       const [manualData, ventasData, comprasData] = await Promise.all(responses.map(readJson));
-      if (!responses[0].ok) throw new Error("No se pudo cargar el historial");
+      if (responses.some((response) => !response.ok)) {
+        throw new Error("No se pudo cargar el historial real de inventario.");
+      }
 
       const ventasMovimientos = (Array.isArray(ventasData) ? ventasData : []).flatMap((venta) =>
         (venta.detalles || []).map((detalle, index) => ({
           id_movimiento: `venta-${venta.id_venta}-${detalle.id_articulo}-${index}`,
-          tipo_movimiento: "Salida",
-          razon: "Venta",
+          id_articulo: detalle.id_articulo,
+          tipo_movimiento: venta.estado_venta === "Devuelta" ? "Entrada" : "Salida",
+          razon: venta.estado_venta === "Devuelta" ? "Devolución" : "Venta",
           cantidad: detalle.cantidad_articulo,
           nombre_articulo: detalle.nombre_articulo || `Artículo #${detalle.id_articulo}`,
           fecha_movimiento: venta.fecha_venta,
           nombre_usuario: "Venta registrada",
-          observaciones: `Venta #${venta.id_venta}${venta.nombre_cliente ? ` · Cliente: ${venta.nombre_cliente}` : ""}`,
-          origen: "Venta",
+          observaciones: `${venta.estado_venta === "Devuelta" ? "Devolución" : "Venta"} #${venta.id_venta}${venta.nombre_cliente ? ` · Cliente: ${venta.nombre_cliente}` : ""}`,
+          origen: venta.estado_venta === "Devuelta" ? "Devolución" : "Venta",
           automatico: true,
         }))
       );
-      const comprasMovimientos = (Array.isArray(comprasData) ? comprasData : []).flatMap((compra) =>
+      const comprasMovimientos = (Array.isArray(comprasData) ? comprasData : [])
+        .filter((compra) => compra.estado_compra === "Realizada")
+        .flatMap((compra) =>
         (compra.detalles || []).map((detalle, index) => ({
           id_movimiento: `compra-${compra.id_compra}-${detalle.id_articulo}-${index}`,
+          id_articulo: detalle.id_articulo,
           tipo_movimiento: "Entrada",
           razon: "Compra",
           cantidad: detalle.cantidad_articulo,
@@ -156,7 +162,19 @@ function Inventario() {
   };
 
   const refreshData = async () => {
-    await Promise.all([fetchArticulos(), fetchMovimientos()]);
+    await Promise.all([fetchArticulos(), fetchMovimientos(), fetchStockAlerts()]);
+  };
+
+  const fetchStockAlerts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/inventario/alertas/`);
+      if (!response.ok) throw new Error("No se pudieron cargar las alertas de stock.");
+      const data = await readJson(response);
+      setStockAlerts(Array.isArray(data.alertas) ? data.alertas : []);
+    } catch (err) {
+      setStockAlerts([]);
+      setError(err.message);
+    }
   };
 
   useEffect(() => {
@@ -476,7 +494,8 @@ function Inventario() {
   }, [movimientos]);
 
   // El monitor superior es la fuente única de alertas calculadas con stock mínimo.
-  const lowStockArticulos = [];
+  const [stockAlerts, setStockAlerts] = useState([]);
+  const lowStockArticulos = stockAlerts;
   const latestArticulos = useMemo(
     () => [...articulos].sort((a, b) => Number(b.id_articulo) - Number(a.id_articulo)).slice(0, 5),
     [articulos]
@@ -499,8 +518,6 @@ function Inventario() {
           <p className="text-sm font-bold uppercase tracking-widest">{toast.message}</p>
         </div>
       )}
-
-      <StockAlertMonitor />
 
       <div className="col-span-12 lg:col-span-8 space-y-8">
         <div className="flex flex-col gap-5">
@@ -589,20 +606,16 @@ function Inventario() {
                     </th>
                     <th className="p-4 text-xs uppercase tracking-widest text-[#d0c6ab]">Categoría</th>
                     <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Stock</th>
-                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio unitario</th>
-                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio venta</th>
                     <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio compra</th>
+                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio venta</th>
                     <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Ganancia</th>
                     <th className="p-4 text-xs uppercase tracking-widest text-[#d0c6ab]">Estado</th>
-                    <th className="w-[210px] p-4 text-xs uppercase tracking-widest text-[#d0c6ab]">
-                      Origen del movimiento
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#1a1a1a]">
                   {articulos.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="p-8 text-center text-sm text-[#d0c6ab]">
+                      <td colSpan={8} className="p-8 text-center text-sm text-[#d0c6ab]">
                         No hay artículos registrados
                       </td>
                     </tr>
@@ -633,13 +646,10 @@ function Inventario() {
                           </td>
                           <td className="p-4 text-right font-bold text-[#e3e2e2]">{stockActual}</td>
                           <td className="p-4 text-right font-bold text-[#ffd700]">
-                            ${formatPrice(articulo.precio_articulo)}
+                            ${formatPrice(articulo.precio_compra)}
                           </td>
-                          <td className="p-4 text-right font-bold text-[#e3e2e2]">
+                          <td className="p-4 text-right font-bold text-[#ffd700]">
                             ${formatPrice(articulo.precio_articulo)}
-                          </td>
-                          <td className="p-4 text-right text-xs font-bold text-[#d0c6ab]">
-                            {articulo.precio_compra != null ? `$${formatPrice(articulo.precio_compra)}` : "Sin compras"}
                           </td>
                           <td className="p-4 text-right text-xs font-black text-[#ffd700]">
                             {articulo.porcentaje_ganancia != null ? `${Number(articulo.porcentaje_ganancia).toLocaleString("es-CO")} %` : "No definido"}
@@ -651,9 +661,6 @@ function Inventario() {
                                 {status.label}
                               </span>
                             </div>
-                          </td>
-                          <td className="w-[210px] align-middle p-4 text-[10px] text-[#d0c6ab]">
-                            {ultimoMovimiento ? <div><span className={`inline-flex items-center gap-2 rounded border px-3 py-2 font-bold uppercase ${ultimoMovimiento.tipo_movimiento === "Entrada" ? "border-[#065f46] bg-[#06281f] text-[#4ADE80]" : "border-[#7c2d12] bg-[#30130b] text-[#ffb4ab]"}`}><span className="material-symbols-outlined text-sm">{ultimoMovimiento.tipo_movimiento === "Entrada" ? "download" : "upload"}</span>{ultimoMovimiento.observaciones || ultimoMovimiento.razon}</span><p className="mt-1 text-[9px] text-[#777870]">{formatearFecha(ultimoMovimiento.fecha_movimiento)}</p></div> : <span className="text-[#777870]">Sin movimientos registrados</span>}
                           </td>
                         </tr>
                       );
@@ -728,6 +735,9 @@ function Inventario() {
               {movimientos.slice(0, 10).map((movimiento) => {
                 const isEntrada = movimiento.tipo_movimiento === "Entrada";
                 const qty = Number(movimiento.cantidad || 0);
+                const stockActual = articulos.find(
+                  (articulo) => String(articulo.id_articulo) === String(movimiento.id_articulo)
+                )?.cantidad_articulo;
                 return (
                   <div
                     key={movimiento.id_movimiento}
@@ -764,7 +774,7 @@ function Inventario() {
                     <p className="mt-2 text-[11px] text-[#d0c6ab]">
                       Stock actualizado:{" "}
                       <span className="font-bold text-[#e3e2e2]">
-                        {movimiento.nuevo_stock ?? movimiento.stock_actualizado_a ?? "N/A"}
+                        {movimiento.nuevo_stock ?? movimiento.stock_actualizado_a ?? stockActual ?? 0}
                       </span>
                     </p>
                   </div>
@@ -823,44 +833,14 @@ function Inventario() {
           )}
         </div>
 
-        <div className="rounded-xl border border-[#1a1a1a] bg-[#121212] p-6">
-          <div className="mb-5 flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#ffd700]">warning</span>
-            <h3 className="headline-kinetic text-xl uppercase text-[#e3e2e2]">
-              Alertas de Stock
-            </h3>
+        <div className="rounded-xl border border-[#3f371a] bg-[#11110e] p-6">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2"><span className="material-symbols-outlined text-[#ffd700]">warning</span><h3 className="headline-kinetic text-xl uppercase text-[#e3e2e2]">Alertas de Stock</h3></div>
+            <button type="button" onClick={fetchStockAlerts} className="rounded border border-[#393522] px-3 py-2 text-[10px] font-black uppercase text-[#ffd700]">Actualizar</button>
           </div>
-          {lowStockArticulos.length === 0 ? (
-            <p className="text-center text-sm text-[#d0c6ab]">No hay alertas de stock</p>
-          ) : (
-            <div className="space-y-4">
-              {lowStockArticulos.map((articulo) => {
-                const qty = articulo.cantidad_articulo ?? 0;
-                const critical = qty <= 0;
-                return (
-                  <div
-                    key={articulo.id_articulo}
-                    className={`rounded-lg border-l-2 bg-[#0a0a0a] p-4 ${
-                      critical ? "border-[#ffb4ab]" : "border-[#ffd700]"
-                    }`}
-                  >
-                    <div className="mb-2 flex items-start justify-between">
-                      <span className="text-[10px] font-black uppercase text-[#d0c6ab]">
-                        {critical ? "Sin Stock" : "Stock Bajo"}
-                      </span>
-                      <span className={`text-[10px] font-mono ${critical ? "text-[#ffb4ab]" : "text-[#ffd700]"}`}>
-                        {qty <= 0 ? "0 unidades" : `${qty} unidades`}
-                      </span>
-                    </div>
-                    <h4 className="text-sm font-bold text-[#e3e2e2]">{articulo.nombre_articulo}</h4>
-                    <p className="mt-1 text-[11px] text-[#d0c6ab]">
-                      {articulo.descripcion_articulo || "Sin descripción"}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <div className="grid gap-5 lg:grid-cols-2">
+            {[{ title: "Alertas de stock", description: "Artículos con exactamente cinco unidades.", color: "border-[#ffd700]", text: "text-[#ffd700]", items: lowStockArticulos.filter((item) => item.stock_actual === 5) }, { title: "Alertas críticas de stock", description: "Artículos con menos de cinco unidades.", color: "border-[#ff594e]", text: "text-[#ff8f84]", items: lowStockArticulos.filter((item) => item.stock_actual < 5) }].map((group) => <div key={group.title} className={`rounded-lg border-l-2 ${group.color} bg-[#0a0a0a] p-4`}><div className="mb-3"><h4 className={`text-sm font-black uppercase ${group.text}`}>{group.title}</h4><p className="mt-1 text-[11px] text-[#aaa79d]">{group.description}</p></div>{group.items.length === 0 ? <p className="text-sm text-[#6e6a5c]">No hay artículos en esta categoría.</p> : <div className="space-y-2">{group.items.map((articulo) => <div key={articulo.id_articulo} className="flex items-center justify-between rounded border border-[#24231b] p-3"><div><strong className="text-sm text-[#e3e2e2]">{articulo.nombre_articulo}</strong><p className="text-[10px] text-[#aaa79d]">{articulo.tipo_articulo || "General"}</p></div><span className={`font-mono text-sm font-black ${group.text}`}>{articulo.stock_actual} uds</span></div>)}</div>}</div>)}
+          </div>
         </div>
       </div>
 

@@ -10,7 +10,6 @@ import PanelLayout from './componentes/PanelLayout';
 import EditarUsuario from './componentes/EditarUsuario';
 import OperacionPanel from './componentes/OperacionPanel';
 import ComprasFlujo from './componentes/ComprasFlujo';
-import ProveedoresFlujo from './componentes/ProveedoresFlujo';
 import UsuariosPanel from './componentes/UsuariosPanel';
 import { useAuth } from './utils/useAuth';
 import './App.css'
@@ -59,7 +58,6 @@ function App() {
               <Route path="/venta" element={<Ventas />} />
               <Route path="/ventas" element={<Ventas />} />
               <Route path="/compras" element={<ComprasFlujo />} />
-              <Route path="/proveedores" element={<ProveedoresFlujo />} />
             </Route>
             <Route element={<RoleRoute roles={[2]} />}>
               <Route path="/empleados" element={<OperacionPanel tipo="empleados" />} />

@@ -15,7 +15,6 @@ function DashboardPrincipal() {
         { to: "/venta", label: "Ventas", emoji: "💰" },
         { to: "/cotizacion", label: "Cotizaciones", emoji: "📝" },
         { to: "/compras", label: "Compras", emoji: "🚚" },
-        { to: "/proveedores", label: "Proveedores", emoji: "🤝" },
       ]
     : rolId === 2
       ? [
