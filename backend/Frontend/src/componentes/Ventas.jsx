@@ -1,36 +1,255 @@
+import { useEffect, useMemo, useState } from "react";
+import { API_BASE_URL, API_V1_BASE_URL, obtenerSesion } from "../utils/sesion";
 import "../App.css";
 
-function Ventas() {
-    return (
-        <div>
-            <section className="mb-10">
-                <h1 className="kinetic-headline text-3xl text-primary-container uppercase mb-2">
-                    Ventas / Cotizaciones
-                </h1>
-                <p className="text-on-surface-variant font-light max-w-2xl">
-                    Módulo de ventas y cotizaciones. Aquí podrás registrar ventas y generar presupuestos para clientes.
-                </p>
-            </section>
+const today = new Date().toISOString().slice(0, 10);
+const money = (value) => `$ ${Number(value || 0).toLocaleString("es-CO")} COP`;
+const readJson = async (response) => {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`El servidor devolvió una respuesta inválida (${response.status}). Reinicia el backend.`);
+  }
+};
+const dateLabel = (value) => value ? new Date(`${value}T12:00:00`).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) : "Sin fecha";
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="surface-container-low p-6 rounded-xl border border-white/10">
-                    <span className="material-symbols-outlined text-[#fde01a] text-3xl mb-3">receipt_long</span>
-                    <h2 className="text-white font-bold uppercase text-sm tracking-wider mb-2">Nueva cotización</h2>
-                    <p className="text-white/60 text-sm">Crea un presupuesto para un cliente.</p>
-                </div>
-                <div className="surface-container-low p-6 rounded-xl border border-white/10">
-                    <span className="material-symbols-outlined text-[#fde01a] text-3xl mb-3">point_of_sale</span>
-                    <h2 className="text-white font-bold uppercase text-sm tracking-wider mb-2">Registrar venta</h2>
-                    <p className="text-white/60 text-sm">Procesa una venta en mostrador.</p>
-                </div>
-                <div className="surface-container-low p-6 rounded-xl border border-white/10">
-                    <span className="material-symbols-outlined text-[#fde01a] text-3xl mb-3">history</span>
-                    <h2 className="text-white font-bold uppercase text-sm tracking-wider mb-2">Historial</h2>
-                    <p className="text-white/60 text-sm">Consulta ventas y cotizaciones anteriores.</p>
-                </div>
-            </div>
-        </div>
-    );
+function Button({ children, secondary = false, className = "", ...props }) {
+  return <button className={`${secondary ? "border border-[#303333] bg-[#151717] text-[#d0c6ab] hover:border-[#ffd700]/60 hover:text-[#ffd700]" : "bg-[#ffd700] text-[#171300] hover:bg-[#ffe66b]"} rounded-lg px-4 py-3 text-[10px] font-black uppercase tracking-wide transition ${className}`} {...props}>{children}</button>;
+}
+
+function Status({ value }) {
+  const text = value || "Disponible";
+  const color = text.toLowerCase().includes("devuelt") ? "border-[#93443c] bg-[#5b201c]/50 text-[#ffb4ab]" : text.toLowerCase().includes("realiz") || text.toLowerCase().includes("acept") ? "border-[#857300] bg-[#5b4c00]/40 text-[#ffe55c]" : "border-[#38577a] bg-[#172d46] text-[#9bceff]";
+  return <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${color}`}>{text}</span>;
+}
+
+function Metric({ icon, label, value, hint, color = "text-[#ffd700]" }) {
+  return <article className="rounded-2xl border border-[#262727] bg-[#0d0e0f] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.16)]"><div className="flex items-start justify-between"><p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9e9b91]">{label}</p><span className={`material-symbols-outlined rounded-lg bg-[#191a1a] p-2 text-sm ${color}`}>{icon}</span></div><p className="mt-4 text-2xl font-black text-[#f3f1ea]">{value}</p><p className="mt-1 text-[11px] text-[#8f8d84]">{hint}</p></article>;
+}
+
+const FALLBACK_PRODUCT_IMAGE = "/assets/accesorio-bicicleta.svg";
+
+const productImage = (product) => {
+  const text = `${product.nombre_articulo || ""} ${product.tipo_articulo || ""}`.toLowerCase();
+  if (text.includes("luz") || text.includes("led")) return "/assets/luz-bicicleta.svg";
+  if (text.includes("cadena")) return "/assets/cadena-bicicleta.svg";
+  if (text.includes("casco")) return "/assets/casco-bicicleta.svg";
+  if (text.includes("guante")) return "/assets/guantes-ciclismo.svg";
+  if (text.includes("pedal")) return "/assets/pedales-bicicleta.svg";
+  return FALLBACK_PRODUCT_IMAGE;
+};
+
+function ProductCard({ product, onAdd }) {
+  return <article className="group overflow-hidden rounded-xl border border-[#242626] bg-[#0d0e0f] transition hover:-translate-y-0.5 hover:border-[#ffd700]/50 hover:shadow-[0_12px_28px_rgba(0,0,0,0.28)]"><div className="relative h-36 overflow-hidden bg-[#171919]"><img src={product.imagen_url || product.url_imagen || productImage(product)} alt={product.nombre_articulo} className="h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_PRODUCT_IMAGE; }} /><div className="absolute inset-0 bg-gradient-to-t from-[#0d0e0f] via-transparent to-black/20" /><div className="absolute left-3 top-3 rounded bg-black/65 px-2 py-1 text-[9px] font-mono text-[#eeeade]">SKU-{product.id_articulo}</div><span className={`absolute right-3 top-3 rounded-full bg-black/65 px-2 py-1 text-[9px] font-bold uppercase ${Number(product.cantidad_articulo || 0) < 2 ? "text-[#ff8f84]" : "text-[#42e6a4]"}`}>{product.cantidad_articulo || 0} en stock</span></div><div className="p-4"><h3 className="text-sm font-bold text-[#eeeade]">{product.nombre_articulo}</h3><p className="mt-1 min-h-8 text-[10px] leading-relaxed text-[#85857f]">{product.descripcion_articulo || `${product.tipo_articulo || "Artículo"} · ${product.material || "Sin material"}`}</p><div className="mt-4 flex items-center justify-between"><strong className="font-mono text-sm text-[#ffd700]">{money(product.precio_articulo)}</strong><button onClick={() => onAdd(product)} disabled={!Number(product.cantidad_articulo)} className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#5d5200] text-[#ffd700] transition hover:bg-[#ffd700] hover:text-black disabled:cursor-not-allowed disabled:opacity-30" aria-label={`Agregar ${product.nombre_articulo}`}><span className="material-symbols-outlined text-lg">add</span></button></div></div></article>;
+}
+
+function Modal({ title, children, onClose, wide = false }) {
+  return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"><div className={`max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-[#4d4732] bg-[#0d0e0f] shadow-2xl ${wide ? "max-w-4xl" : "max-w-xl"}`}><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#292b2b] bg-[#101111] px-5 py-4"><h2 className="text-sm font-black uppercase tracking-wider text-[#ffd700]">{title}</h2><button onClick={onClose} className="text-[#aaa79d] hover:text-white" aria-label="Cerrar"><span className="material-symbols-outlined">close</span></button></div><div className="p-5">{children}</div></div></div>;
+}
+
+function ReceiptModal({ sale, onClose, onViewQuote }) {
+  const details = sale.detalles || [];
+  const subtotal = details.reduce((sum, item) => sum + Number(item.subtotal || (item.valor_unitario * item.cantidad_articulo) || 0), 0);
+  const total = Number(sale.total || sale.recibo?.total || details.reduce((sum, item) => sum + Number(item.total_venta || 0), 0));
+  const discount = details.reduce((sum, item) => sum + Number(item.descuento_venta || 0), 0);
+  const tax = Math.max(0, total - subtotal + discount);
+  useEffect(() => {
+    const buttons = Array.from(document.querySelectorAll("button"));
+    const pdfButton = buttons.find((button) => button.textContent.includes("Recibo estructurado"));
+    const quoteButton = buttons.find((button) => button.textContent.includes("Comprobante contable"));
+    if (pdfButton) {
+      pdfButton.textContent = "Descargar recibo PDF";
+      pdfButton.onclick = () => window.print();
+    }
+    if (quoteButton) {
+      quoteButton.textContent = "Ver cotización origen";
+      quoteButton.onclick = onViewQuote;
+    }
+  }, [onClose, onViewQuote]);
+  return <div className="fixed inset-0 z-[70] overflow-y-auto bg-black/90 p-3 backdrop-blur-sm"><div className="mx-auto max-w-5xl"><div className="mb-3 flex flex-wrap items-center justify-between gap-2 print:hidden"><div className="text-[10px] text-[#85857f]">Ventas <span className="mx-1">›</span> Facturación POS <span className="mx-1 text-[#ffd700]">›</span> REC-{sale.recibo?.id_recibo || sale.id_venta}</div><div className="flex gap-2"><button onClick={onClose} className="rounded-lg border border-[#303333] px-3 py-2 text-[10px] font-bold uppercase text-[#d0c6ab]">Volver a ventas</button><button onClick={() => window.print()} className="rounded-lg bg-[#ffd700] px-3 py-2 text-[10px] font-black uppercase text-black"><span className="material-symbols-outlined mr-1 align-middle text-sm">picture_as_pdf</span>Imprimir / guardar PDF</button></div></div><div className="rounded-xl border border-[#252727] bg-[#101111] p-4 print:border-0 print:bg-[#101111]"><div className="flex flex-col justify-between gap-4 border-b border-[#292b2b] pb-4 lg:flex-row lg:items-center"><div><div className="flex items-center gap-3"><span className="material-symbols-outlined text-[#ffd700]">receipt_long</span><h1 className="text-2xl font-black text-[#f3f1ea]">Comprobante y recibo de pago</h1><Status value={sale.estado_venta === "Devuelta" ? "Devuelta" : "Liquidado y firmado"} /></div><p className="mt-2 text-[10px] text-[#aaa79d]">Recibo No. <strong className="text-[#ffd700]">REC-{String(sale.recibo?.id_recibo || sale.id_venta).padStart(6, "0")}</strong><span className="mx-2">·</span>{dateLabel(sale.fecha_venta)}<span className="mx-2">·</span>Vendedor: <strong>{sale.nombre_usuario || "Usuario de ventas"}</strong></p></div><div className="flex flex-wrap gap-2 print:hidden"><button className="rounded-lg border border-[#303333] px-3 py-2 text-[10px] font-bold text-[#d0c6ab]">Recibo estructurado</button><button className="rounded-lg border border-[#303333] px-3 py-2 text-[10px] font-bold text-[#d0c6ab]">Comprobante contable</button></div></div><div className="my-4 flex items-center justify-between rounded-lg border border-[#5d5200] bg-[#171603] px-4 py-3 text-[10px] text-[#d0c6ab]"><span><span className="material-symbols-outlined mr-2 align-middle text-sm text-[#ffd700]">verified</span><strong className="text-[#f5e57b]">Integridad física y contable garantizada</strong><span className="ml-2 hidden sm:inline">Operación vinculada a la cotización #{sale.id_cotizacion || "--"} y pago registrado.</span></span><strong className="text-[#ffd700]">RF09 / RF10</strong></div><div className="mx-auto max-w-3xl rounded-t-xl border-x border-t-4 border-[#ffd700] bg-[#121313] p-6 shadow-2xl"><div className="flex flex-col justify-between gap-5 border-b border-[#292b2b] pb-5 sm:flex-row sm:items-start"><div><p className="text-sm font-black text-[#f3f1ea]">BIKEGESTIÓN <span className="rounded bg-[#ffd700] px-1 text-[8px] text-black">PRO</span></p><p className="mt-1 text-[10px] text-[#85857f]">MASTER WORKSHOP & RETAIL<br />Sistema de gestión para ciclismo</p></div><div className="text-center"><h2 className="text-2xl font-black uppercase leading-none text-[#f3f1ea]">Comprobante<br />de pago</h2><p className="mt-2 text-[9px] font-black uppercase tracking-wider text-[#ffd700]">Recibo oficial de caja</p></div><div className="rounded-lg border border-[#292b2b] p-3 text-right text-[10px] text-[#aaa79d]"><p>Fecha: <strong className="ml-3 text-[#f3f1ea]">{dateLabel(sale.fecha_venta)}</strong></p><p className="mt-1">Recibo No.: <strong className="ml-3 text-[#ffd700]">REC-{sale.recibo?.id_recibo || sale.id_venta}</strong></p><p className="mt-1">Operación: <strong className="ml-3 text-[#f3f1ea]">Venta #{sale.id_venta}</strong></p></div></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-lg border border-[#292b2b] bg-[#0d0e0f] p-4 text-[10px]"><p className="font-black uppercase tracking-wider text-[#ffd700]">Empresa emisora</p><p className="mt-3 text-[#d0c6ab]">BikeGestión S.A.S.</p><p className="mt-1 text-[#85857f]">NIT / Identificación: 901.452.889-1</p><p className="mt-1 text-[#85857f]">Bogotá D.C. · Colombia</p><p className="mt-1 text-[#85857f]">contacto@bikegestion.co</p></div><div className="rounded-lg border border-[#292b2b] bg-[#0d0e0f] p-4 text-[10px]"><p className="font-black uppercase tracking-wider text-[#ffd700]">Recibí de / Cliente</p><p className="mt-3 text-[#d0c6ab]">{sale.nombre_cliente || "Cliente general"}</p><p className="mt-1 text-[#85857f]">C.C. / Documento: {sale.num_documento || "No registrado"}</p><p className="mt-1 text-[#85857f]">Teléfono: {sale.telefono_cliente || "No registrado"}</p></div></div><div className="mt-5 rounded-lg border border-[#292b2b] bg-[#0d0e0f] p-4 text-[10px]"><div className="flex flex-wrap justify-between gap-3"><p className="text-[#aaa79d]">Forma de pago: <strong className="ml-2 text-[#f3f1ea]">{sale.pago?.metodo_pago || sale.metodo_pago || "No definido"}</strong></p><p className="rounded bg-[#3d3500] px-2 py-1 text-[#ffd700]">Estado: {sale.pago?.estado_pago || "Pagado"}</p></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[560px] text-left"><thead className="border-b border-[#292b2b] text-[9px] uppercase tracking-wider text-[#ffd700]"><tr><th className="py-3">#</th><th className="py-3">SKU / Descripción del artículo</th><th className="py-3 text-center">Cant.</th><th className="py-3 text-right">Unitario</th><th className="py-3 text-right">Subtotal</th></tr></thead><tbody className="divide-y divide-[#222424]">{details.map((item, index) => <tr key={item.id_detalle_venta || item.id_articulo || index}><td className="py-3 text-[#777870]">{String(index + 1).padStart(2, "0")}</td><td className="py-3"><p className="font-bold text-[#eeeade]">{item.nombre_articulo || `Artículo #${item.id_articulo}`}</p><p className="mt-1 text-[9px] text-[#777870]">SKU-{item.id_articulo} · {[item.tipo_articulo, item.material, item.color, item.tamano].filter(Boolean).join(" · ") || "Detalle del producto"}</p></td><td className="py-3 text-center font-bold text-[#d0c6ab]">{item.cantidad_articulo}</td><td className="py-3 text-right font-mono text-[#d0c6ab]">{money(item.valor_unitario)}</td><td className="py-3 text-right font-mono font-bold text-[#f3f1ea]">{money(item.total_venta || item.subtotal)}</td></tr>)}{!details.length && <tr><td colSpan="5" className="py-8 text-center text-[#777870]">El detalle de artículos estará disponible cuando el backend lo entregue.</td></tr>}</tbody></table></div></div><div className="mt-5 grid gap-4 sm:grid-cols-[1fr_1.1fr]"><div className="rounded-lg border border-[#292b2b] bg-[#0d0e0f] p-4 text-[10px]"><p className="font-black uppercase tracking-wider text-[#ffd700]">Información de recaudo y liquidación</p><div className="mt-3 space-y-2 text-[#aaa79d]"><p>Medio de pago: <strong className="float-right text-[#f3f1ea]">{sale.pago?.metodo_pago || sale.metodo_pago || "--"}</strong></p><p>Estado financiero: <strong className="float-right text-[#42e6a4]">{sale.pago?.estado_pago || "Pagado"}</strong></p><p>Fecha de pago: <strong className="float-right text-[#f3f1ea]">{dateLabel((sale.pago?.fecha_pago || "").slice(0, 10))}</strong></p></div></div><div className="rounded-lg border border-[#292b2b] bg-[#0d0e0f] p-4 text-[10px]"><p className="flex justify-between text-[#aaa79d]"><span>Subtotal bruto:</span><strong className="text-[#f3f1ea]">{money(subtotal)}</strong></p><p className="mt-2 flex justify-between text-[#aaa79d]"><span>Descuentos:</span><strong className="text-[#f3f1ea]">-{money(discount)}</strong></p><p className="mt-2 flex justify-between text-[#aaa79d]"><span>IVA estimado (19%):</span><strong className="text-[#f3f1ea]">{money(tax)}</strong></p><div className="mt-3 flex items-end justify-between border-t border-[#292b2b] pt-3"><span className="font-black uppercase text-[#f3f1ea]">Total liquidado</span><strong className="font-mono text-2xl text-[#ffd700]">{money(total)}</strong></div></div></div><div className="mt-5 rounded-lg border border-[#5d5200] bg-[#171603] p-3 text-[10px] text-[#b8ae75]"><span className="material-symbols-outlined mr-2 align-middle text-sm text-[#ffd700]">verified_user</span>Garantía e inmutabilidad contable: conserva este comprobante como soporte de la operación y consulta la venta desde el historial.</div></div></div></div></div>;
+}
+
+function ReturnModal({ sale, onClose, onConfirm }) {
+  const [fullSale, setFullSale] = useState(sale);
+  const [reason, setReason] = useState("Producto defectuoso");
+  const [condition, setCondition] = useState("Óptimas condiciones");
+  const [method, setMethod] = useState(sale.metodo_pago || "Efectivo");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const details = fullSale.detalles || [];
+  const total = Number(fullSale.total || fullSale.total_venta || fullSale.recibo?.total || 0);
+  const units = details.reduce((sum, item) => sum + Number(item.cantidad_articulo || 0), 0) || 1;
+  const session = obtenerSesion();
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${API_V1_BASE_URL}/ventas/${sale.id_venta}/`).then((response) => response.ok ? response.json() : sale).then((data) => { if (active) setFullSale({ ...sale, ...data }); }).catch(() => {});
+    return () => { active = false; };
+  }, [sale]);
+
+  const submit = async () => {
+    setLoading(true);
+    try { await onConfirm({ motivo_devolucion: reason, condicion_producto: condition, metodo_reembolso: method, responsable_tecnico: session?.nombre || session?.username || "Usuario de ventas", observaciones: notes }); } finally { setLoading(false); }
+  };
+
+  const conditions = [
+    ["Óptimas condiciones", "Reingreso directo a bodega", "check_circle", "border-[#ffd700] bg-[#332d00]"],
+    ["A revisión de taller", "Inspección en bancada", "pending", "border-[#554d2c] bg-[#1c1b14]"],
+    ["Dañado / Baja", "Reporte de merma técnica", "report", "border-[#554d2c] bg-[#1c1b14]"]
+  ];
+  return <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/85 p-3 backdrop-blur-sm"><div className="max-h-[94vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-[#433d25] bg-[#111008] shadow-2xl"><div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#302c1b] bg-[#17150c] px-5 py-4"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#ffd700]">Procesar devolución #{sale.id_venta}</p><p className="mt-1 text-[10px] text-[#8e896f]">Reversión controlada de venta, pago e inventario</p></div><button onClick={onClose} className="text-[#aaa79d] hover:text-white" aria-label="Cerrar"><span className="material-symbols-outlined">close</span></button></div><div className="space-y-4 p-5"><div className="rounded-lg border border-[#665700] bg-[#272105] p-4 text-[11px] text-[#d0c6ab]"><p className="font-black text-[#ffe55c]"><span className="material-symbols-outlined mr-2 align-middle text-base">warning</span>La venta será marcada como devuelta y el pago será revertido.</p><p className="mt-2 pl-6 text-[#aaa16a]">Completa la información técnica para dejar trazabilidad de la revisión.</p></div><div className="rounded-lg border border-[#393522] bg-[#1a180f] p-4"><div className="mb-3 flex items-center justify-between"><p className="text-[10px] font-black uppercase tracking-wider text-[#ffd700]">Datos de la venta origen</p><span className="rounded bg-[#3b350f] px-2 py-1 text-[9px] font-bold text-[#ffe55c]">POS principal</span></div><div className="grid gap-3 text-[11px] sm:grid-cols-3"><div><p className="text-[#88836c]">Cliente</p><strong className="text-[#eeeade]">{fullSale.nombre_cliente || "Cliente general"}</strong><p className="text-[9px] text-[#77705a]">{fullSale.num_documento || "Sin documento"}</p></div><div><p className="text-[#88836c]">Artículo a reingresar</p><strong className="text-[#eeeade]">{details[0]?.nombre_articulo || "Detalle de venta"}</strong><p className="text-[9px] text-[#77705a]">{details.length > 1 ? `+${details.length - 1} artículos` : `${units} unidad(es)`}</p></div><div><p className="text-[#88836c]">Total liquidado</p><strong className="text-lg font-black text-[#ffd700]">{money(total)}</strong></div></div></div><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Motivo de la devolución<select value={reason} onChange={(event) => setReason(event.target.value)} className="ui-field mt-2 w-full rounded-lg border border-[#393522] bg-[#0d0c08] p-3 text-xs text-white"><option>Producto defectuoso</option><option>Cliente desistió</option><option>Error en la venta</option><option>Garantía</option></select></label><div><div className="mb-2 flex justify-between"><p className="text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Condición del producto</p><span className="text-[9px] text-[#88836c]">Inspección física obligatoria</span></div><div className="grid gap-2 sm:grid-cols-3">{conditions.map(([title, description, icon, style]) => <button key={title} type="button" onClick={() => setCondition(title)} className={`rounded-lg border p-3 text-left transition ${condition === title ? "border-[#ffd700] bg-[#332d00]" : style}`}><span className={`material-symbols-outlined text-base ${condition === title ? "text-[#ffd700]" : "text-[#8e896f]"}`}>{icon}</span><p className="mt-2 text-[10px] font-black text-[#eeeade]">{title}</p><p className="mt-1 text-[9px] text-[#aaa16a]">{description}</p></button>)}</div></div><div className="grid gap-3 sm:grid-cols-2"><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Método de reversión<select value={method} onChange={(event) => setMethod(event.target.value)} className="ui-field mt-2 w-full rounded-lg border border-[#393522] bg-[#0d0c08] p-3 text-xs text-white"><option>Efectivo</option><option>Tarjeta credito</option><option>Debito</option><option>Transferencia</option></select></label><div><p className="text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Responsable técnico</p><div className="mt-2 rounded-lg border border-[#393522] bg-[#0d0c08] p-3 text-xs text-[#eeeade]"><span className="material-symbols-outlined mr-2 align-middle text-sm text-[#ffd700]">badge</span>{session?.nombre || session?.username || "Usuario de ventas"}</div></div></div><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Observaciones técnicas<textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows="3" className="ui-field mt-2 w-full resize-none rounded-lg border border-[#393522] bg-[#0d0c08] p-3 text-xs text-white placeholder:text-[#77705a]" placeholder="Detalle el estado del producto, daños, pruebas realizadas o motivo declarado por el comprador..." /></label><div className="flex items-center justify-between rounded-lg border border-[#403a28] bg-[#252117] p-3 text-[10px]"><span className="text-[#d0c6ab]"><span className="material-symbols-outlined mr-2 align-middle text-sm text-[#ffd700]">inventory_2</span>Impacto en inventario: <strong className="text-[#42e6a4]">+{units} unidad(es)</strong></span><strong className="font-mono text-[#ff9e91]">Reembolso: -{money(total)}</strong></div></div><div className="flex justify-end gap-2 border-t border-[#302c1b] bg-[#17150c] px-5 py-4"><Button secondary onClick={onClose}>Cancelar</Button><Button onClick={submit} disabled={loading}>{loading ? "Procesando..." : "Confirmar devolución"}</Button></div></div></div>;
+}
+
+function Ventas() {
+  const [tab, setTab] = useState("pos");
+  const [products, setProducts] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [quotes, setQuotes] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [productSearch, setProductSearch] = useState("");
+  const [historySearch, setHistorySearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Todos los estados");
+  const [cart, setCart] = useState([]);
+  const [client, setClient] = useState({ id_cliente: "", nombre_cliente: "", documento: "", telefono: "", correo: "" });
+  const [payment, setPayment] = useState("Efectivo");
+  const [discount, setDiscount] = useState(0);
+  const [quote, setQuote] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [returnSale, setReturnSale] = useState(null);
+  const [returnReason, setReturnReason] = useState("Producto defectuoso");
+  const [returnCondition, setReturnCondition] = useState("Óptimas condiciones");
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClient, setNewClient] = useState({ nombre_cliente: "", num_documento: "", telefono_cliente: "" });
+
+  const loadData = async () => {
+    setLoading(true); setError("");
+    try {
+      const responses = await Promise.all([fetch(`${API_BASE_URL}/articulos/`), fetch(`${API_V1_BASE_URL}/clientes/`), fetch(`${API_V1_BASE_URL}/cotizaciones/`), fetch(`${API_V1_BASE_URL}/ventas/`)]);
+      const data = await Promise.all(responses.map(readJson));
+      const failed = responses.find((response) => !response.ok);
+      if (failed) throw new Error("No fue posible cargar la información de ventas.");
+      setProducts(Array.isArray(data[0]) ? data[0] : []); setClients(Array.isArray(data[1]) ? data[1] : []); setQuotes(Array.isArray(data[2]) ? data[2] : []); setSales(Array.isArray(data[3]) ? data[3] : []);
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  };
+
+  useEffect(() => { const timer = window.setTimeout(loadData, 0); return () => window.clearTimeout(timer); }, []);
+
+  const availableProducts = useMemo(() => products.filter((item) => item.activo !== false && [item.nombre_articulo, item.tipo_articulo, item.material, item.color].join(" ").toLowerCase().includes(productSearch.toLowerCase())), [productSearch, products]);
+  const acceptedQuotes = useMemo(() => quotes.filter((item) => item.estado_cotizacion === "Aceptada"), [quotes]);
+  const filteredSales = useMemo(() => sales.filter((item) => [item.id_venta, item.nombre_cliente, item.metodo_pago, item.estado_venta].join(" ").toLowerCase().includes(historySearch.toLowerCase()) && (statusFilter === "Todos los estados" || item.estado_venta === statusFilter)), [historySearch, sales, statusFilter]);
+  const subtotal = cart.reduce((sum, item) => sum + Number(item.precio_articulo || 0) * item.quantity, 0);
+  const discountPercent = Math.min(100, Math.max(0, Number(discount || 0)));
+  const discountValue = Math.round(subtotal * discountPercent / 100);
+  const tax = Math.round((subtotal - discountValue) * 0.19);
+  const total = subtotal - discountValue + tax;
+
+  const addToCart = (product) => setCart((items) => {
+    const existing = items.find((item) => item.id_articulo === product.id_articulo);
+    if (existing) return items.map((item) => item.id_articulo === product.id_articulo ? { ...item, quantity: Math.min(item.quantity + 1, Number(product.cantidad_articulo || 999)) } : item);
+    return [...items, { ...product, quantity: 1 }];
+  });
+  const changeQuantity = (id, amount) => setCart((items) => items.map((item) => item.id_articulo === id ? { ...item, quantity: Math.max(1, Math.min(item.quantity + amount, Number(item.cantidad_articulo || 999))) } : item));
+  const removeFromCart = (id) => setCart((items) => items.filter((item) => item.id_articulo !== id));
+  const clearDraft = () => { setCart([]); setClient({ id_cliente: "", nombre_cliente: "", documento: "", telefono: "", correo: "" }); setQuote(null); setDiscount(0); };
+
+  const selectClient = (event) => {
+    const selected = clients.find((item) => String(item.id_cliente) === event.target.value);
+    setClient(selected ? { id_cliente: selected.id_cliente, nombre_cliente: selected.nombre_cliente, documento: selected.num_documento, telefono: selected.telefono_cliente || "" } : { id_cliente: "", nombre_cliente: "", documento: "", telefono: "" });
+  };
+
+  const registerClient = async (event) => {
+    event.preventDefault(); setError("");
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/clientes/`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newClient) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || Object.values(data).flat().join(" ") || "No fue posible registrar el cliente.");
+      setClients((items) => [...items, data].sort((a, b) => a.nombre_cliente.localeCompare(b.nombre_cliente)));
+      setClient({ id_cliente: data.id_cliente, nombre_cliente: data.nombre_cliente, documento: data.num_documento, telefono: data.telefono_cliente || "" });
+      setNewClient({ nombre_cliente: "", num_documento: "", telefono_cliente: "" }); setShowNewClient(false); setNotice("Cliente registrado y seleccionado para la operación.");
+    } catch (err) { setError(err.message); }
+  };
+
+  const loadQuote = async (item) => {
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/cotizaciones/${item.id_cotizacion}/`); const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "No fue posible consultar la cotización.");
+      const firstDetail = data.detalles?.[0];
+      const firstGross = Number(firstDetail?.valor_unitario || 0) * Number(firstDetail?.cantidad_articulo || 0);
+      const savedDiscountPercent = firstGross ? Number(firstDetail?.descuento_cotizacion || 0) / firstGross * 100 : 0;
+      setQuote(data); setDiscount(savedDiscountPercent); setClient((current) => ({ ...current, id_cliente: data.id_cliente || "", nombre_cliente: data.nombre_cliente || "" }));
+      setCart((data.detalles || []).map((detailItem) => ({ id_articulo: detailItem.id_articulo, nombre_articulo: detailItem.nombre_articulo, precio_articulo: detailItem.valor_unitario, cantidad_articulo: detailItem.cantidad_articulo, quantity: detailItem.cantidad_articulo })));
+      setTab("pos");
+    } catch (err) { setError(err.message); }
+  };
+
+  const createQuote = async () => {
+    if (!cart.length) return setError("Agrega al menos un artículo al carrito.");
+    const session = obtenerSesion();
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/cotizaciones/`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_usuario: session?.id, id_cliente: client.id_cliente || null, fecha_cotizacion: today, detalles: cart.map((item) => { const gross = Number(item.precio_articulo) * item.quantity; return { id_articulo: item.id_articulo, cantidad_articulo: item.quantity, valor_unitario: Number(item.precio_articulo), descuento_cotizacion: Math.round(gross * discountPercent / 100) }; }) }) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "No fue posible guardar la cotización.");
+      setNotice(`Cotización #${data.id_cotizacion} guardada en estado borrador.`); await loadData(); setTab("quotes");
+    } catch (err) { setError(err.message); }
+  };
+
+  const processSale = async () => {
+    if (!quote || quote.estado_cotizacion !== "Aceptada") return setError("Selecciona una cotización aceptada antes de procesar la venta.");
+    const session = obtenerSesion();
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/ventas/`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_usuario: session?.id, id_cotizacion: quote.id_cotizacion, fecha_venta: today, metodo_pago: payment }) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "No fue posible registrar la venta.");
+      setNotice(`Venta #${data.id_venta} registrada y recibo generado.`); setDetail(data); clearDraft(); await loadData(); setTab("history");
+    } catch (err) { setError(err.message); }
+  };
+
+  const updateQuote = async (item, state) => {
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/cotizaciones/${item.id_cotizacion}/`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ estado_cotizacion: state }) });
+      if (!response.ok) throw new Error("No fue posible actualizar la cotización.");
+      setNotice(`Cotización #${item.id_cotizacion} marcada como ${state.toLowerCase()}.`); await loadData();
+    } catch (err) { setError(err.message); }
+  };
+
+  const confirmReturn = async (returnData = {}) => {
+    if (!returnSale) return;
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/ventas/${returnSale.id_venta}/`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ estado_venta: "Devuelta", ...returnData }) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "No fue posible registrar la devolución.");
+      setNotice(`Devolución de la venta #${returnSale.id_venta} registrada.`); setReturnSale(null); await loadData();
+    } catch (err) { setError(err.message); }
+  };
+
+  const openReceipt = async (sale) => {
+    try {
+      const response = await fetch(`${API_V1_BASE_URL}/ventas/${sale.id_venta}/`); const data = response.ok ? await response.json() : sale;
+      setDetail({ ...sale, ...data });
+    } catch { setDetail(sale); }
+  };
+
+  return <section className="mx-auto max-w-[1500px] space-y-5">
+    <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.28em] text-[#ffd700]"><span className="h-1.5 w-1.5 rounded-full bg-[#ffd700] shadow-[0_0_10px_#ffd700]" /> Operación real · BikeGestión Core</p><div className="mt-2 flex items-center gap-3"><h1 className="text-4xl font-black uppercase italic tracking-[-0.06em] text-[#f3f1ea]">Ventas</h1><span className="rounded-md border border-[#2f3437] bg-[#171a1b] px-2 py-1 text-[10px] font-bold text-[#aeb6bb]">v3.4 Activa</span></div><p className="mt-1 max-w-xl text-xs text-[#96958e]">Cotiza, valida existencias, registra pagos y gestiona devoluciones desde una sola operación.</p></div><div className="flex flex-wrap gap-2"><Button secondary onClick={() => setTab("history")}><span className="material-symbols-outlined mr-1 align-middle text-sm">history</span>Historial</Button><Button onClick={() => { clearDraft(); setTab("pos"); }}><span className="material-symbols-outlined mr-1 align-middle text-sm">add</span>Nueva operación</Button></div></div>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"><Metric icon="payments" label="Ventas registradas" value={sales.length} hint="Operaciones trazables" /><Metric icon="request_quote" label="Listas para facturar" value={acceptedQuotes.length} hint="Cotizaciones aceptadas" /><Metric icon="inventory_2" label="Artículos disponibles" value={products.length} hint="Catálogo activo" color="text-[#72b7ff]" /><Metric icon="undo" label="Devoluciones" value={sales.filter((item) => item.estado_venta === "Devuelta").length} hint="Casos registrados" color="text-[#ffb45b]" /></div>
+    <div className="flex gap-1 overflow-x-auto border-b border-[#292b2b]"><button onClick={() => setTab("pos")} className={`border-b-2 px-4 py-3 text-[10px] font-black uppercase tracking-wider ${tab === "pos" ? "border-[#ffd700] text-[#ffd700]" : "border-transparent text-[#85857f]"}`}>1. Nueva venta</button><button onClick={() => setTab("quotes")} className={`border-b-2 px-4 py-3 text-[10px] font-black uppercase tracking-wider ${tab === "quotes" ? "border-[#ffd700] text-[#ffd700]" : "border-transparent text-[#85857f]"}`}>2. Cotizaciones ({quotes.length})</button><button onClick={() => setTab("history")} className={`border-b-2 px-4 py-3 text-[10px] font-black uppercase tracking-wider ${tab === "history" ? "border-[#ffd700] text-[#ffd700]" : "border-transparent text-[#85857f]"}`}>3. Ventas y devoluciones</button></div>
+    {notice && <div className="rounded-xl border border-[#276344] bg-[#0b2d1e] p-3 text-sm text-[#6ff0ae]">{notice}</div>}{error && <div className="rounded-xl border border-[#743a35] bg-[#321714] p-3 text-sm text-[#ffb4ab]">{error}</div>}
+
+    {tab === "pos" && <div className="grid items-start gap-5 xl:grid-cols-[1.35fr_0.9fr]">
+      <div className="space-y-4"><div className="rounded-2xl border border-[#222424] bg-[#101111] p-4"><div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#ffd700]">Catálogo y validación de stock</p><p className="mt-1 text-[11px] text-[#777870]">Solo puedes agregar artículos activos con existencias disponibles.</p></div><button onClick={loadData} className="text-[#d0c6ab] hover:text-[#ffd700]" aria-label="Actualizar catálogo"><span className="material-symbols-outlined">refresh</span></button></div><label className="relative mt-4 block"><span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#85857f]">search</span><input value={productSearch} onChange={(event) => setProductSearch(event.target.value)} className="ui-field w-full rounded-lg border border-[#292b2b] py-3 pl-10 pr-3 text-xs text-white outline-none placeholder:text-[#686963] focus:border-[#ffd700]" placeholder="Buscar por nombre, categoría, material o color..." /></label></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{loading ? <div className="col-span-full p-10 text-center text-sm text-[#aaa79d]">Cargando catálogo...</div> : availableProducts.map((product) => <ProductCard key={product.id_articulo} product={product} onAdd={addToCart} />)}{!loading && !availableProducts.length && <div className="col-span-full rounded-xl border border-dashed border-[#333] p-10 text-center text-sm text-[#85857f]">No hay artículos que coincidan con la búsqueda.</div>}</div></div>
+      <div className="sticky top-20 space-y-4"><div className="rounded-2xl border border-[#5d5200] bg-[#171603] p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#ffd700]">Cotización de origen</p><p className="mt-1 text-[11px] text-[#aaa16a]">{quote ? `#COT-${quote.id_cotizacion} · ${quote.estado_cotizacion}` : "Venta nueva sin cotización"}</p></div><button onClick={() => setTab("quotes")} className="text-[10px] font-bold uppercase text-[#ffd700]">Buscar</button></div></div><div className="rounded-2xl border border-[#222424] bg-[#0d0e0f] p-5"><div className="flex items-center justify-between border-b border-[#222424] pb-4"><h2 className="text-sm font-black uppercase text-[#f3f1ea]">Carrito de operación</h2><button onClick={() => setCart([])} className="text-[10px] font-bold uppercase text-[#ff8f84]">Limpiar</button></div>{cart.length ? <div className="max-h-64 space-y-3 overflow-y-auto py-4">{cart.map((item) => <div key={item.id_articulo} className="flex items-center gap-3 border-b border-[#1d1f1f] pb-3"><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-[#eeeade]">{item.nombre_articulo}</p><p className="mt-1 text-[10px] text-[#85857f]">{money(item.precio_articulo)} c/u</p></div><div className="flex items-center gap-2 rounded border border-[#303333] bg-[#151717] px-1"><button onClick={() => changeQuantity(item.id_articulo, -1)} className="p-1 text-[#aaa79d]">-</button><span className="w-5 text-center text-xs">{item.quantity}</span><button onClick={() => changeQuantity(item.id_articulo, 1)} className="p-1 text-[#aaa79d]">+</button></div><button onClick={() => removeFromCart(item.id_articulo)} className="text-[#ff8f84]" aria-label="Eliminar artículo"><span className="material-symbols-outlined text-sm">delete</span></button></div>)}</div> : <div className="py-10 text-center text-sm text-[#85857f]"><span className="material-symbols-outlined mb-2 block text-3xl text-[#5d5200]">shopping_cart</span>Agrega artículos para comenzar.</div>}<div className="space-y-2 border-t border-[#222424] pt-4 text-xs"><div className="flex justify-between text-[#aaa79d]"><span>Subtotal</span><strong>{money(subtotal)}</strong></div><label className="flex items-center justify-between gap-4 text-[#aaa79d]">Descuento<input value={discount} onChange={(event) => setDiscount(event.target.value)} type="number" min="0" className="ui-field w-28 rounded border border-[#292b2b] p-2 text-right text-xs text-white" /></label><div className="flex justify-between text-[#aaa79d]"><span>IVA estimado (19%)</span><strong>{money(tax)}</strong></div><div className="flex items-end justify-between border-t border-[#292b2b] pt-3"><span className="font-black uppercase italic text-[#f3f1ea]">Total</span><strong className="font-mono text-2xl text-[#ffd700]">{money(total)}</strong></div></div></div><div className="rounded-2xl border border-[#222424] bg-[#101111] p-5"><div className="mb-3 flex items-center justify-between gap-3"><div><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#ffd700]">Datos del cliente</p><p className="mt-1 text-[10px] text-[#777870]">Selecciona un cliente registrado para asociarlo a la venta.</p></div><button type="button" onClick={() => setShowNewClient(true)} className="whitespace-nowrap text-[10px] font-black uppercase text-[#ffd700] hover:text-white"><span className="material-symbols-outlined mr-1 align-middle text-sm">person_add</span>Nuevo cliente</button></div><select value={client.id_cliente} onChange={selectClient} className="ui-field w-full rounded-lg border border-[#292b2b] p-3 text-xs text-[#d0c6ab] outline-none focus:border-[#ffd700]"><option value="">Seleccionar cliente...</option>{clients.map((item) => <option key={item.id_cliente} value={item.id_cliente}>{item.nombre_cliente} · {item.num_documento}{item.telefono_cliente ? ` · ${item.telefono_cliente}` : ""}</option>)}</select>{client.id_cliente && <div className="mt-2 rounded-lg border border-[#31563f] bg-[#102519] p-3 text-[10px] text-[#9be8b8]"><strong>{client.nombre_cliente}</strong><span className="ml-2 text-[#73b88e]">CC/NIT {client.documento}{client.telefono ? ` · ${client.telefono}` : ""}</span></div>}<select value={payment} onChange={(event) => setPayment(event.target.value)} className="ui-field mt-2 w-full rounded-lg border border-[#292b2b] p-3 text-xs text-[#d0c6ab]"><option>Efectivo</option><option>Tarjeta credito</option><option>Debito</option><option>Transferencia</option></select><div className="mt-3 grid grid-cols-2 gap-2"><Button secondary onClick={createQuote}>Guardar cotización</Button><Button onClick={processSale} disabled={!quote || quote.estado_cotizacion !== "Aceptada"} className="disabled:cursor-not-allowed disabled:opacity-40">Confirmar venta</Button></div><p className="mt-3 text-[10px] text-[#777870]">Para confirmar una venta, la cotización debe estar aceptada por el cliente.</p></div></div>
+    </div>}
+
+    {tab === "quotes" && <div className="overflow-hidden rounded-2xl border border-[#222424] bg-[#0d0e0f]"><div className="border-b border-[#222424] px-5 py-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#ffd700]">Bandeja de cotizaciones</p><p className="mt-1 text-[11px] text-[#777870]">Revisa el estado comercial antes de pasar al cobro.</p></div><div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left"><thead className="bg-[#121313] text-[9px] font-black uppercase tracking-[0.16em] text-[#ffd700]"><tr><th className="p-4">Cotización</th><th className="p-4">Cliente</th><th className="p-4">Fecha</th><th className="p-4">Estado</th><th className="p-4 text-right">Acciones</th></tr></thead><tbody className="divide-y divide-[#1d1f1f]">{quotes.map((item) => <tr key={item.id_cotizacion} className="text-xs hover:bg-[#151616]"><td className="p-4 font-mono font-bold text-[#eeeade]">#COT-{item.id_cotizacion}</td><td className="p-4 text-[#d0c6ab]">{item.nombre_cliente || "Cliente general"}</td><td className="p-4 text-[#85857f]">{dateLabel(item.fecha_cotizacion)}</td><td className="p-4"><Status value={item.estado_cotizacion} /></td><td className="p-4 text-right"><button onClick={() => loadQuote(item)} className="mr-3 text-[10px] font-bold uppercase text-[#9bceff]">Cargar en POS</button>{item.estado_cotizacion === "Borrador" && <button onClick={() => updateQuote(item, "Aceptada")} className="mr-3 text-[10px] font-bold uppercase text-[#ffd700]">Aceptar</button>}{item.estado_cotizacion !== "Rechazada" && <button onClick={() => updateQuote(item, "Rechazada")} className="text-[10px] font-bold uppercase text-[#ff8f84]">Rechazar</button>}</td></tr>)}{!quotes.length && <tr><td colSpan="5" className="p-12 text-center text-sm text-[#85857f]">No hay cotizaciones registradas.</td></tr>}</tbody></table></div></div>}
+
+    {tab === "history" && <div className="space-y-4"><div className="flex flex-col gap-2 rounded-2xl border border-[#222424] bg-[#101111] p-3 sm:flex-row"><input value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} className="ui-field flex-1 rounded-lg border border-[#292b2b] p-3 text-xs text-white placeholder:text-[#686963]" placeholder="Buscar venta o cliente..." /><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="ui-field rounded-lg border border-[#292b2b] p-3 text-xs text-[#d0c6ab]"><option>Todos los estados</option><option>Realizada</option><option>Devuelta</option></select><button onClick={loadData} className="rounded-lg border border-[#292b2b] px-4 text-[#d0c6ab] hover:text-[#ffd700]" aria-label="Actualizar historial"><span className="material-symbols-outlined">refresh</span></button></div><div className="overflow-hidden rounded-2xl border border-[#222424] bg-[#0d0e0f]"><div className="border-b border-[#222424] px-5 py-4"><p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#ffd700]">Ventas facturadas y devoluciones</p></div><div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left"><thead className="bg-[#121313] text-[9px] font-black uppercase tracking-[0.16em] text-[#ffd700]"><tr><th className="p-4">ID venta</th><th className="p-4">Cotización origen</th><th className="p-4">Cliente / fecha</th><th className="p-4">Pago</th><th className="p-4">Estado</th><th className="p-4 text-right">Acciones</th></tr></thead><tbody className="divide-y divide-[#1d1f1f]">{filteredSales.map((item) => <tr key={item.id_venta} className="text-xs hover:bg-[#151616]"><td className="p-4 font-mono font-bold text-[#eeeade]">#V-{String(item.id_venta).padStart(5, "0")}</td><td className="p-4 font-mono text-[#aaa79d]">#COT-{item.id_cotizacion || "--"}</td><td className="p-4"><p className="font-bold text-[#eeeade]">{item.nombre_cliente || "Cliente general"}</p><p className="mt-1 text-[10px] text-[#777870]">{dateLabel(item.fecha_venta)}</p></td><td className="p-4 text-[#b8b7af]">{item.metodo_pago || "No definido"}</td><td className="p-4"><Status value={item.estado_venta} /></td><td className="p-4 text-right"><button onClick={() => openReceipt(item)} className="mr-3 rounded-md border border-[#2e3333] px-2 py-1.5 text-[9px] font-bold uppercase text-[#d0c6ab] hover:border-[#ffd700] hover:text-[#ffd700]">Ver comprobante</button>{item.estado_venta === "Realizada" && <button onClick={() => setReturnSale(item)} className="rounded-md border border-[#713b37] px-2 py-1.5 text-[9px] font-bold uppercase text-[#ff8f84]">Devolver</button>}</td></tr>)}{!filteredSales.length && <tr><td colSpan="6" className="p-12 text-center text-sm text-[#85857f]">No hay ventas que coincidan con los filtros.</td></tr>}</tbody></table></div></div></div>}
+
+    {detail && <Modal title={`Comprobante de venta #${detail.id_venta || ""}`} onClose={() => setDetail(null)}><div className="rounded-xl border border-[#5d5200] bg-[#171603] p-4"><div className="flex items-start justify-between"><div><p className="text-[10px] font-black uppercase tracking-wider text-[#ffd700]">Recibo oficial BikeGestión</p><p className="mt-2 text-xl font-black text-[#f3f1ea]">Venta #{detail.id_venta}</p></div><Status value={detail.estado_venta} /></div><div className="mt-5 grid gap-3 border-t border-[#594e00] pt-4 text-xs sm:grid-cols-2"><p><span className="text-[#9d9564]">Cliente</span><br /><strong>{detail.nombre_cliente || "Cliente general"}</strong></p><p><span className="text-[#9d9564]">Fecha</span><br /><strong>{dateLabel(detail.fecha_venta)}</strong></p><p><span className="text-[#9d9564]">Cotización origen</span><br /><strong>#COT-{detail.id_cotizacion || "--"}</strong></p><p><span className="text-[#9d9564]">Medio de pago</span><br /><strong>{detail.metodo_pago || "No definido"}</strong></p></div><div className="mt-5 flex items-end justify-between border-t border-[#594e00] pt-4"><span className="text-xs uppercase text-[#b8ae75]">Total liquidado</span><strong className="font-mono text-2xl text-[#ffd700]">{money(detail.total || detail.total_venta)}</strong></div></div><div className="mt-4 flex justify-end gap-2"><Button secondary onClick={() => window.print()}>Imprimir</Button><Button onClick={() => setDetail(null)}>Cerrar</Button></div></Modal>}
+    {returnSale && <Modal title={`Procesar devolución #${returnSale.id_venta}`} onClose={() => setReturnSale(null)}><div className="rounded-xl border border-[#5d5200] bg-[#171603] p-4 text-xs text-[#d0c6ab]"><p className="font-bold text-[#f5e57b]">La venta será marcada como devuelta y el pago será revertido.</p><p className="mt-2 text-[11px] text-[#9d9564]">Completa la información técnica para dejar trazabilidad de la revisión.</p></div><div className="mt-4 space-y-3"><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Motivo<select value={returnReason} onChange={(event) => setReturnReason(event.target.value)} className="ui-field mt-2 w-full rounded-lg border border-[#292b2b] p-3 text-xs text-white"><option>Producto defectuoso</option><option>Cliente desistió</option><option>Error en la venta</option><option>Garantía</option></select></label><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Condición del producto<select value={returnCondition} onChange={(event) => setReturnCondition(event.target.value)} className="ui-field mt-2 w-full rounded-lg border border-[#292b2b] p-3 text-xs text-white"><option>Óptimas condiciones</option><option>Requiere revisión</option><option>No apto para inventario</option></select></label></div><div className="mt-5 flex justify-end gap-2"><Button secondary onClick={() => setReturnSale(null)}>Cancelar</Button><Button onClick={confirmReturn}>Confirmar devolución</Button></div></Modal>}
+    {returnSale && <ReturnModal sale={returnSale} onClose={() => setReturnSale(null)} onConfirm={confirmReturn} />}
+    {showNewClient && <Modal title="Registrar nuevo cliente" onClose={() => setShowNewClient(false)}><form onSubmit={registerClient} className="space-y-4"><p className="text-xs text-[#aaa79d]">El cliente quedará guardado en el sistema y se seleccionará automáticamente en esta operación.</p><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Nombre completo<input required value={newClient.nombre_cliente} onChange={(event) => setNewClient({ ...newClient, nombre_cliente: event.target.value })} className="ui-field mt-2 w-full rounded-lg border border-[#292b2b] p-3 text-sm text-white outline-none focus:border-[#ffd700]" placeholder="Ej. Andrés Rodríguez" /></label><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Documento / NIT<input required value={newClient.num_documento} onChange={(event) => setNewClient({ ...newClient, num_documento: event.target.value })} className="ui-field mt-2 w-full rounded-lg border border-[#292b2b] p-3 text-sm text-white outline-none focus:border-[#ffd700]" placeholder="Número de documento" /></label><label className="block text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]">Teléfono <span className="font-normal normal-case text-[#777870]">(opcional)</span><input value={newClient.telefono_cliente} onChange={(event) => setNewClient({ ...newClient, telefono_cliente: event.target.value })} className="ui-field mt-2 w-full rounded-lg border border-[#292b2b] p-3 text-sm text-white outline-none focus:border-[#ffd700]" placeholder="300 000 0000" /></label><div className="flex justify-end gap-2 pt-2"><Button secondary type="button" onClick={() => setShowNewClient(false)}>Cancelar</Button><Button type="submit">Guardar y seleccionar</Button></div></form></Modal>}
+    {detail && <ReceiptModal sale={detail} onClose={() => setDetail(null)} onViewQuote={() => { setDetail(null); setTab("quotes"); }} />}
+  </section>;
 }
 
 export default Ventas;

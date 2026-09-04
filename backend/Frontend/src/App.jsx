@@ -5,10 +5,12 @@ import Registro from './componentes/Registro';
 import InicioSesion from './componentes/InicioSesion';
 import Inventario from './componentes/Inventario';
 import Dashboard from './componentes/Dashboard';
+import Ventas from './componentes/Ventas';
 import PanelLayout from './componentes/PanelLayout';
 import EditarUsuario from './componentes/EditarUsuario';
-import ModulePlaceholder from './componentes/ModulePlaceholder';
 import OperacionPanel from './componentes/OperacionPanel';
+import ComprasFlujo from './componentes/ComprasFlujo';
+import ProveedoresFlujo from './componentes/ProveedoresFlujo';
 import UsuariosPanel from './componentes/UsuariosPanel';
 import { useAuth } from './utils/useAuth';
 import './App.css'
@@ -54,10 +56,10 @@ function App() {
             <Route element={<RoleRoute roles={[1]} />}>
               <Route path="/inventario" element={<Inventario />} />
               <Route path="/cotizacion" element={<OperacionPanel tipo="cotizaciones" />} />
-              <Route path="/venta" element={<OperacionPanel tipo="ventas" />} />
-              <Route path="/ventas" element={<OperacionPanel tipo="ventas" />} />
-              <Route path="/compras" element={<OperacionPanel tipo="compras" />} />
-              <Route path="/proveedores" element={<OperacionPanel tipo="proveedores" />} />
+              <Route path="/venta" element={<Ventas />} />
+              <Route path="/ventas" element={<Ventas />} />
+              <Route path="/compras" element={<ComprasFlujo />} />
+              <Route path="/proveedores" element={<ProveedoresFlujo />} />
             </Route>
             <Route element={<RoleRoute roles={[2]} />}>
               <Route path="/empleados" element={<OperacionPanel tipo="empleados" />} />

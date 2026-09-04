@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "../App.css";
-import { API_BASE_URL, obtenerSesion } from "../utils/sesion";
+import { API_BASE_URL, API_V1_BASE_URL, obtenerSesion } from "../utils/sesion";
 
 const API_BASE = `${API_BASE_URL}`;
+const readJson = async (response) => {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`El servidor devolvió una respuesta inválida (${response.status}). Reinicia el backend.`);
+  }
+};
 
 const RAZONES = ["Compra", "Venta", "Ajuste", "Pérdida", "Devolución", "Otro"];
 
@@ -22,6 +30,37 @@ const INITIAL_MOVIMIENTO_FORM = {
   razon: "Compra",
   observaciones: "",
 };
+
+const formatCurrency = (value) => `$${Number(value || 0).toLocaleString("es-CO")} COP`;
+
+function StockAlertMonitor() {
+  const [data, setData] = useState({ alertas: [], resumen: {} });
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("Todos");
+
+  const loadAlerts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/inventario/alertas/`);
+      if (!response.ok) throw new Error("No fue posible cargar las alertas de inventario.");
+      setData(await readJson(response));
+    } catch {
+      setData({ alertas: [], resumen: {} });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(loadAlerts, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const alertas = data.alertas || [];
+  const visibles = filter === "Todos" ? alertas : alertas.filter((item) => item.nivel === filter);
+  const resumen = data.resumen || {};
+  return <section className="col-span-12 overflow-hidden rounded-xl border border-[#3f371a] bg-[#11110e] shadow-[0_18px_50px_rgba(0,0,0,0.2)]"><div className="border-b border-[#302d20] p-5"><div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"><div><div className="flex flex-wrap items-center gap-3"><h2 className="headline-kinetic text-2xl uppercase text-[#f3f1ea]">Monitor de alertas de stock bajo</h2>{!loading && <span className="rounded bg-[#5b201c] px-2 py-1 text-[9px] font-black uppercase text-[#ffb4ab]">{alertas.length} artículos en alerta</span>}</div><p className="mt-1 text-[11px] text-[#aaa79d]">Alertas calculadas con el stock mínimo configurado por artículo.</p></div><div className="flex flex-wrap gap-2"><button onClick={loadAlerts} className="rounded-lg border border-[#393522] px-3 py-2 text-[10px] font-black uppercase text-[#d0c6ab] hover:border-[#ffd700] hover:text-[#ffd700]">Actualizar vista</button><button onClick={() => { window.location.href = "/compras"; }} disabled={!alertas.length} className="rounded-lg bg-[#ffd700] px-3 py-2 text-[10px] font-black uppercase text-black disabled:cursor-not-allowed disabled:opacity-40">Ver compras sugeridas</button></div></div><div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><div className="rounded-lg border-l-2 border-[#ff594e] bg-[#191311] p-3"><p className="text-[9px] uppercase text-[#aaa79d]">Nivel crítico</p><strong className="mt-1 block text-2xl text-[#ff8f84]">{resumen.criticas || 0}</strong><span className="text-[9px] text-[#ffb4ab]">Acción inmediata</span></div><div className="rounded-lg border-l-2 border-[#ffd700] bg-[#19170f] p-3"><p className="text-[9px] uppercase text-[#aaa79d]">Reposición</p><strong className="mt-1 block text-2xl text-[#ffd700]">{resumen.reposicion || 0}</strong><span className="text-[9px] text-[#d0c06d]">Orden recomendada</span></div><div className="rounded-lg border-l-2 border-[#72b7ff] bg-[#111820] p-3"><p className="text-[9px] uppercase text-[#aaa79d]">Inversión sugerida</p><strong className="mt-1 block text-xl text-[#9bceff]">{formatCurrency(resumen.inversion_estimada)}</strong><span className="text-[9px] text-[#8aa6c0]">{resumen.unidades_sugeridas || 0} unidades</span></div><div className="rounded-lg border-l-2 border-[#42e6a4] bg-[#101b17] p-3"><p className="text-[9px] uppercase text-[#aaa79d]">Regla de alerta</p><strong className="mt-1 block text-xl text-[#42e6a4]">25% - 75%</strong><span className="text-[9px] text-[#84c6a8]">del stock mínimo</span></div></div></div>{loading ? <div className="p-10 text-center text-sm text-[#aaa79d]">Analizando niveles de inventario...</div> : !alertas.length ? <div className="p-10 text-center text-sm text-[#42e6a4]">No hay artículos bajo el nivel de reposición.</div> : <div><div className="flex items-center justify-between gap-3 border-b border-[#24231b] px-5 py-3"><p className="text-[10px] font-black uppercase tracking-wider text-[#ffd700]">Artículos en alerta</p><div className="flex gap-1"><button onClick={() => setFilter("Todos")} className={`rounded px-2 py-1 text-[9px] font-bold ${filter === "Todos" ? "bg-[#ffd700] text-black" : "text-[#aaa79d]"}`}>Todos ({alertas.length})</button><button onClick={() => setFilter("Crítico")} className={`rounded px-2 py-1 text-[9px] font-bold ${filter === "Crítico" ? "bg-[#5b201c] text-[#ffb4ab]" : "text-[#aaa79d]"}`}>Críticos</button><button onClick={() => setFilter("Reposición")} className={`rounded px-2 py-1 text-[9px] font-bold ${filter === "Reposición" ? "bg-[#5b4c00] text-[#ffe55c]" : "text-[#aaa79d]"}`}>Reposición</button></div></div><div className="overflow-x-auto"><table className="w-full min-w-[900px] text-left text-[10px]"><thead className="bg-[#16150f] uppercase tracking-wider text-[#8f8a70]"><tr><th className="p-3">Artículo</th><th className="p-3">Categoría</th><th className="p-3 text-right">Actual / mínimo</th><th className="p-3 text-right">Reposición</th><th className="p-3">Proveedor activo</th><th className="p-3 text-right">Acción</th></tr></thead><tbody className="divide-y divide-[#24231b]">{visibles.map((item) => <tr key={item.id_articulo} className="hover:bg-[#18170f]"><td className="p-3"><div className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${item.nivel === "Crítico" ? "bg-[#ff594e]" : "bg-[#ffd700]"}`} /><div><strong className="text-[#eeeade]">{item.nombre_articulo}</strong><p className="text-[9px] text-[#77705a]">ART-{String(item.id_articulo).padStart(4, "0")}</p></div></div></td><td className="p-3 text-[#aaa79d]">{item.tipo_articulo || "General"}</td><td className="p-3 text-right"><strong className={item.nivel === "Crítico" ? "text-[#ff8f84]" : "text-[#ffe55c]"}>{item.stock_actual} uds</strong><span className="block text-[9px] text-[#77705a]">mínimo: {item.stock_minimo}</span></td><td className="p-3 text-right"><strong className="text-[#ffe55c]">+{item.sugerencia_reposicion} uds</strong><span className="block text-[9px] text-[#77705a]">{formatCurrency(item.inversion_estimada)}</span></td><td className="p-3">{item.nombre_proveedor ? <><strong className="text-[#eeeade]">{item.nombre_proveedor}</strong><span className="block text-[9px] text-[#42e6a4]">Activo · NIT {item.nit_proveedor}</span></> : <span className="text-[#ffb4ab]">Sin proveedor activo</span>}</td><td className="p-3 text-right"><button onClick={() => { window.location.href = "/compras"; }} className="rounded bg-[#ffd700] px-2 py-1.5 text-[9px] font-black uppercase text-black">Crear compra</button></td></tr>)}</tbody></table></div></div>}</section>;
+}
 
 function Inventario() {
   const usuarioSesion = useMemo(() => obtenerSesion(), []);
@@ -66,10 +105,48 @@ function Inventario() {
   const fetchMovimientos = async () => {
     setLoadingMovimientos(true);
     try {
-      const res = await fetch(`${API_BASE}/movimientos/?limit=10`);
-      if (!res.ok) throw new Error("No se pudo cargar el historial");
-      const data = await res.json();
-      setMovimientos(Array.isArray(data) ? data : []);
+      const responses = await Promise.all([
+        fetch(`${API_BASE}/movimientos/?limit=20`),
+        fetch(`${API_V1_BASE_URL}/ventas/`),
+        fetch(`${API_V1_BASE_URL}/compras/`),
+      ]);
+      const [manualData, ventasData, comprasData] = await Promise.all(responses.map(readJson));
+      if (!responses[0].ok) throw new Error("No se pudo cargar el historial");
+
+      const ventasMovimientos = (Array.isArray(ventasData) ? ventasData : []).flatMap((venta) =>
+        (venta.detalles || []).map((detalle, index) => ({
+          id_movimiento: `venta-${venta.id_venta}-${detalle.id_articulo}-${index}`,
+          tipo_movimiento: "Salida",
+          razon: "Venta",
+          cantidad: detalle.cantidad_articulo,
+          nombre_articulo: detalle.nombre_articulo || `Artículo #${detalle.id_articulo}`,
+          fecha_movimiento: venta.fecha_venta,
+          nombre_usuario: "Venta registrada",
+          observaciones: `Venta #${venta.id_venta}${venta.nombre_cliente ? ` · Cliente: ${venta.nombre_cliente}` : ""}`,
+          origen: "Venta",
+          automatico: true,
+        }))
+      );
+      const comprasMovimientos = (Array.isArray(comprasData) ? comprasData : []).flatMap((compra) =>
+        (compra.detalles || []).map((detalle, index) => ({
+          id_movimiento: `compra-${compra.id_compra}-${detalle.id_articulo}-${index}`,
+          tipo_movimiento: "Entrada",
+          razon: "Compra",
+          cantidad: detalle.cantidad_articulo,
+          nombre_articulo: detalle.nombre_articulo || `Artículo #${detalle.id_articulo}`,
+          fecha_movimiento: compra.fecha_compra,
+          nombre_usuario: "Compra registrada",
+          observaciones: `Compra #${compra.id_compra}${compra.nombre_proveedor ? ` · Proveedor: ${compra.nombre_proveedor}` : ""}`,
+          origen: "Compra",
+          automatico: true,
+        }))
+      );
+      const allMovements = [
+        ...(Array.isArray(manualData) ? manualData : []),
+        ...ventasMovimientos,
+        ...comprasMovimientos,
+      ].sort((a, b) => new Date(b.fecha_movimiento || 0) - new Date(a.fecha_movimiento || 0));
+      setMovimientos(allMovements);
     } catch (err) {
       setError(err.message);
       setMovimientos([]);
@@ -390,7 +467,16 @@ function Inventario() {
     return { entradas, salidas, neto };
   }, [movimientos]);
 
-  const lowStockArticulos = articulos.filter((a) => (a.cantidad_articulo ?? 0) <= 5).slice(0, 5);
+  const ultimoMovimientoPorArticulo = useMemo(() => {
+    const mapa = new Map();
+    movimientos.forEach((movimiento) => {
+      if (!mapa.has(String(movimiento.id_articulo))) mapa.set(String(movimiento.id_articulo), movimiento);
+    });
+    return mapa;
+  }, [movimientos]);
+
+  // El monitor superior es la fuente única de alertas calculadas con stock mínimo.
+  const lowStockArticulos = [];
   const latestArticulos = useMemo(
     () => [...articulos].sort((a, b) => Number(b.id_articulo) - Number(a.id_articulo)).slice(0, 5),
     [articulos]
@@ -413,6 +499,8 @@ function Inventario() {
           <p className="text-sm font-bold uppercase tracking-widest">{toast.message}</p>
         </div>
       )}
+
+      <StockAlertMonitor />
 
       <div className="col-span-12 lg:col-span-8 space-y-8">
         <div className="flex flex-col gap-5">
@@ -501,18 +589,20 @@ function Inventario() {
                     </th>
                     <th className="p-4 text-xs uppercase tracking-widest text-[#d0c6ab]">Categoría</th>
                     <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Stock</th>
-                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio</th>
+                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio unitario</th>
+                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio venta</th>
+                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Precio compra</th>
+                    <th className="p-4 text-right text-xs uppercase tracking-widest text-[#d0c6ab]">Ganancia</th>
                     <th className="p-4 text-xs uppercase tracking-widest text-[#d0c6ab]">Estado</th>
                     <th className="w-[210px] p-4 text-xs uppercase tracking-widest text-[#d0c6ab]">
-                      Movimiento
+                      Origen del movimiento
                     </th>
-                    <th className="p-4" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#1a1a1a]">
                   {articulos.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="p-8 text-center text-sm text-[#d0c6ab]">
+                      <td colSpan={10} className="p-8 text-center text-sm text-[#d0c6ab]">
                         No hay artículos registrados
                       </td>
                     </tr>
@@ -520,6 +610,7 @@ function Inventario() {
                     articulosVisibles.map((articulo) => {
                       const status = getStockStatus(articulo);
                       const stockActual = articulo.cantidad_articulo ?? 0;
+                      const ultimoMovimiento = ultimoMovimientoPorArticulo.get(String(articulo.id_articulo));
                       return (
                         <tr key={articulo.id_articulo} className="transition-colors hover:bg-[#121212]">
                           <td className="p-4 font-mono text-xs text-[#d0c6ab]">
@@ -541,8 +632,17 @@ function Inventario() {
                             </span>
                           </td>
                           <td className="p-4 text-right font-bold text-[#e3e2e2]">{stockActual}</td>
+                          <td className="p-4 text-right font-bold text-[#ffd700]">
+                            ${formatPrice(articulo.precio_articulo)}
+                          </td>
                           <td className="p-4 text-right font-bold text-[#e3e2e2]">
                             ${formatPrice(articulo.precio_articulo)}
+                          </td>
+                          <td className="p-4 text-right text-xs font-bold text-[#d0c6ab]">
+                            {articulo.precio_compra != null ? `$${formatPrice(articulo.precio_compra)}` : "Sin compras"}
+                          </td>
+                          <td className="p-4 text-right text-xs font-black text-[#ffd700]">
+                            {articulo.porcentaje_ganancia != null ? `${Number(articulo.porcentaje_ganancia).toLocaleString("es-CO")} %` : "No definido"}
                           </td>
                           <td className="p-4">
                             <div className="flex items-center gap-2">
@@ -552,28 +652,8 @@ function Inventario() {
                               </span>
                             </div>
                           </td>
-                          <td className="w-[210px] align-middle p-4">
-                            <div className="flex w-[180px] flex-col gap-2">
-                              <button
-                                onClick={() => openMovimientoModal(articulo, "Entrada")}
-                                className="inline-flex w-full items-center justify-center gap-1 rounded border border-[#065f46] bg-[#06281f] px-2.5 py-2 text-[10px] font-bold uppercase tracking-wider text-[#4ADE80] transition-all hover:bg-[#0b3b2d]"
-                                title="Registrar entrada"
-                              >
-                                <span className="material-symbols-outlined text-[14px]">download</span>
-                                Entrada
-                              </button>
-                              <button
-                                onClick={() => openMovimientoModal(articulo, "Salida")}
-                                className="inline-flex w-full items-center justify-center gap-1 rounded border border-[#7c2d12] bg-[#30130b] px-2.5 py-2 text-[10px] font-bold uppercase tracking-wider text-[#ffb4ab] transition-all hover:bg-[#4a1c10]"
-                                title="Registrar salida"
-                              >
-                                <span className="material-symbols-outlined text-[14px]">upload</span>
-                                Salida
-                              </button>
-                            </div>
-                          </td>
-                          <td className="p-4 text-right text-[10px] font-black uppercase tracking-wider text-[#d0c6ab]/60">
-                            Solo consulta
+                          <td className="w-[210px] align-middle p-4 text-[10px] text-[#d0c6ab]">
+                            {ultimoMovimiento ? <div><span className={`inline-flex items-center gap-2 rounded border px-3 py-2 font-bold uppercase ${ultimoMovimiento.tipo_movimiento === "Entrada" ? "border-[#065f46] bg-[#06281f] text-[#4ADE80]" : "border-[#7c2d12] bg-[#30130b] text-[#ffb4ab]"}`}><span className="material-symbols-outlined text-sm">{ultimoMovimiento.tipo_movimiento === "Entrada" ? "download" : "upload"}</span>{ultimoMovimiento.observaciones || ultimoMovimiento.razon}</span><p className="mt-1 text-[9px] text-[#777870]">{formatearFecha(ultimoMovimiento.fecha_movimiento)}</p></div> : <span className="text-[#777870]">Sin movimientos registrados</span>}
                           </td>
                         </tr>
                       );
@@ -628,7 +708,7 @@ function Inventario() {
           <div className="mb-5 flex items-center gap-2">
             <span className="material-symbols-outlined text-[#ffd700]">history</span>
             <h3 className="headline-kinetic text-xl uppercase text-[#e3e2e2]">
-              Últimos Movimientos
+              Últimas entradas y salidas
             </h3>
           </div>
 
@@ -640,7 +720,7 @@ function Inventario() {
             <div className="rounded-lg border border-dashed border-[#1f1f1f] bg-[#0a0a0a] p-6 text-center">
               <p className="text-sm text-[#e3e2e2]">No hay movimientos registrados todavía</p>
               <p className="mt-2 text-[11px] text-[#d0c6ab]">
-                Cuando registres una entrada o salida, aparecerá aquí con fecha, operador y stock actualizado.
+                Aquí aparecerán las entradas por compras y las salidas por ventas, junto con los movimientos manuales.
               </p>
             </div>
           ) : (
@@ -673,16 +753,9 @@ function Inventario() {
                           </p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => eliminarMovimiento(movimiento.id_movimiento)}
-                        className="text-[#d0c6ab] opacity-0 transition-all hover:text-[#ffb4ab] group-hover:opacity-100"
-                        title="Eliminar y revertir"
-                      >
-                        <span className="material-symbols-outlined text-base">close</span>
-                      </button>
                     </div>
                     <p className="text-[11px] text-[#d0c6ab]/80">{formatearFecha(movimiento.fecha_movimiento)}</p>
-                    <p className="mt-1 text-[11px] text-[#d0c6ab]">Operador: {movimiento.nombre_usuario}</p>
+                    <p className="mt-1 text-[11px] text-[#d0c6ab]">Origen: {movimiento.origen || "Movimiento manual"} · {movimiento.nombre_usuario}</p>
                     {movimiento.observaciones && (
                       <p className="mt-2 line-clamp-3 text-[11px] text-[#e3e2e2]">
                         {movimiento.observaciones}

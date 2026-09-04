@@ -3,6 +3,7 @@ from django.urls import include, path
 from .views import api_root
 from .operations import (
     CompraListView,
+    ClienteListView,
     CotizacionDetailView,
     CotizacionListView,
     ProveedorDetailView,
@@ -26,6 +27,7 @@ urlpatterns = [
     path("usuarios/", include("backend.apps.usuarios.urls")),
     path("reportes/", include("backend.apps.reportes.urls")),
     path("proveedores/", ProveedorListView.as_view(), name="proveedor-list"),
+    path("clientes/", ClienteListView.as_view(), name="cliente-list"),
     path("proveedores/<int:nit_proveedor>/", ProveedorDetailView.as_view(), name="proveedor-detail"),
     path("cotizaciones/", CotizacionListView.as_view(), name="cotizacion-list"),
     path("cotizaciones/<int:id_cotizacion>/", CotizacionDetailView.as_view(), name="cotizacion-detail"),

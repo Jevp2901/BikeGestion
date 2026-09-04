@@ -26,6 +26,32 @@ def _required(data, names):
     return {name: "Este campo es obligatorio." for name in missing}
 
 
+class ClienteListView(APIView):
+    def get(self, request):
+        return Response(_json_rows("""SELECT id_cliente, nombre_cliente, num_documento, telefono_cliente
+            FROM cliente ORDER BY nombre_cliente"""))
+
+    def post(self, request):
+        data = request.data
+        errors = _required(data, ["nombre_cliente", "num_documento"])
+        if errors:
+            return Response(errors, status=400)
+        try:
+            with transaction.atomic(), connection.cursor() as cursor:
+                cursor.execute("""INSERT INTO cliente
+                    (nombre_cliente, num_documento, telefono_cliente)
+                    VALUES (%s, %s, %s)""", [
+                        data["nombre_cliente"].strip(),
+                        data["num_documento"].strip(),
+                        data.get("telefono_cliente") or None,
+                    ])
+                cliente_id = cursor.lastrowid
+            return Response(_one("""SELECT id_cliente, nombre_cliente, num_documento, telefono_cliente
+                FROM cliente WHERE id_cliente = %s""", [cliente_id]), status=201)
+        except Exception as exc:
+            return Response({"error": str(exc)}, status=400)
+
+
 class ProveedorListView(APIView):
     def get(self, request):
         tipo = request.query_params.get("tipo_articulo")
@@ -70,7 +96,8 @@ class ProveedorDetailView(APIView):
             return Response({"error": "Proveedor no encontrado."}, status=404)
         proveedor["articulos"] = _json_rows(
             """SELECT a.id_articulo, a.nombre_articulo, a.tipo_articulo,
-                      a.precio_articulo
+                      a.precio_articulo,
+                      pa.precio_compra
                FROM proveedor_articulo pa JOIN articulo a ON a.id_articulo = pa.id_articulo
                WHERE pa.nit_proveedor = %s ORDER BY a.nombre_articulo""",
             [nit_proveedor],
@@ -158,9 +185,17 @@ class CotizacionDetailView(APIView):
 
 class CompraListView(APIView):
     def get(self, request):
-        return Response(_json_rows("""SELECT c.*, p.nombre_proveedor
+        compras = _json_rows("""SELECT c.*, p.nombre_proveedor
             FROM compra c JOIN proveedor p ON p.nit_proveedor = c.nit_proveedor
-            ORDER BY c.id_compra DESC"""))
+            ORDER BY c.id_compra DESC""")
+        for compra in compras:
+            compra["detalles"] = _json_rows("""SELECT d.id_articulo,
+                    d.cantidad_articulo, d.valor_unitario, d.total_compra,
+                    a.nombre_articulo
+                FROM detalle_compra d
+                JOIN articulo a ON a.id_articulo = d.id_articulo
+                WHERE d.id_compra = %s""", [compra["id_compra"]])
+        return Response(compras)
 
     def post(self, request):
         data = request.data
@@ -169,14 +204,37 @@ class CompraListView(APIView):
             return Response(errors, status=400)
         if data.get("metodo_pago") not in {"Tarjeta credito", "Debito", "Efectivo"}:
             return Response({"metodo_pago": "Medio de pago inválido."}, status=400)
+        detalles = data.get("detalles") or []
+        if not detalles:
+            return Response({"detalles": "Debe incluir al menos un artículo."}, status=400)
         try:
+            proveedor = _one(
+                "SELECT nit_proveedor FROM proveedor WHERE nit_proveedor = %s AND estado = 'Activo'",
+                [data["nit_proveedor"]],
+            )
+            if not proveedor:
+                raise ValueError("Solo se puede comprar a un proveedor activo.")
+            validated_details = []
+            for detail in detalles:
+                article_id = detail.get("id_articulo")
+                quantity = detail.get("cantidad_articulo")
+                association = _one(
+                    "SELECT precio_compra FROM proveedor_articulo WHERE nit_proveedor = %s AND id_articulo = %s",
+                    [data["nit_proveedor"], article_id],
+                )
+                if not association:
+                    raise ValueError("Uno de los artículos no está asociado al proveedor seleccionado.")
+                fixed_price = association["precio_compra"]
+                if int(quantity) <= 0 or fixed_price is None or float(fixed_price) <= 0:
+                    raise ValueError("El artículo no tiene un precio de compra fijo válido.")
+                validated_details.append({**detail, "valor_unitario": fixed_price})
             with transaction.atomic(), connection.cursor() as cursor:
                 cursor.execute("""INSERT INTO compra
                     (id_usuario, nit_proveedor, fecha_compra, estado_compra, metodo_pago)
                     VALUES (%s, %s, %s, 'Realizada', %s)""",
                     [data["id_usuario"], data["nit_proveedor"], data["fecha_compra"], data["metodo_pago"]])
                 compra_id = cursor.lastrowid
-                for detail in data["detalles"]:
+                for detail in validated_details:
                     cursor.execute("""INSERT INTO detalle_compra
                         (id_compra, id_articulo, valor_unitario, cantidad_articulo, descuento_compra)
                         VALUES (%s, %s, %s, %s, %s)""",
@@ -190,9 +248,17 @@ class CompraListView(APIView):
 
 class VentaListView(APIView):
     def get(self, request):
-        return Response(_json_rows("""SELECT v.*, cl.nombre_cliente
+        ventas = _json_rows("""SELECT v.*, cl.nombre_cliente
             FROM venta v LEFT JOIN cliente cl ON cl.id_cliente = v.id_cliente
-            ORDER BY v.id_venta DESC"""))
+            ORDER BY v.id_venta DESC""")
+        for venta in ventas:
+            venta["detalles"] = _json_rows("""SELECT d.id_articulo,
+                    d.cantidad_articulo, d.valor_unitario, d.total_venta,
+                    a.nombre_articulo
+                FROM detalle_venta d
+                JOIN articulo a ON a.id_articulo = d.id_articulo
+                WHERE d.id_venta = %s""", [venta["id_venta"]])
+        return Response(ventas)
 
     def post(self, request):
         data = request.data
@@ -221,6 +287,30 @@ class VentaListView(APIView):
 
 
 class VentaDetailView(APIView):
+    def get(self, request, id_venta):
+        venta = _one("""SELECT v.*, cl.nombre_cliente, cl.num_documento,
+                cl.telefono_cliente, u.nombre_usuario
+            FROM venta v
+            LEFT JOIN cliente cl ON cl.id_cliente = v.id_cliente
+            LEFT JOIN usuario u ON u.id_usuario = v.id_usuario
+            WHERE v.id_venta = %s""", [id_venta])
+        if not venta:
+            return Response({"error": "Venta no encontrada."}, status=404)
+        venta["detalles"] = _json_rows("""SELECT d.id_detalle_venta, d.id_articulo,
+                d.valor_unitario, d.cantidad_articulo, d.descuento_venta,
+                d.subtotal, d.total_venta, a.nombre_articulo, a.tipo_articulo,
+                a.material, a.color, a.tamano
+            FROM detalle_venta d
+            JOIN articulo a ON a.id_articulo = d.id_articulo
+            WHERE d.id_venta = %s ORDER BY d.id_detalle_venta""", [id_venta])
+        venta["pago"] = _one("""SELECT id_pago_venta, fecha_pago, metodo_pago,
+                valor_pagado, estado_pago
+            FROM pago_venta WHERE id_venta = %s""", [id_venta])
+        venta["recibo"] = _one("""SELECT id_recibo, fecha_emision, total
+            FROM recibo WHERE id_venta = %s""", [id_venta])
+        venta["total"] = sum((item.get("total_venta") or 0) for item in venta["detalles"])
+        return Response(venta)
+
     def patch(self, request, id_venta):
         if request.data.get("estado_venta") != "Devuelta":
             return Response({"estado_venta": "Solo se permite registrar una devolución."}, status=400)

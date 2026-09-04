@@ -135,3 +135,54 @@ th,
   border: 1px solid #1f2020;
 }
 
+/* Shared visual treatment for the operational procurement screens. */
+section.max-w-7xl {
+  position: relative;
+  isolation: isolate;
+}
+
+section.max-w-7xl::before {
+  content: "";
+  position: absolute;
+  inset: -2rem -3rem auto;
+  height: 18rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 15%, rgba(255, 215, 0, .16), transparent 38%), radial-gradient(circle at 85% 5%, rgba(38, 225, 160, .1), transparent 32%);
+  filter: blur(10px);
+}
+
+section.max-w-7xl button,
+section.max-w-7xl select,
+section.max-w-7xl input {
+  transition: border-color .2s ease, background-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+section.max-w-7xl button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .24);
+}
+
+section.max-w-7xl input:focus,
+section.max-w-7xl select:focus {
+  border-color: var(--ui-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, .1);
+}
+
+section.max-w-7xl input[placeholder="Costo unitario"] {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: .72;
+  border-color: #4d4732;
+  background: #171603;
+}
+
+section.max-w-7xl table tbody tr {
+  transition: background-color .2s ease;
+}
+
+section.max-w-7xl table tbody tr:hover {
+  background: rgba(255, 215, 0, .035);
+}
+

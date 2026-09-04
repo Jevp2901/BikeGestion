@@ -9,7 +9,6 @@ const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: "dashboard", end: true, roles: [1, 2, 3] },
   { to: "/inventario", label: "Inventario", icon: "inventory_2", roles: [1] },
   { to: "/venta", label: "Ventas", icon: "point_of_sale", roles: [1] },
-  { to: "/cotizacion", label: "Cotizaciones", icon: "request_quote", roles: [1] },
   { to: "/compras", label: "Compras", icon: "local_shipping", roles: [1] },
   { to: "/proveedores", label: "Proveedores", icon: "handshake", roles: [1] },
   { to: "/empleados", label: "Empleados", icon: "badge", roles: [2] },

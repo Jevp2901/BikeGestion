@@ -1,18 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
 from django.contrib.auth.hashers import check_password
 from django.db.models import OuterRef, Subquery
+from django.db import connection
 from datetime import datetime
 
 from .models import Usuario, Articulo, InventarioArticulo
-from .movimientos_store import (
-    list_movimientos,
-    get_movimiento,
-    registrar_movimiento,
-    revertir_movimiento,
-)
+from .movimientos_store import list_movimientos, get_movimiento
 from .serializers import (
     UsuarioSerializer,
     UsuarioUpdateSerializer,
@@ -153,7 +148,35 @@ class ArticuloListCreateView(APIView):
             cantidad_articulo=Subquery(stock_actual)
         ).filter(activo=True).order_by('-id_articulo')
         serializer = ArticuloSerializer(articulos, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        resultado = serializer.data
+        precios_compra = {}
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT d.id_articulo, d.valor_unitario AS precio_compra
+                    FROM detalle_compra d
+                    JOIN compra c ON c.id_compra = d.id_compra
+                    JOIN (
+                        SELECT d2.id_articulo, MAX(CONCAT(c2.fecha_compra, LPAD(c2.id_compra, 10, '0'))) AS ultima_compra
+                        FROM detalle_compra d2 JOIN compra c2 ON c2.id_compra = d2.id_compra
+                        WHERE c2.estado_compra = 'Realizada'
+                        GROUP BY d2.id_articulo
+                    ) ult ON ult.id_articulo = d.id_articulo
+                        AND ult.ultima_compra = CONCAT(c.fecha_compra, LPAD(c.id_compra, 10, '0'))
+                    WHERE c.estado_compra = 'Realizada'
+                """)
+                precios_compra = {row[0]: row[1] for row in cursor.fetchall()}
+        except Exception:
+            # El catálogo sigue disponible aunque aún no existan compras históricas.
+            precios_compra = {}
+        for item in resultado:
+            precio_compra = precios_compra.get(item["id_articulo"])
+            if precio_compra is None:
+                precio_venta = float(item.get("precio_articulo") or 0)
+                ganancia = float(item.get("porcentaje_ganancia") or 0)
+                precio_compra = round(precio_venta / (1 + ganancia / 100), 2) if precio_venta else 0
+            item["precio_compra"] = precio_compra
+        return Response(resultado, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = ArticuloSerializer(data=request.data)
@@ -188,6 +211,69 @@ class ArticuloDetailView(APIView):
             {'error': 'Los artículos no se pueden eliminar desde Inventario.'},
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
+
+
+class InventarioAlertasView(APIView):
+    """Calcula alertas de stock usando los niveles configurados por artículo."""
+
+    def get(self, request):
+        filas = list(
+            InventarioArticulo.objects.raw(
+                """
+                SELECT ia.id_inventario_articulo, ia.id_articulo,
+                       ia.cantidad_actual, ia.stock_minimo, ia.stock_maximo,
+                       ia.fecha_actualizacion, a.nombre_articulo,
+                       a.tipo_articulo, a.precio_articulo,
+                       p.nit_proveedor, p.nombre_proveedor
+                FROM inventario_articulo ia
+                JOIN articulo a ON a.id_articulo = ia.id_articulo
+                LEFT JOIN proveedor_articulo pa ON pa.id_articulo = ia.id_articulo
+                    AND pa.nit_proveedor = (
+                        SELECT MIN(pa2.nit_proveedor)
+                        FROM proveedor_articulo pa2
+                        JOIN proveedor p2 ON p2.nit_proveedor = pa2.nit_proveedor
+                        WHERE pa2.id_articulo = ia.id_articulo AND p2.estado = 'Activo'
+                    )
+                LEFT JOIN proveedor p ON p.nit_proveedor = pa.nit_proveedor
+                WHERE a.activo = 1
+                ORDER BY ia.cantidad_actual ASC, a.nombre_articulo ASC
+                """
+            )
+        )
+        alertas = []
+        for fila in filas:
+            minimo = int(fila.stock_minimo or 0)
+            actual = int(fila.cantidad_actual or 0)
+            maximo = int(fila.stock_maximo or minimo)
+            if minimo <= 0 or actual > minimo * 0.75:
+                continue
+            ratio = actual / minimo
+            nivel = "Crítico" if ratio <= 0.25 else "Reposición"
+            sugerencia = max(0, maximo - actual) if maximo > 0 else max(0, minimo - actual)
+            alertas.append({
+                "id_articulo": fila.id_articulo,
+                "nombre_articulo": fila.nombre_articulo,
+                "tipo_articulo": fila.tipo_articulo,
+                "stock_actual": actual,
+                "stock_minimo": minimo,
+                "stock_maximo": maximo,
+                "porcentaje_stock": round(ratio * 100, 1),
+                "nivel": nivel,
+                "sugerencia_reposicion": sugerencia,
+                "inversion_estimada": float(sugerencia * (fila.precio_articulo or 0)),
+                "nit_proveedor": fila.nit_proveedor,
+                "nombre_proveedor": fila.nombre_proveedor,
+                "fecha_actualizacion": fila.fecha_actualizacion,
+            })
+        return Response({
+            "alertas": alertas,
+            "resumen": {
+                "criticas": sum(item["nivel"] == "Crítico" for item in alertas),
+                "reposicion": sum(item["nivel"] == "Reposición" for item in alertas),
+                "inversion_estimada": sum(item["inversion_estimada"] for item in alertas),
+                "unidades_sugeridas": sum(item["sugerencia_reposicion"] for item in alertas),
+            },
+        })
 
 
 def _parse_iso_date(value):
@@ -252,21 +338,10 @@ class MovimientoInventarioListCreateView(APIView):
         return Response(movimientos, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = MovimientoInventarioSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            movimiento = registrar_movimiento(**serializer.validated_data)
-        except ValidationError as exc:
-            return Response(exc.detail, status=status.HTTP_400_BAD_REQUEST)
-        except NotFound as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        respuesta = MovimientoInventarioSerializer(movimiento).data
-        return Response(respuesta, status=status.HTTP_201_CREATED)
+        return Response(
+            {"error": "Los movimientos se generan automáticamente desde compras, ventas y devoluciones."},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
 
 
 class MovimientoInventarioDetailView(APIView):
@@ -280,16 +355,10 @@ class MovimientoInventarioDetailView(APIView):
         return Response(movimiento, status=status.HTTP_200_OK)
 
     def delete(self, request, id_movimiento):
-        try:
-            movimiento = revertir_movimiento(id_movimiento)
-        except ValidationError as exc:
-            return Response(exc.detail, status=status.HTTP_400_BAD_REQUEST)
-        except NotFound as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as exc:
-            return Response({"error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"error": "Los movimientos son inmutables y no se pueden eliminar."},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
 
 
 class HistorialArticuloView(APIView):
