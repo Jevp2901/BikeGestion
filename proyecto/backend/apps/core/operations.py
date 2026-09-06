@@ -346,10 +346,34 @@ class VentaListView(APIView):
                 if cursor.rowcount != 1:
                     raise ValueError("Solo una cotización aceptada puede convertirse en venta.")
                 venta_id = cursor.lastrowid
+                detalles = _json_rows(
+                    "SELECT id_articulo, cantidad_articulo FROM detalle_cotizacion WHERE id_cotizacion = %s",
+                    [data["id_cotizacion"]],
+                )
+                for detalle in detalles:
+                    articulo_id = detalle["id_articulo"]
+                    cantidad = int(detalle["cantidad_articulo"] or 0)
+                    stock = _one(
+                        "SELECT COALESCE(SUM(cantidad_actual), 0) AS stock FROM inventario_articulo WHERE id_articulo = %s",
+                        [articulo_id],
+                    )
+                    if int(stock["stock"] or 0) < cantidad:
+                        raise ValueError(f"Stock insuficiente para el artículo {articulo_id}.")
                 cursor.execute("""INSERT INTO detalle_venta
                     (id_venta, id_articulo, valor_unitario, cantidad_articulo, descuento_venta)
                     SELECT %s, id_articulo, valor_unitario, cantidad_articulo, descuento_cotizacion
                     FROM detalle_cotizacion WHERE id_cotizacion = %s""", [venta_id, data["id_cotizacion"]])
+                for detalle in detalles:
+                    articulo_id = detalle["id_articulo"]
+                    cantidad = int(detalle["cantidad_articulo"] or 0)
+                    cursor.execute(
+                        """UPDATE inventario_articulo
+                            SET cantidad_actual = cantidad_actual - %s,
+                                salida = salida + %s,
+                                fecha_actualizacion = CURRENT_DATE
+                            WHERE id_articulo = %s""",
+                        [cantidad, cantidad, articulo_id],
+                    )
                 cursor.execute("INSERT INTO pago_venta (id_venta, metodo_pago, valor_pagado) SELECT %s, %s, COALESCE(SUM(total_venta), 0) FROM detalle_venta WHERE id_venta = %s", [venta_id, data["metodo_pago"], venta_id])
                 cursor.execute("INSERT INTO recibo (id_venta, total) SELECT %s, COALESCE(SUM(total_venta), 0) FROM detalle_venta WHERE id_venta = %s", [venta_id, venta_id])
             return Response(_one("SELECT * FROM venta WHERE id_venta = %s", [venta_id]), status=201)
@@ -386,8 +410,19 @@ class VentaDetailView(APIView):
         if request.data.get("estado_venta") != "Devuelta":
             return Response({"estado_venta": "Solo se permite registrar una devolución."}, status=400)
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE venta SET estado_venta = 'Devuelta' WHERE id_venta = %s AND estado_venta = 'Realizada'", [id_venta])
+            filas = cursor.execute("UPDATE venta SET estado_venta = 'Devuelta' WHERE id_venta = %s AND estado_venta = 'Realizada'", [id_venta])
+            if cursor.rowcount != 1:
+                return Response({"error": "Solo se puede devolver una venta realizada."}, status=400)
             cursor.execute("UPDATE pago_venta SET estado_pago = 'Revertido' WHERE id_venta = %s", [id_venta])
+            cursor.execute(
+                """UPDATE inventario_articulo ia
+                    JOIN detalle_venta dv ON dv.id_articulo = ia.id_articulo
+                    SET ia.cantidad_actual = ia.cantidad_actual + dv.cantidad_articulo,
+                        ia.salida = GREATEST(ia.salida - dv.cantidad_articulo, 0),
+                        ia.fecha_actualizacion = CURRENT_DATE
+                    WHERE dv.id_venta = %s""",
+                [id_venta],
+            )
         return Response(_one("SELECT * FROM venta WHERE id_venta = %s", [id_venta]))
 
 
