@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.db import connection, transaction
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from .permissions import IsMechanicSession
 
 
 def _rows(cursor):
@@ -266,10 +267,14 @@ class CompraListView(APIView):
             def register_rejected(reason):
                 with transaction.atomic(), connection.cursor() as cursor:
                     cursor.execute("""INSERT INTO compra
-                        (id_usuario, nit_proveedor, fecha_compra, estado_compra, metodo_pago)
-                        VALUES (%s, %s, %s, 'Rechazada', %s)""",
-                        [data["id_usuario"], data["nit_proveedor"], data["fecha_compra"], data["metodo_pago"]])
+                        (id_usuario, nit_proveedor, fecha_compra, estado_compra, motivo_rechazo, metodo_pago)
+                        VALUES (%s, %s, %s, 'Rechazada', %s, %s)""",
+                        [data["id_usuario"], data["nit_proveedor"], data["fecha_compra"], reason, data["metodo_pago"]])
                     rejected_id = cursor.lastrowid
+                    cursor.execute("""INSERT INTO bitacora_compra
+                        (id_compra, id_usuario, accion, motivo)
+                        VALUES (%s, %s, 'Rechazo automático', %s)""",
+                        [rejected_id, data["id_usuario"], reason])
                 return Response({
                     "error": reason,
                     "id_compra": rejected_id,
@@ -313,6 +318,56 @@ class CompraListView(APIView):
                          detail.get("cantidad_articulo"), detail.get("descuento_compra", 0)])
                 cursor.execute("INSERT INTO recibo (id_compra, total) SELECT %s, COALESCE(SUM(total_compra), 0) FROM detalle_compra WHERE id_compra = %s", [compra_id, compra_id])
             return Response(_one("SELECT * FROM compra WHERE id_compra = %s", [compra_id]), status=201)
+        except Exception as exc:
+            return Response({"error": str(exc)}, status=400)
+
+
+class CompraRejectView(APIView):
+    """Creates an intentional rejected purchase without stock or payment effects."""
+
+    def post(self, request):
+        data = request.data
+        errors = _required(data, ["id_usuario", "nit_proveedor", "fecha_compra", "metodo_pago", "motivo_rechazo"])
+        if errors:
+            return Response(errors, status=400)
+        reason = str(data["motivo_rechazo"]).strip()
+        if len(reason) < 5:
+            return Response({"motivo_rechazo": "Indica un motivo de rechazo de al menos 5 caracteres."}, status=400)
+        if data.get("metodo_pago") not in {"Tarjeta credito", "Debito", "Efectivo"}:
+            return Response({"metodo_pago": "Medio de pago inválido."}, status=400)
+        try:
+            date.fromisoformat(str(data["fecha_compra"]))
+        except (TypeError, ValueError):
+            return Response({"fecha_compra": "La fecha de compra no es válida."}, status=400)
+
+        try:
+            with transaction.atomic(), connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT nit_proveedor FROM proveedor WHERE nit_proveedor = %s AND estado = 'Activo'",
+                    [data["nit_proveedor"]],
+                )
+                if cursor.fetchone() is None:
+                    return Response({"error": "Solo se puede rechazar una orden de un proveedor activo."}, status=400)
+                cursor.execute("SELECT id_usuario FROM usuario WHERE id_usuario = %s", [data["id_usuario"]])
+                if cursor.fetchone() is None:
+                    return Response({"error": "El usuario que rechaza la compra no existe."}, status=400)
+                cursor.execute("""INSERT INTO compra
+                    (id_usuario, nit_proveedor, fecha_compra, estado_compra, motivo_rechazo, metodo_pago)
+                    VALUES (%s, %s, %s, 'Rechazada', %s, %s)""", [
+                        data["id_usuario"], data["nit_proveedor"], data["fecha_compra"], reason, data["metodo_pago"]
+                    ])
+                purchase_id = cursor.lastrowid
+                cursor.execute("""INSERT INTO bitacora_compra
+                    (id_compra, id_usuario, accion, motivo)
+                    VALUES (%s, %s, 'Rechazo manual', %s)""", [purchase_id, data["id_usuario"], reason])
+            return Response({
+                **(_one("""SELECT c.*, p.nombre_proveedor
+                    FROM compra c JOIN proveedor p ON p.nit_proveedor = c.nit_proveedor
+                    WHERE c.id_compra = %s""", [purchase_id]) or {}),
+                "id_compra": purchase_id,
+                "estado_compra": "Rechazada",
+                "motivo_rechazo": reason,
+            }, status=201)
         except Exception as exc:
             return Response({"error": str(exc)}, status=400)
 
@@ -363,17 +418,8 @@ class VentaListView(APIView):
                     (id_venta, id_articulo, valor_unitario, cantidad_articulo, descuento_venta)
                     SELECT %s, id_articulo, valor_unitario, cantidad_articulo, descuento_cotizacion
                     FROM detalle_cotizacion WHERE id_cotizacion = %s""", [venta_id, data["id_cotizacion"]])
-                for detalle in detalles:
-                    articulo_id = detalle["id_articulo"]
-                    cantidad = int(detalle["cantidad_articulo"] or 0)
-                    cursor.execute(
-                        """UPDATE inventario_articulo
-                            SET cantidad_actual = cantidad_actual - %s,
-                                salida = salida + %s,
-                                fecha_actualizacion = CURRENT_DATE
-                            WHERE id_articulo = %s""",
-                        [cantidad, cantidad, articulo_id],
-                    )
+                # Stock is decremented by trg_venta_descuenta_stock after each
+                # detalle_venta insert; do not apply a second manual discount.
                 cursor.execute("INSERT INTO pago_venta (id_venta, metodo_pago, valor_pagado) SELECT %s, %s, COALESCE(SUM(total_venta), 0) FROM detalle_venta WHERE id_venta = %s", [venta_id, data["metodo_pago"], venta_id])
                 cursor.execute("INSERT INTO recibo (id_venta, total) SELECT %s, COALESCE(SUM(total_venta), 0) FROM detalle_venta WHERE id_venta = %s", [venta_id, venta_id])
             return Response(_one("SELECT * FROM venta WHERE id_venta = %s", [venta_id]), status=201)
@@ -414,15 +460,8 @@ class VentaDetailView(APIView):
             if cursor.rowcount != 1:
                 return Response({"error": "Solo se puede devolver una venta realizada."}, status=400)
             cursor.execute("UPDATE pago_venta SET estado_pago = 'Revertido' WHERE id_venta = %s", [id_venta])
-            cursor.execute(
-                """UPDATE inventario_articulo ia
-                    JOIN detalle_venta dv ON dv.id_articulo = ia.id_articulo
-                    SET ia.cantidad_actual = ia.cantidad_actual + dv.cantidad_articulo,
-                        ia.salida = GREATEST(ia.salida - dv.cantidad_articulo, 0),
-                        ia.fecha_actualizacion = CURRENT_DATE
-                    WHERE dv.id_venta = %s""",
-                [id_venta],
-            )
+            # Stock is restored by trg_venta_devuelta_reingresa_stock after the
+            # venta state changes; do not restore it a second time here.
         return Response(_one("SELECT * FROM venta WHERE id_venta = %s", [id_venta]))
 
 
@@ -634,6 +673,8 @@ class PagoEmpleadoView(APIView):
 
 
 class MantenimientoView(APIView):
+    permission_classes = [IsMechanicSession]
+
     def get(self, request):
         return Response(_json_rows("""SELECT m.*, u.nombre_usuario, a.nombre_articulo
             FROM mantenimiento m
@@ -643,19 +684,25 @@ class MantenimientoView(APIView):
 
     def post(self, request):
         data = request.data
-        errors = _required(data, ["id_usuario_mecanico", "descripcion", "fecha_inicio"])
+        errors = _required(data, ["id_articulo", "descripcion", "fecha_inicio"])
         if errors:
             return Response(errors, status=400)
-        if data.get("estado", "En proceso") not in {"En proceso", "Reparado", "Devuelto"}:
-            return Response({"estado": "Estado de mantenimiento inválido."}, status=400)
+        if not _one("SELECT id_articulo FROM articulo WHERE id_articulo = %s AND activo = 1", [data["id_articulo"]]):
+            return Response({"id_articulo": "El artículo no existe o está inactivo."}, status=400)
         try:
             with connection.cursor() as cursor:
                 cursor.execute("""INSERT INTO mantenimiento
                     (id_usuario_mecanico, id_articulo, descripcion, fecha_inicio, fecha_finalizacion, estado)
                     VALUES (%s,%s,%s,%s,%s,%s)""",
-                    [data["id_usuario_mecanico"], data.get("id_articulo"), data["descripcion"],
-                     data["fecha_inicio"], data.get("fecha_finalizacion"), data.get("estado", "En proceso")])
+                    [request.maintenance_user.id_usuario, data["id_articulo"], data["descripcion"],
+                     data["fecha_inicio"], None, "En proceso"])
                 item_id = cursor.lastrowid
+                cursor.execute("""INSERT INTO mantenimiento_historial
+                    (id_mantenimiento, id_usuario, estado_anterior, estado_nuevo, observacion)
+                    VALUES (%s,%s,%s,%s,%s)""", [item_id, request.maintenance_user.id_usuario, None, "En proceso", data["descripcion"]])
+                checklist_items = [("frenos", "Frenos y manetas"), ("transmision", "Transmisión y cambios"), ("ruedas", "Ruedas y presión"), ("direccion", "Dirección y ajuste"), ("prueba", "Prueba final de funcionamiento")]
+                cursor.executemany("""INSERT INTO mantenimiento_checklist
+                    (id_mantenimiento, codigo, nombre, estado) VALUES (%s,%s,%s,'Pendiente')""", [(item_id, code, name) for code, name in checklist_items])
             return Response(_one("SELECT * FROM mantenimiento WHERE id_mantenimiento = %s", [item_id]), status=201)
         except Exception as exc:
             return Response({"error": str(exc)}, status=400)
@@ -665,6 +712,140 @@ class MantenimientoView(APIView):
         estado = request.data.get("estado")
         if not item_id or estado not in {"En proceso", "Reparado", "Devuelto"}:
             return Response({"error": "Identificador y estado válido son obligatorios."}, status=400)
+        current = _one("SELECT * FROM mantenimiento WHERE id_mantenimiento = %s AND id_usuario_mecanico = %s", [item_id, request.maintenance_user.id_usuario])
+        if not current:
+            return Response({"error": "La orden no existe o no pertenece al mecánico autenticado."}, status=404)
+        transitions = {"En proceso": {"En proceso", "Reparado"}, "Reparado": {"Reparado", "En proceso", "Devuelto"}, "Devuelto": {"Devuelto"}}
+        if estado not in transitions.get(current["estado"], set()):
+            return Response({"error": f"No se permite cambiar de {current['estado']} a {estado}."}, status=400)
+        description = request.data.get("descripcion") or current.get("descripcion")
+        if estado == "Reparado" and not description:
+            return Response({"error": "Debe registrar el diagnóstico antes de marcar la orden como Reparado."}, status=400)
+        if estado == "Devuelto":
+            checklist = _json_rows("SELECT estado FROM mantenimiento_checklist WHERE id_mantenimiento = %s", [item_id])
+            if not checklist or any(item["estado"] != "Aprobado" for item in checklist):
+                return Response({"error": "Todos los puntos del checklist deben estar aprobados antes de entregar."}, status=400)
+            if not _one("SELECT id_entrega FROM mantenimiento_entrega WHERE id_mantenimiento = %s", [item_id]):
+                return Response({"error": "Registra la entrega al cliente antes de cerrar la orden."}, status=400)
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE mantenimiento SET estado = %s, fecha_finalizacion = %s WHERE id_mantenimiento = %s", [estado, request.data.get("fecha_finalizacion"), item_id])
+            cursor.execute("UPDATE mantenimiento SET estado = %s, fecha_finalizacion = %s, descripcion = %s WHERE id_mantenimiento = %s", [estado, request.data.get("fecha_finalizacion"), description, item_id])
+            if estado != current["estado"]:
+                cursor.execute("""INSERT INTO mantenimiento_historial
+                    (id_mantenimiento, id_usuario, estado_anterior, estado_nuevo, observacion)
+                    VALUES (%s,%s,%s,%s,%s)""", [item_id, request.maintenance_user.id_usuario, current["estado"], estado, description])
         return Response(_one("SELECT * FROM mantenimiento WHERE id_mantenimiento = %s", [item_id]))
+
+
+class MantenimientoChecklistView(APIView):
+    permission_classes = [IsMechanicSession]
+
+    def get(self, request, id_mantenimiento):
+        if not _one("SELECT id_mantenimiento FROM mantenimiento WHERE id_mantenimiento = %s", [id_mantenimiento]):
+            return Response({"error": "Orden no encontrada."}, status=404)
+        return Response(_json_rows("SELECT * FROM mantenimiento_checklist WHERE id_mantenimiento = %s ORDER BY id_checklist", [id_mantenimiento]))
+
+    def post(self, request, id_mantenimiento):
+        if not _one("SELECT id_mantenimiento FROM mantenimiento WHERE id_mantenimiento = %s AND id_usuario_mecanico = %s", [id_mantenimiento, request.maintenance_user.id_usuario]):
+            return Response({"error": "Orden no encontrada."}, status=404)
+        required = _required(request.data, ["codigo", "nombre", "estado"])
+        if required:
+            return Response(required, status=400)
+        if request.data["estado"] not in {"Pendiente", "Aprobado", "Rechazado"}:
+            return Response({"estado": "Estado de checklist inválido."}, status=400)
+        with connection.cursor() as cursor:
+            cursor.execute("""INSERT INTO mantenimiento_checklist
+                (id_mantenimiento, codigo, nombre, estado, observacion, id_usuario, fecha_verificacion)
+                VALUES (%s,%s,%s,%s,%s,%s,IF(%s = 'Pendiente', NULL, NOW()))
+                ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), estado=VALUES(estado), observacion=VALUES(observacion), id_usuario=VALUES(id_usuario), fecha_verificacion=IF(VALUES(estado) = 'Pendiente', NULL, NOW())""", [id_mantenimiento, request.data["codigo"], request.data["nombre"], request.data["estado"], request.data.get("observacion"), request.maintenance_user.id_usuario, request.data["estado"]])
+        return Response(_one("SELECT * FROM mantenimiento_checklist WHERE id_mantenimiento = %s AND codigo = %s", [id_mantenimiento, request.data["codigo"]]), status=201)
+
+
+class MantenimientoRepuestoView(APIView):
+    permission_classes = [IsMechanicSession]
+
+    def get(self, request, id_mantenimiento):
+        return Response(_json_rows("""SELECT mr.*, a.nombre_articulo, a.tipo_articulo
+            FROM mantenimiento_repuesto mr JOIN articulo a ON a.id_articulo = mr.id_articulo
+            WHERE mr.id_mantenimiento = %s ORDER BY mr.fecha_registro DESC""", [id_mantenimiento]))
+
+    def post(self, request, id_mantenimiento):
+        if not _one("SELECT id_mantenimiento FROM mantenimiento WHERE id_mantenimiento = %s AND id_usuario_mecanico = %s", [id_mantenimiento, request.maintenance_user.id_usuario]):
+            return Response({"error": "Orden no encontrada."}, status=404)
+        required = _required(request.data, ["id_articulo", "cantidad"])
+        if required:
+            return Response(required, status=400)
+        try:
+            cantidad = int(request.data["cantidad"])
+        except (TypeError, ValueError):
+            return Response({"cantidad": "La cantidad debe ser un número entero."}, status=400)
+        if cantidad <= 0:
+            return Response({"cantidad": "La cantidad debe ser mayor que cero."}, status=400)
+        try:
+            with transaction.atomic(), connection.cursor() as cursor:
+                cursor.execute("SELECT cantidad_actual FROM inventario_articulo WHERE id_articulo = %s LIMIT 1 FOR UPDATE", [request.data["id_articulo"]])
+                row = cursor.fetchone()
+                if not row or int(row[0] or 0) < cantidad:
+                    return Response({"error": "Stock insuficiente para el repuesto seleccionado."}, status=400)
+                cursor.execute("UPDATE inventario_articulo SET cantidad_actual = cantidad_actual - %s, salida = salida + %s, fecha_actualizacion = CURRENT_DATE WHERE id_articulo = %s", [cantidad, cantidad, request.data["id_articulo"]])
+                cursor.execute("""INSERT INTO mantenimiento_repuesto
+                    (id_mantenimiento, id_articulo, cantidad, observacion, id_usuario)
+                    VALUES (%s,%s,%s,%s,%s)""", [id_mantenimiento, request.data["id_articulo"], cantidad, request.data.get("observacion"), request.maintenance_user.id_usuario])
+                repuesto_id = cursor.lastrowid
+            return Response(_one("SELECT mr.*, a.nombre_articulo, a.tipo_articulo FROM mantenimiento_repuesto mr JOIN articulo a ON a.id_articulo = mr.id_articulo WHERE mr.id_mantenimiento_repuesto = %s", [repuesto_id]), status=201)
+        except Exception as exc:
+            return Response({"error": str(exc)}, status=400)
+
+
+class MantenimientoHistorialView(APIView):
+    permission_classes = [IsMechanicSession]
+
+    def get(self, request, id_mantenimiento):
+        return Response(_json_rows("""SELECT h.*, u.nombre_usuario FROM mantenimiento_historial h
+            LEFT JOIN usuario u ON u.id_usuario = h.id_usuario
+            JOIN mantenimiento m ON m.id_mantenimiento = h.id_mantenimiento
+            WHERE h.id_mantenimiento = %s ORDER BY h.fecha_cambio DESC""", [id_mantenimiento]))
+
+
+class MantenimientoEntregaView(APIView):
+    permission_classes = [IsMechanicSession]
+
+    def get(self, request, id_mantenimiento):
+        return Response(_one("SELECT * FROM mantenimiento_entrega WHERE id_mantenimiento = %s", [id_mantenimiento]) or {})
+
+    def post(self, request, id_mantenimiento):
+        mantenimiento = _one("SELECT * FROM mantenimiento WHERE id_mantenimiento = %s AND id_usuario_mecanico = %s", [id_mantenimiento, request.maintenance_user.id_usuario])
+        if not mantenimiento:
+            return Response({"error": "Orden no encontrada."}, status=404)
+        if mantenimiento["estado"] != "Reparado":
+            return Response({"error": "La entrega solo puede registrarse cuando la orden está Reparada."}, status=400)
+        recibido_por = str(request.data.get("recibido_por") or "").strip()
+        if not recibido_por:
+            return Response({"recibido_por": "Indica quién recibe la bicicleta."}, status=400)
+        with connection.cursor() as cursor:
+            cursor.execute("""INSERT INTO mantenimiento_entrega
+                (id_mantenimiento, recibido_por, observaciones, id_usuario)
+                VALUES (%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE recibido_por=VALUES(recibido_por), observaciones=VALUES(observaciones), id_usuario=VALUES(id_usuario), fecha_entrega=NOW()""", [id_mantenimiento, recibido_por, request.data.get("observaciones"), request.maintenance_user.id_usuario])
+        return Response(_one("SELECT * FROM mantenimiento_entrega WHERE id_mantenimiento = %s", [id_mantenimiento]), status=201)
+
+
+class MantenimientoFichaView(APIView):
+    permission_classes = [IsMechanicSession]
+
+    def get(self, request, id_mantenimiento):
+        if not _one("SELECT id_mantenimiento FROM mantenimiento WHERE id_mantenimiento = %s", [id_mantenimiento]):
+            return Response({"error": "Orden no encontrada."}, status=404)
+        return Response(_one("SELECT * FROM mantenimiento_ficha WHERE id_mantenimiento = %s", [id_mantenimiento]) or {})
+
+    def post(self, request, id_mantenimiento):
+        if not _one("SELECT id_mantenimiento FROM mantenimiento WHERE id_mantenimiento = %s AND id_usuario_mecanico = %s", [id_mantenimiento, request.maintenance_user.id_usuario]):
+            return Response({"error": "Orden no encontrada."}, status=404)
+        prioridad = request.data.get("prioridad", "Media")
+        if prioridad not in {"Baja", "Media", "Alta", "Urgente"}:
+            return Response({"prioridad": "Prioridad inválida."}, status=400)
+        with connection.cursor() as cursor:
+            cursor.execute("""INSERT INTO mantenimiento_ficha
+                (id_mantenimiento, falla_reportada, diagnostico_tecnico, inspeccion_recepcion, recomendaciones, prioridad, id_usuario)
+                VALUES (%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE falla_reportada=VALUES(falla_reportada), diagnostico_tecnico=VALUES(diagnostico_tecnico), inspeccion_recepcion=VALUES(inspeccion_recepcion), recomendaciones=VALUES(recomendaciones), prioridad=VALUES(prioridad), id_usuario=VALUES(id_usuario), fecha_actualizacion=NOW()""", [id_mantenimiento, request.data.get("falla_reportada"), request.data.get("diagnostico_tecnico"), request.data.get("inspeccion_recepcion"), request.data.get("recomendaciones"), prioridad, request.maintenance_user.id_usuario])
+        return Response(_one("SELECT * FROM mantenimiento_ficha WHERE id_mantenimiento = %s", [id_mantenimiento]), status=201)

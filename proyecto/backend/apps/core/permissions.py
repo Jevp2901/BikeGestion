@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission
+from backend.models.models import Usuario
 
 
 def _role_value(user):
@@ -36,3 +37,22 @@ class IsMechanic(BasePermission):
             return False
         role = _role_value(user)
         return bool(role in {3, "3", "Mecanico"})
+
+
+class IsMechanicSession(BasePermission):
+    """Protects maintenance requests using the app's current session contract."""
+
+    message = "Se requiere una sesión válida de mecánico."
+
+    def has_permission(self, request, view):
+        user_id = request.headers.get("X-User-ID")
+        if not user_id:
+            return False
+        try:
+            user = Usuario.objects.get(id_usuario=int(user_id))
+        except (TypeError, ValueError, Usuario.DoesNotExist):
+            return False
+        if int(user.id_rol) != 3:
+            return False
+        request.maintenance_user = user
+        return True

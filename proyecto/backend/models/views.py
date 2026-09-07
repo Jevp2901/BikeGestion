@@ -254,11 +254,13 @@ class InventarioAlertasView(APIView):
             minimo = int(fila.stock_minimo or 0)
             actual = int(fila.cantidad_actual or 0)
             maximo = int(fila.stock_maximo or minimo)
-            # El monitor separa exactamente cinco unidades de los niveles críticos.
-            if actual > 5:
+            # Five units is the visual warning floor, but each article's configured
+            # minimum must also be respected when it is higher than that floor.
+            umbral_alerta = max(5, minimo)
+            if actual > umbral_alerta:
                 continue
             ratio = (actual / minimo) if minimo > 0 else 0
-            nivel = "Crítico" if actual < 5 else "Reposición"
+            nivel = "Crítico" if actual < 5 or actual < minimo else "Reposición"
             sugerencia = max(0, maximo - actual) if maximo > 0 else max(0, minimo - actual)
             alertas.append({
                 "id_articulo": fila.id_articulo,

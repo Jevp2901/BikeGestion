@@ -104,4 +104,15 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
 ]
 
+# The mechanic workspace identifies the logged-in legacy session with this header.
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'authorization',
+    'content-type',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-user-id',
+]
+
 CORS_ALLOW_CREDENTIALS = True

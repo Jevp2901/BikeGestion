@@ -3,6 +3,7 @@ from django.urls import include, path
 from .views import api_root
 from .operations import (
     CompraListView,
+    CompraRejectView,
     ClienteListView,
     CotizacionDetailView,
     CotizacionListView,
@@ -15,6 +16,11 @@ from .operations import (
     EmpleadoListView,
     PagoEmpleadoView,
     MantenimientoView,
+    MantenimientoChecklistView,
+    MantenimientoRepuestoView,
+    MantenimientoHistorialView,
+    MantenimientoEntregaView,
+    MantenimientoFichaView,
     UsuarioListView,
     RegistrarUsuarioCoreView,
 )
@@ -38,11 +44,17 @@ urlpatterns = [
     path("cotizaciones/", CotizacionListView.as_view(), name="cotizacion-list"),
     path("cotizaciones/<int:id_cotizacion>/", CotizacionDetailView.as_view(), name="cotizacion-detail"),
     path("compras/", CompraListView.as_view(), name="compra-list"),
+    path("compras/rechazar/", CompraRejectView.as_view(), name="compra-rechazar"),
     path("ventas/", VentaListView.as_view(), name="venta-list"),
     path("ventas/<int:id_venta>/", VentaDetailView.as_view(), name="venta-detail"),
     path("reportes/datos/", ReporteView.as_view(), name="reporte-datos"),
     path("empleados/", EmpleadoListView.as_view(), name="empleado-list"),
     path("pagos-empleado/", PagoEmpleadoView.as_view(), name="pago-empleado-list"),
     path("usuarios/mantenimiento/", MantenimientoView.as_view(), name="usuario-mantenimiento-list"),
+    path("usuarios/mantenimiento/<int:id_mantenimiento>/checklist/", MantenimientoChecklistView.as_view(), name="mantenimiento-checklist"),
+    path("usuarios/mantenimiento/<int:id_mantenimiento>/repuestos/", MantenimientoRepuestoView.as_view(), name="mantenimiento-repuestos"),
+    path("usuarios/mantenimiento/<int:id_mantenimiento>/historial/", MantenimientoHistorialView.as_view(), name="mantenimiento-historial"),
+    path("usuarios/mantenimiento/<int:id_mantenimiento>/entrega/", MantenimientoEntregaView.as_view(), name="mantenimiento-entrega"),
+    path("usuarios/mantenimiento/<int:id_mantenimiento>/ficha/", MantenimientoFichaView.as_view(), name="mantenimiento-ficha"),
     path("usuarios/lista/", UsuarioListView.as_view(), name="usuario-lista-completa"),
 ]

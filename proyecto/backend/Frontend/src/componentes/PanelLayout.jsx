@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { to: "/empleados", label: "Empleados", icon: "badge", roles: [2] },
   { to: "/usuarios", label: "Usuarios y Roles", icon: "group", roles: [2] },
   { to: "/reportes", label: "Reportes BI", icon: "analytics", roles: [2] },
+  { to: "/mantenimiento", label: "Taller y Mantenimiento", icon: "build", roles: [3] },
 ];
 
 function PanelLayout() {
@@ -76,15 +77,15 @@ function PanelLayout() {
           </button>
         </div>
 
-        <NavLink
-          to={rolId === 1 ? "/venta" : "/dashboard"}
+          <NavLink
+          to={rolId === 1 ? "/venta" : rolId === 3 ? "/mantenimiento" : "/dashboard"}
           onClick={closeSidebar}
-          aria-disabled={rolId !== 1}
+          aria-disabled={rolId !== 1 && rolId !== 3}
           className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#ffd700] px-4 py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors hover:bg-[#ffe16d] ${sidebarCollapsed ? "md:px-2" : ""}`}
-          title={sidebarCollapsed ? (rolId === 1 ? "Nueva Orden" : "Ir al Dashboard") : undefined}
+          title={sidebarCollapsed ? (rolId === 1 ? "Nueva Orden" : rolId === 3 ? "Nueva Orden de Taller" : "Ir al Dashboard") : undefined}
         >
           <span className="material-symbols-outlined">add</span>
-          <span className={sidebarCollapsed ? "md:hidden" : ""}>{rolId === 1 ? "Nueva Orden" : "Ir al Dashboard"}</span>
+          <span className={sidebarCollapsed ? "md:hidden" : ""}>{rolId === 1 ? "Nueva Orden" : rolId === 3 ? "Nueva Orden de Taller" : "Ir al Dashboard"}</span>
         </NavLink>
 
         <nav className="flex-1 space-y-2 overflow-y-auto pr-1">
@@ -138,16 +139,6 @@ function PanelLayout() {
           >
             <span className="material-symbols-outlined text-sm">menu</span>
           </button>
-          <div className="relative hidden md:block">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#d0c6ab]">
-              search
-            </span>
-            <input
-              className="w-64 rounded-xl border border-[#333333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-[#e3e2e2] outline-none transition-all placeholder:text-[#d0c6ab]/50 focus:border-[#ffd700] xl:w-96"
-              placeholder="Buscar órdenes, clientes, piezas..."
-              type="search"
-            />
-          </div>
           <div className="md:hidden">
             <LogoMarca size="sm" />
           </div>
@@ -160,14 +151,6 @@ function PanelLayout() {
               Tienda Principal - Bogotá
             </span>
           </div>
-          <button
-            type="button"
-            className="relative text-[#d0c6ab] transition-colors hover:text-[#fff6df]"
-            aria-label="Notificaciones"
-          >
-            <span className="material-symbols-outlined">notifications</span>
-            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#ffb4ab]" />
-          </button>
           <div className="flex items-center gap-3 border-l border-[#4d4732] pl-3 md:pl-4">
             <div className="hidden text-right sm:block">
               <p className="text-xs font-bold text-[#e3e2e2]">

@@ -14,6 +14,7 @@ import UsuariosPanel from './componentes/UsuariosPanel';
 import Empleados from './componentes/Empleados';
 import Reportes from './componentes/Reportes';
 import ProveedoresFlujo from './componentes/ProveedoresFlujo';
+import MantenimientoPanel from './componentes/MantenimientoPanel';
 import { useAuth } from './utils/useAuth';
 import './App.css'
 
@@ -67,6 +68,9 @@ function App() {
               <Route path="/empleados" element={<Empleados />} />
               <Route path="/reportes" element={<Reportes />} />
               <Route path="/usuarios" element={<UsuariosPanel />} />
+            </Route>
+            <Route element={<RoleRoute roles={[3]} />}>
+              <Route path="/mantenimiento" element={<MantenimientoPanel />} />
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
