@@ -1,1 +1,0 @@
-"""Consultas de usuarios."""
