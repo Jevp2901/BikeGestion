@@ -157,18 +157,21 @@ function Registro() {
       <main className="flex-1 flex items-center justify-center pt-24 pb-12 px-4">
           <div className="rounded-xl border border-white/10 bg-white/5 max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 glass-card overflow-hidden shadow-2xl">
               {/* Panel Izquierdo: Branding */}
-              <div className="relative hidden lg:flex flex-col overflow-hidden p-12 justify-end bg-linear-to-br from-surface-variant to-background">
-                  <div className="absolute inset-0 opacity-20 pointer-events-none">
-                      <img src="https://sportpasioncycling.com/blog/wp-content/uploads/2024/05/ZERO-SLR-WILIER.jpg" className="w-full h-full object-cover grayscale" alt="Bike background" />
+              <div className="relative hidden overflow-hidden bg-[#090909] p-12 lg:flex flex-col justify-between">
+                  <div className="absolute inset-0">
+                      <img src="/assets/logo-bicicleta.png" className="absolute right-[-4rem] top-[-1rem] h-[26rem] w-[26rem] object-contain opacity-10" alt="Bike background" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(253,224,71,0.16),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_32%)]" />
                   </div>
                   <div className="relative z-10">
                       <div className="mb-4">
                         <LogoMarca subtitle />
                       </div>
-                      <p className="text-on-surface-variant text-sm max-w-xs mb-8">Eleva tu rendimiento. Gestiona tu empresa de ciclismo con precisión quirúrgica.</p>
+                      <p className="max-w-sm text-sm leading-6 text-white/70">Eleva tu rendimiento. Gestiona tu empresa de ciclismo con precision quirurgica desde una experiencia mas moderna y limpia.</p>
+                  </div>
+                  <div className="relative z-10">
                       <div className="flex items-center gap-4">
-                          <div className="h-1 w-12 bg-primary"></div>
-                          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Registrate y disfruta de tu experiencia</span>
+                          <div className="h-px w-12 bg-yellow-300"></div>
+                          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/70">Registrate y disfruta de tu experiencia</span>
                       </div>
                   </div>
               </div>
@@ -176,8 +179,9 @@ function Registro() {
               {/* Panel Derecho: Formulario */}
               <div className="p-8 md:p-12 bg-surface/40">
                   <div className="mb-8">
-                      <h2 className="headline-kinetic text-3xl text-white uppercase italic">Registro de <span className="text-yellow-300">Usuario</span></h2>
-                      <p className="text-white text-sm mt-2 tracking-widest">Administra tu tienda de bicicletas</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.45em] text-white/45">Acceso inicial</p>
+                      <h2 className="mt-3 text-3xl text-white uppercase italic font-black tracking-tight">Registro de <span className="text-yellow-300">Usuario</span></h2>
+                      <p className="text-white/70 text-sm mt-3 leading-6">Administra tu tienda de bicicletas con una interfaz consistente, elegante y mas facil de leer.</p>
                   </div>
 
                   {error && (
@@ -263,12 +267,12 @@ function Registro() {
                       </div>
 
                       {/* Botón de Registro */}
-                      <button id="register-btn" type="submit" disabled={loading} className="block w-full bg-yellow-300 text-black py-4 px-6 rounded-lg font-headline font-black uppercase italic text-lg shadow-[0_8px_32px_rgba(253,224,26,0.2)] hover:shadow-[0_12px_48px_rgba(253,224,26,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all mt-6 text-center disabled:opacity-50 disabled:cursor-not-allowed">
+                      <button id="register-btn" type="submit" disabled={loading} className="block w-full bg-yellow-300 text-black py-4 px-6 rounded-2xl font-headline font-black uppercase italic text-lg shadow-[0_18px_40px_rgba(253,224,26,0.18)] hover:shadow-[0_24px_55px_rgba(253,224,26,0.28)] hover:-translate-y-0.5 active:translate-y-0 transition-all mt-6 text-center disabled:opacity-50 disabled:cursor-not-allowed">
                           {loading ? 'Registrando...' : 'Registrar'}
                       </button>
                       <p className="text-white text-sm mt-2 tracking-widest">¿Ya tienes cuenta?</p>
                       
-                     <Link to="/inicio_sesion" className="block w-full bg-white text-black py-4 px-6 mt-6 rounded-lg font-headline font-black italic uppercase text-lg shadow-[0_8px_32px_rgba(253,224,26,0.2)] hover:shadow-[0_12px_48px_rgba(253,224,26,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all text-center">Iniciar <span className="text-yellow-400">Sesión</span></Link>
+                     <Link to="/inicio_sesion" className="block w-full bg-white text-black py-4 px-6 mt-6 rounded-2xl font-headline font-black italic uppercase text-lg shadow-[0_18px_40px_rgba(253,224,26,0.12)] hover:shadow-[0_24px_55px_rgba(253,224,26,0.2)] hover:-translate-y-0.5 active:translate-y-0 transition-all text-center">Iniciar <span className="text-yellow-400">Sesion</span></Link>
                       
                   </form>
               </div>

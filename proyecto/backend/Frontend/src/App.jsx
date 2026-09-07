@@ -3,6 +3,8 @@ import Home from './componentes/Home';
 import About from './componentes/About';
 import Registro from './componentes/Registro';
 import InicioSesion from './componentes/InicioSesion';
+import RecuperarContrasena from './componentes/RecuperarContrasena';
+import RestablecerContrasena from './componentes/RestablecerContrasena';
 import Inventario from './componentes/Inventario';
 import Dashboard from './componentes/Dashboard';
 import Ventas from './componentes/Ventas';
@@ -51,6 +53,8 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/inicio_sesion" element={<InicioSesion />} />
+        <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
+        <Route path="/restablecer-contrasena" element={<RestablecerContrasena />} />
         {/*Rutas despues de inicio de sesion*/}
         <Route element={<ProtectedRoute />}>
           <Route element={<PanelLayout />}>

@@ -2,6 +2,8 @@ from django.urls import path
 from .views import (
     RegistrarUsuario,
     LoginUsuario,
+    RecuperarContrasenaView,
+    RestablecerContrasenaView,
     EditarUsuarioView,
     ArticuloListCreateView,
     ArticuloDetailView,
@@ -14,6 +16,8 @@ from .views import (
 urlpatterns = [
     path('api/registrar/', RegistrarUsuario.as_view(), name='registrar-usuario'),
     path('api/login/', LoginUsuario.as_view(), name='login-usuario'),
+    path('api/recuperar-contrasena/', RecuperarContrasenaView.as_view(), name='recuperar-contrasena'),
+    path('api/restablecer-contrasena/', RestablecerContrasenaView.as_view(), name='restablecer-contrasena'),
     path('api/usuario/<int:id_usuario>/', EditarUsuarioView.as_view(), name='editar-usuario'),
     path('api/articulos/', ArticuloListCreateView.as_view(), name='articulo-list-create'),
     path('api/articulos/<int:id_articulo>/', ArticuloDetailView.as_view(), name='articulo-detail'),

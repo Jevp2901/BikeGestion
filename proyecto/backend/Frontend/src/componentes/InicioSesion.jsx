@@ -69,107 +69,154 @@ function InicioSesion() {
   };
 
   return (
-    <div className="bg-black font-body text-white text-on-surface selection:bg-primary-fixed selection:text-on-primary min-h-screen flex flex-col overflow-x-hidden">
-      {/*Navegación Superior*/}
-      <header className="fixed top-0 w-full h-20 bg-background/80 backdrop-blur-xl z-50 flex justify-between items-center px-8 border-b border-white/5">
-          <LogoMarca subtitle />
-           <Link to="/" className="font-headline uppercase tracking-[0.35em] text-sm text-white/70 hover:text-yellow-300 transition-colors duration-200">Home</Link>
+    <div className="min-h-screen overflow-x-hidden bg-black font-body text-white selection:bg-yellow-300 selection:text-black">
+      <header className="fixed top-0 z-50 flex h-20 w-full items-center justify-between border-b border-white/5 bg-black/70 px-6 backdrop-blur-xl md:px-8">
+        <LogoMarca subtitle />
+        <Link to="/" className="font-headline text-sm uppercase tracking-[0.35em] text-white/65 transition-colors duration-200 hover:text-yellow-300">
+          Home
+        </Link>
       </header>
-      {/* Main Content: Kinetic Login Canvas */}
-      <main className="grow flex items-center justify-center px-4 pt-24 pb-12 relative">
-        {/* Background Velocity Accents (Decorative) */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -right-20 w-96 h-96 bg-primary-fixed/5 rounded-full blur-[120px]"></div>
-          <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-primary-container/5 rounded-full blur-[100px]"></div>
-          {/* Asymmetric Speed Line */}
-          <div
-            className="absolute top-1/2 left-0 w-full h-px bg-linear-60-to-r from-transparent via-primary-fixed/10 to-transparent rotate-[-5deg]">
-          </div>
+
+      <main className="relative flex grow items-center justify-center px-4 pb-12 pt-24">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-1/2 top-10 h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-yellow-300/8 blur-[120px]" />
+          <div className="absolute bottom-0 right-0 h-[24rem] w-[24rem] rounded-full bg-white/5 blur-[110px]" />
+          <div className="absolute left-0 top-1/2 h-px w-full rotate-[-6deg] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
-        <section className="w-full max-w-120 z-10">
-          {/* Login Card */}
-          <div className="rounded-4xl border border-white/10 bg-white/5 glass-panel border-t border-primary-fixed/20 stealth-shadow p-8 md:p-12">
-            <header className="mb-10">
-              <h2 className="font-headline font-bold italic text-4xl tracking-tighter leading-tight mb-2">
-                INICIO DE <span className="text-yellow-300 text-primary-fixed">SESIÓN</span>
-              </h2>
-              <p className="text-on-surface-variant font-label text-sm uppercase tracking-wide">Inicia sesión para
-                gestionar tu tienda de una mejor manera</p>
-            </header>
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-300 text-sm">
-                {error}
+        <section className="z-10 w-full max-w-6xl">
+          <div className="grid overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-[0_30px_120px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
+            <aside className="relative flex min-h-[280px] flex-col justify-between overflow-hidden border-b border-white/5 bg-[#090909] p-8 md:p-10 lg:min-h-[640px] lg:border-b-0 lg:border-r">
+              <div className="absolute inset-0">
+                <img
+                  src="/assets/logo-bicicleta.png"
+                  alt="Bike Gestion"
+                  className="absolute right-[-3rem] top-12 h-72 w-72 object-contain opacity-10 blur-[1px]"
+                />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(253,224,71,0.16),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_32%)]" />
               </div>
-            )}
-            {success && (
-              <div className="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-300 text-sm">
-                {success}
-              </div>
-            )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Input: Identificación */}
-              <div className="space-y-2">
-                <label
-                  className="font-label text-xs uppercase tracking-widest text-on-surface-variant ml-1">
-                  Nombre de Usuario:</label>
-                <div className="relative group">
-                  <input 
-                    className="w-full bg-surface-container-highest border-none rounded-xl py-4 pl-12 pr-4 text-on-surface 
-                    placeholder:text-on-surface-variant/30 focus:ring-1 focus:ring-primary-fixed/40 transition-all duration-300"
-                    placeholder="usuario" 
-                    type="text"
-                    name="nombre_usuario"
-                    value={formData.nombre_usuario}
-                    onChange={handleChange}
-                    required
-                  />
+              <div className="relative z-10 max-w-md">
+                <LogoMarca subtitle />
+                <p className="mt-6 text-3xl font-black italic uppercase leading-tight text-white md:text-5xl">
+                  Control total para tu
+                  <span className="block text-yellow-300">tienda de bicicletas</span>
+                </p>
+                <p className="mt-5 max-w-sm text-sm leading-6 text-white/70 md:text-base">
+                  Accede a inventario, ventas, compras y usuarios desde una interfaz mas clara, rapida y profesional.
+                </p>
+              </div>
+
+              <div className="relative z-10 mt-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">Seguridad</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Ingreso protegido</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">Velocidad</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Acceso rapido</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">Soporte</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Recuperacion asistida</p>
                 </div>
               </div>
-              {/* Input: Clave de Acceso */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <label className="font-label text-xs uppercase tracking-widest text-on-surface-variant">
-                    Contraseña:</label>
-                  <a className="text-yellow-200 font-label text-[10px] uppercase tracking-tighter text-primary-fixed/70 hover:text-primary-fixed transition-colors"
-                    href="#">¿Olvidaste tu contraseña?</a>
+            </aside>
+
+            <div className="p-8 md:p-12 lg:p-14">
+              <header className="mb-10">
+                <p className="text-xs font-semibold uppercase tracking-[0.45em] text-white/45">Acceso al sistema</p>
+                <h1 className="mt-3 text-4xl font-black italic uppercase tracking-tight text-white md:text-5xl">
+                  Inicio de <span className="text-yellow-300">sesion</span>
+                </h1>
+                <p className="mt-4 max-w-lg text-sm leading-6 text-white/70">
+                  Inicia sesion para administrar tu tienda con un flujo mas limpio, elegante y facil de usar.
+                </p>
+              </header>
+
+              {error && (
+                <div className="mb-6 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
+                  {error}
                 </div>
-                <div className="relative group">
-                  <input
-                    className="w-full bg-surface-container-highest border-none rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant/30 focus:ring-1 focus:ring-primary-fixed/40 transition-all duration-300"
-                    placeholder="••••••••" 
-                    type="password"
-                    name="contrasena"
-                    value={formData.contrasena}
-                    onChange={handleChange}
-                    required
-                  />
+              )}
+              {success && (
+                <div className="mb-6 rounded-2xl border border-green-500/40 bg-green-500/10 p-4 text-sm text-green-200">
+                  {success}
                 </div>
-              </div>
-              {/* Action Button */}
-              <div className="pt-4">
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="ml-1 text-xs font-semibold uppercase tracking-[0.35em] text-white/55">
+                    Nombre de usuario
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
+                      person
+                    </span>
+                    <input
+                      className="w-full rounded-2xl border border-white/10 bg-black/40 py-4 pl-12 pr-4 text-white placeholder:text-white/25 transition duration-300 focus:border-yellow-300/60 focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                      placeholder="usuario"
+                      type="text"
+                      name="nombre_usuario"
+                      value={formData.nombre_usuario}
+                      onChange={handleChange}
+                      autoComplete="username"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-4 px-1">
+                    <label className="text-xs font-semibold uppercase tracking-[0.35em] text-white/55">
+                      Contraseña
+                    </label>
+                    <Link
+                      className="text-[11px] font-semibold uppercase tracking-[0.3em] text-yellow-300/90 transition-colors hover:text-yellow-200"
+                      to="/recuperar-contrasena"
+                    >
+                      Olvidaste tu contraseña?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <span className="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/35">
+                      lock
+                    </span>
+                    <input
+                      className="w-full rounded-2xl border border-white/10 bg-black/40 py-4 pl-12 pr-4 text-white placeholder:text-white/25 transition duration-300 focus:border-yellow-300/60 focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                      placeholder="••••••••"
+                      type="password"
+                      name="contrasena"
+                      value={formData.contrasena}
+                      onChange={handleChange}
+                      autoComplete="current-password"
+                      required
+                    />
+                  </div>
+                </div>
+
                 <button
-                  className=" bg-white kinetic-gradient w-full py-4 rounded-xl flex items-center justify-center gap-2 group hover:shadow-[0_0_20px_rgba(253,224,26,0.3)] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group mt-2 flex w-full items-center justify-center gap-3 rounded-2xl bg-yellow-300 px-6 py-4 font-black uppercase tracking-[0.3em] text-black shadow-[0_18px_40px_rgba(253,224,71,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_55px_rgba(253,224,71,0.28)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
                   type="submit"
                   disabled={loading}
                 >
-                  <span
-                    className="text-black font-headline font-bold italic uppercase tracking-widest text-on-primary text-lg">
-                    {loading ? 'INICIANDO...' : 'INICIAR'} <span className="text-yellow-400">SESION</span></span>
-                  <span
-                    className="material-symbols-outlined text-on-primary font-bold group-hover:translate-x-1 transition-transform">bolt</span>
+                  {loading ? 'Iniciando...' : 'Iniciar sesion'}
+                  <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">
+                    east
+                  </span>
                 </button>
-              </div>
-            </form>
-            {/* Footer Link */}
-            <footer className="mt-10 pt-8 border-t border-outline-variant/10 text-center">
-              <p className="text-on-surface-variant font-label text-xs uppercase tracking-widest">
-                ¿No tienes cuenta?
-                <Link to="/registro" className=" text-amber-300 text-primary-fixed font-bold hover:underline underline-offset-4 ml-1"
-                  >Regístrate aquí</Link>
-              </p>
-            </footer>
+              </form>
+
+              <footer className="mt-10 border-t border-white/8 pt-8 text-center">
+                <p className="text-xs uppercase tracking-[0.35em] text-white/50">
+                  ¿No tienes cuenta?
+                  <Link to="/registro" className="ml-2 font-semibold text-yellow-300 transition-colors hover:text-yellow-200">
+                    Registrate aqui
+                  </Link>
+                </p>
+              </footer>
+            </div>
           </div>
         </section>
       </main>

@@ -2,9 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password, make_password
+from django.conf import settings
+from django.core.mail import send_mail
+from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.db.models import OuterRef, Subquery, Sum, Q
 from django.db import connection
 from datetime import datetime
+from urllib.parse import quote
 
 from .models import Usuario, Articulo, InventarioArticulo
 from .movimientos_store import list_movimientos, get_movimiento
@@ -98,6 +102,62 @@ class LoginUsuario(APIView):
             {"error": "Contraseña incorrecta"},
             status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+class RecuperarContrasenaView(APIView):
+    """Sends a short-lived signed link without exposing whether an account exists."""
+
+    def post(self, request):
+        correo = str(request.data.get('correo') or '').strip().lower()
+        if not correo:
+            return Response({"error": "Ingresa un correo electrónico."}, status=status.HTTP_400_BAD_REQUEST)
+
+        usuario = Usuario.objects.filter(correo__iexact=correo).first()
+        if usuario:
+            if not settings.EMAIL_HOST or not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+                return Response(
+                    {"error": "El servicio de correo no está configurado. Define EMAIL_HOST, EMAIL_HOST_USER y EMAIL_HOST_PASSWORD."},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
+
+            token = TimestampSigner(salt='bikegestion-password-reset').sign_object({
+                'id_usuario': usuario.id_usuario,
+                'correo': usuario.correo,
+            })
+            enlace = f"{settings.FRONTEND_URL}/restablecer-contrasena?token={quote(token)}"
+            try:
+                send_mail(
+                    'Restablece tu contraseña | Bike Gestión',
+                    f"Hola {usuario.nombre_usuario},\n\nSolicitaste restablecer tu contraseña. Usa este enlace dentro de 30 minutos:\n\n{enlace}\n\nSi no realizaste esta solicitud, puedes ignorar este mensaje.",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [usuario.correo],
+                    fail_silently=False,
+                )
+            except Exception:
+                return Response({"error": "No fue posible enviar el correo. Revisa la configuración SMTP del servidor."}, status=status.HTTP_502_BAD_GATEWAY)
+
+        return Response({"mensaje": "Si el correo está registrado, recibirás instrucciones para recuperar el acceso."})
+
+
+class RestablecerContrasenaView(APIView):
+    def post(self, request):
+        token = str(request.data.get('token') or '')
+        nueva_contrasena = str(request.data.get('contrasena') or '')
+        confirmacion = str(request.data.get('contrasena_confirmacion') or '')
+        if not token or not nueva_contrasena or nueva_contrasena != confirmacion:
+            return Response({"error": "El enlace o las contraseñas no son válidos."}, status=status.HTTP_400_BAD_REQUEST)
+        if len(nueva_contrasena) < 8 or not any(c.isupper() for c in nueva_contrasena) or not any(c.islower() for c in nueva_contrasena) or not any(c.isdigit() for c in nueva_contrasena):
+            return Response({"error": "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            data = TimestampSigner(salt='bikegestion-password-reset').unsign_object(token, max_age=1800)
+            usuario = Usuario.objects.get(id_usuario=data['id_usuario'], correo__iexact=data['correo'])
+        except (BadSignature, SignatureExpired, KeyError, Usuario.DoesNotExist):
+            return Response({"error": "El enlace es inválido o ya expiró."}, status=status.HTTP_400_BAD_REQUEST)
+
+        usuario.contrasena = make_password(nueva_contrasena)
+        usuario.save(update_fields=['contrasena'])
+        return Response({"mensaje": "Contraseña actualizada correctamente."})
 
 
 class EditarUsuarioView(APIView):
