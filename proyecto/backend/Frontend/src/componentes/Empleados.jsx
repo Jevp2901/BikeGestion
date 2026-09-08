@@ -103,8 +103,12 @@ function Empleados() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "No fue posible registrar el empleado.");
+
+      // Refleja el empleado recién creado sin esperar la siguiente consulta al servidor.
+      setEmpleados((current) => [...current, data]);
+      setUsuariosDisponibles((current) => current.filter((user) => Number(user.id_usuario) !== Number(data.usuario_id)));
       setShowEmpleadoModal(false);
-      loadData();
+      await loadData();
     } catch (err) {
       setError(err.message);
     }
@@ -607,12 +611,17 @@ function Empleados() {
                     ))}
                   </select>
                 ) : (
+                  <p className="mt-1 rounded-lg border border-amber-800 bg-amber-950/40 p-3 text-xs text-amber-300">
+                    No hay usuarios disponibles para vincular. Crea un usuario nuevo o verifica que no esté registrado ya como empleado.
+                  </p>
+                )}
+                {usuariosDisponibles.length === 0 && (
                   <input
                     type="number"
-                    required
+                    required={false}
+                    disabled
                     value={empForm.usuario_id}
-                    onChange={(e) => setEmpForm({ ...empForm, usuario_id: Number(e.target.value) })}
-                    className="mt-1 w-full rounded-lg border border-[#333] bg-[#080808] p-2.5 text-white outline-none focus:border-[#ffd700]"
+                    className="hidden"
                   />
                 )}
               </label>
@@ -683,7 +692,8 @@ function Empleados() {
               </button>
               <button
                 type="submit"
-                className="rounded-lg bg-[#ffd700] px-5 py-2 text-xs font-black uppercase text-black hover:bg-[#ffe16d]"
+                disabled={usuariosDisponibles.length === 0}
+                className="rounded-lg bg-[#ffd700] px-5 py-2 text-xs font-black uppercase text-black hover:bg-[#ffe16d] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Guardar Empleado
               </button>

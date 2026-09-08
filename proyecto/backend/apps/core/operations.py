@@ -496,10 +496,11 @@ class UsuarioListView(APIView):
     def get(self, request):
         return Response(_json_rows("""SELECT u.id_usuario, u.nombre_usuario, u.correo,
             u.id_rol AS rol_id, r.nombre_rol AS rol_nombre,
-            COALESCE(e.numero_documento, 'Sin registrar') AS numero_documento
+            'Sin registrar' AS numero_documento
             FROM usuario u
             JOIN rol r ON r.id_rol = u.id_rol
             LEFT JOIN empleado e ON e.usuario_id = u.id_usuario
+            WHERE e.id_empleado IS NULL
             ORDER BY u.id_usuario DESC"""))
 
 
@@ -561,6 +562,18 @@ class EmpleadoListView(APIView):
             return Response({"cargo": "El cargo debe ser Vendedor o Mecanico."}, status=400)
         try:
             with connection.cursor() as cursor:
+                cursor.execute("SELECT id_usuario FROM usuario WHERE id_usuario = %s", [data["usuario_id"]])
+                if not cursor.fetchone():
+                    return Response({"error": "El usuario seleccionado no existe."}, status=400)
+
+                cursor.execute("SELECT id_empleado FROM empleado WHERE usuario_id = %s", [data["usuario_id"]])
+                if cursor.fetchone():
+                    return Response({"error": "El usuario seleccionado ya está vinculado como empleado."}, status=400)
+
+                cursor.execute("SELECT id_empleado FROM empleado WHERE numero_documento = %s", [data["numero_documento"]])
+                if cursor.fetchone():
+                    return Response({"error": "El número de documento ya está registrado para otro empleado."}, status=400)
+
                 cursor.execute("""INSERT INTO empleado
                     (usuario_id, tipo_documento, numero_documento, fecha_nacimiento,
                      estado_civil, genero, cargo, departamento, jefe_inmediato_id,
@@ -576,7 +589,10 @@ class EmpleadoListView(APIView):
                      data.get("porcentaje_salud", 4), data.get("porcentaje_pension", 4),
                      data.get("tiene_embargo", 0), data.get("valor_embargo", 0)])
                 empleado_id = cursor.lastrowid
-            return Response(_one("SELECT * FROM empleado WHERE id_empleado = %s", [empleado_id]), status=201)
+            return Response(_one("""SELECT e.*, u.nombre_usuario
+                FROM empleado e
+                JOIN usuario u ON u.id_usuario = e.usuario_id
+                WHERE e.id_empleado = %s""", [empleado_id]), status=201)
         except Exception as exc:
             return Response({"error": str(exc)}, status=400)
 
