@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='usuario',
             name='contrasena',
-            field=models.CharField(db_column='contraseña', max_length=255),
+            field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
             model_name='usuario',

@@ -1,5 +1,7 @@
-export const API_BASE_URL = '/bikegestion/api';
-export const API_V1_BASE_URL = '/bikegestion/api/v1';
+const RAW_API_HOST = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+export const API_BASE_URL = `${RAW_API_HOST}/bikegestion/api`;
+export const API_V1_BASE_URL = `${RAW_API_HOST}/bikegestion/api/v1`;
 
 export function guardarSesion(usuario) {
   localStorage.setItem('usuario', JSON.stringify(usuario));
