@@ -10,4 +10,4 @@ echo "==> Recopilar archivos estáticos con WhiteNoise"
 python manage.py collectstatic --no-input
 
 echo "==> Ejecutar migraciones de Base de Datos"
-python manage.py migrate --fake-initial
+python manage.py migrate --fake
