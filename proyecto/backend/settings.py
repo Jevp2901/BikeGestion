@@ -35,7 +35,10 @@ else:
         'http://127.0.0.1:5173',
         'http://localhost:5173',
         'http://localhost:3000',
+        'https://*.vercel.app',
+        'https://*.onrender.com',
     ]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -137,18 +140,20 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS: permite todos los orígenes si CORS_ALLOW_ALL_ORIGINS=True
-CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
-
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS_ENV = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True').lower() == 'true'
 CORS_ALLOWED_ORIGINS_ENV = os.getenv('CORS_ALLOWED_ORIGINS')
+
 if CORS_ALLOWED_ORIGINS_ENV:
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS_ENV.split(',') if origin.strip()]
+    origins = [origin.strip() for origin in CORS_ALLOWED_ORIGINS_ENV.split(',') if origin.strip()]
+    if '*' in origins:
+        CORS_ALLOW_ALL_ORIGINS = True
+    else:
+        CORS_ALLOWED_ORIGINS = origins
+        CORS_ALLOW_ALL_ORIGINS = CORS_ALLOW_ALL_ORIGINS_ENV
 else:
-    CORS_ALLOWED_ORIGINS = [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://127.0.0.1:5173',
-    ]
+    CORS_ALLOW_ALL_ORIGINS = True
+
 # The mechanic workspace identifies the logged-in legacy session with this header.
 CORS_ALLOW_HEADERS = [
     'accept',
