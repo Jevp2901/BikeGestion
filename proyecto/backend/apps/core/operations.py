@@ -60,12 +60,12 @@ class ProveedorListView(APIView):
             SELECT p.nit_proveedor, p.nombre_proveedor, p.direccion,
                    p.telefono, p.correo, p.estado,
                    COUNT(DISTINCT pa.id_articulo) AS articulos_asociados,
-                   GROUP_CONCAT(DISTINCT a.tipo_articulo ORDER BY a.tipo_articulo SEPARATOR ', ') AS tipos_articulo
+                   ("STRING_AGG(DISTINCT a.tipo_articulo, ', ')" if connection.vendor == 'postgresql' else "GROUP_CONCAT(DISTINCT a.tipo_articulo ORDER BY a.tipo_articulo SEPARATOR ', ')") + " AS tipos_articulo"
             FROM proveedor p
             LEFT JOIN proveedor_articulo pa ON pa.nit_proveedor = p.nit_proveedor
             LEFT JOIN articulo a ON a.id_articulo = pa.id_articulo
         """
-        sql += " GROUP BY p.nit_proveedor ORDER BY p.estado, p.nombre_proveedor"
+        sql += (" GROUP BY p.nit_proveedor, p.nombre_proveedor, p.direccion, p.telefono, p.correo, p.estado" if connection.vendor == 'postgresql' else " GROUP BY p.nit_proveedor") + " ORDER BY p.estado, p.nombre_proveedor"
         return Response(_json_rows(sql))
 
     def post(self, request):

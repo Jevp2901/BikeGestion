@@ -292,7 +292,7 @@ class InventarioAlertasView(APIView):
                        MAX(ia.stock_maximo) AS stock_maximo,
                        MAX(ia.fecha_actualizacion) AS fecha_actualizacion,
                        a.nombre_articulo, a.tipo_articulo, a.precio_articulo,
-                       p.nit_proveedor, p.nombre_proveedor
+                       MIN(p.nit_proveedor) AS nit_proveedor, MIN(p.nombre_proveedor) AS nombre_proveedor
                 FROM inventario_articulo ia
                 JOIN articulo a ON a.id_articulo = ia.id_articulo
                 LEFT JOIN proveedor_articulo pa ON pa.id_articulo = ia.id_articulo
